@@ -1,0 +1,23 @@
+server:
+  port: 7000
+
+spring:
+  application:
+    name: service-coupon
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+  datasource:
+    #MySQL配置
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/mall_sms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password:
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  global-config:
+    db-config:
+      # 设置mybatis-plus 主键自增(等数据量大后，需要分库分表，此时此种方案肯定不可取，目前先这么干)
+      id-type: auto

@@ -1,4 +1,4 @@
-package com.avengereug.maill.coupon;
+package com.avengereug.mall.coupon;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

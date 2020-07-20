@@ -14,10 +14,10 @@
 3.  xxxx
 
 #### 使用说明
+1. Nacos注册中心与配置中心
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+    * Nacos的使用，alibaba仅提供了它的客户端，所以我们在使用的时候需要手动将nacos的服务端启动起来，然后再使用@EnableDiscoveryClient注解来注册
+    * 具体参考官网: [nacos集成springcloud](https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html)
 
 #### 参与贡献
 
