@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <modules>
+        <module>service-warehouse-client</module>
+        <module>service-warehouse-common</module>
+        <module>service-warehouse-core</module>
+    </modules>
+    <parent>
+        <version>0.0.1</version>
+        <artifactId>mall</artifactId>
+        <groupId>com.avengereug.mall</groupId>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <artifactId>service-warehouse</artifactId>
+    <name>service-warehouse</name>
+    <description>仓储服务模块</description>
+
+</project>

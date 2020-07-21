@@ -18,11 +18,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>service-coupon</module>
-        <module>service-member</module>
-        <module>service-order</module>
-        <module>service-product</module>
-        <module>service-warehouse</module>
+        <module>service/service-coupon</module>
+        <module>service/service-member</module>
+        <module>service/service-order</module>
+        <module>service/service-product</module>
+        <module>service/service-warehouse</module>
         <module>mall-common</module>
         <module>renren-fast</module>
         <module>renren-generator</module>
@@ -47,6 +47,8 @@
          -->
         <spring-cloud.version>Hoxton.SR3</spring-cloud.version>
         <spring.cloud.alibaba.version>2.2.1.RELEASE</spring.cloud.alibaba.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <dependencyManagement>

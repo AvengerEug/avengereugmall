@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>service-coupon</artifactId>
+        <groupId>com.avengereug.mall</groupId>
+        <version>0.0.1</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>service-coupon-client</artifactId>
+    <description>service-coupon-client模块，其他模块需要rpc调用service-coupon时，可依赖此模块</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.avengereug.mall</groupId>
+            <artifactId>service-coupon-common</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
+    </dependencies>
+
+</project>

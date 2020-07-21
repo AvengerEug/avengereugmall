@@ -16,8 +16,9 @@
 #### 使用说明
 1. Nacos注册中心与配置中心
 
-    * Nacos的使用，alibaba仅提供了它的客户端，所以我们在使用的时候需要手动将nacos的服务端启动起来，然后再使用@EnableDiscoveryClient注解来注册
+    * Nacos的使用，alibaba仅提供了它的客户端，所以我们在使用的时候需要手动将nacos的服务端(下载nacos服务器并启动)启动起来，然后再使用`@EnableDiscoveryClient注解 + 固定配置`来注册
     * 具体参考官网: [nacos集成springcloud](https://nacos.io/zh-cn/docs/quick-start-spring-cloud.html)
+    * Nacos控制台页面: http://host:port/nacos   **nacos/nacos**
 
 #### 参与贡献
 
