@@ -1,0 +1,19 @@
+server:
+  port: 88
+
+spring:
+  application:
+    name: api-gate-way
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+    gateway:
+      routes:
+      # 当请求为 http://localhost/baidu时，将会满足predicates部分，此时就会跳转到https://www.baidu.com，同时在跳转到百度首页之前会在请求头中添加red为blue
+        - id: baidu
+          uri: https://www.baidu.com
+          predicates:
+          - Path=/baidu
+          filters:
+          - AddRequestHeader=X-Request-red, blue
