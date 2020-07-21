@@ -2,8 +2,6 @@ server:
   port: 8000
 
 spring:
-  application:
-    name: service-member
   cloud:
     nacos:
       discovery:

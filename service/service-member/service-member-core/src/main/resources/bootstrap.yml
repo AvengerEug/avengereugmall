@@ -1,0 +1,23 @@
+test:
+  config:
+    id: 1
+    name: local
+
+spring:
+  application:
+    name: service-member
+  profiles:
+    # 默认会支持profiles粒度，nacos的DEFAULT_GROUP中若存在dataId为service-member-dev.yaml或者service-member-dev.properties
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        # 配置支持yaml格式
+        file-extension: yaml
+        # 动态刷新配置，整个nacos配置中心开关，若为false，则不使用nacos配置中心
+        refresh-enabled: true
+        # 配置namespace, 需要在nacos管理台新建一个namespace，并把他它们的id(创建后，nacos会生成)配置在此处
+        # namespace:
+        # 配置group, 需要在nacos管理太新建一个group(自定义)，并把他们的group配置于此
+        # group:
