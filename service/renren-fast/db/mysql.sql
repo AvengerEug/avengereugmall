@@ -1,3 +1,8 @@
+CREATE database if NOT EXISTS `mall_admin` default character set utf8mb4 collate utf8mb4_unicode_ci;
+use `mall_admin`;
+
+SET NAMES utf8mb4;
+
 -- 菜单
 CREATE TABLE `sys_menu` (
   `menu_id` bigint NOT NULL AUTO_INCREMENT,

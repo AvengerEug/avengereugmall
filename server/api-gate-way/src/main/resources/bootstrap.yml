@@ -10,10 +10,29 @@ spring:
         server-addr: 127.0.0.1:8848
     gateway:
       routes:
-      # 当请求为 http://localhost/baidu时，将会满足predicates部分，此时就会跳转到https://www.baidu.com，同时在跳转到百度首页之前会在请求头中添加red为blue
-        - id: baidu
-          uri: https://www.baidu.com
+        - id: service-product
+          uri: lb://service-product
           predicates:
-          - Path=/baidu
+          - Path=/api/product/**
           filters:
-          - AddRequestHeader=X-Request-red, blue
+          # - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
+          - RewritePath=/api/(?<segment>/?.*), /$\{segment}
+
+        # 带 /api的后缀，则路由至renren-fast ==> renren-fast需要注册到注册中心
+        - id: renren-fast
+          # 此url表示使用负载均衡策略走renren-fast服务
+          # 参考地址:(https://cloud.spring.io/spring-cloud-static/spring-cloud-gateway/2.2.3.RELEASE/reference/html/#the-loadbalancerclient-filter)
+          uri: lb://renren-fast
+          predicates:
+          - Path=/api/**
+          filters:
+          # - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
+          - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            # 允许cookie
+            allowCredentials: true

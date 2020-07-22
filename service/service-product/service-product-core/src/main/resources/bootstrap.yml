@@ -1,7 +1,14 @@
 server:
   port: 10000
+  tomcat:
+    basedir: ./tomcat
+    access-log-enabled: true
+    accesslog:
+      directory: ./access-log
 
 spring:
+  profiles:
+    active: local
   application:
     name: service-product
   cloud:
@@ -20,3 +27,7 @@ mybatis-plus:
     db-config:
       # 设置mybatis-plus 主键自增(等数据量大后，需要分库分表，此时此种方案肯定不可取，目前先这么干)
       id-type: auto
+
+apilog:
+  logfolder:
+    folderPath: ${server.tomcat.basedir}/api-log

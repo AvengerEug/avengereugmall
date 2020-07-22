@@ -10,6 +10,8 @@ server:
     context-path: /renren-fast
 
 spring:
+  application:
+    name: renren-fast
   # 环境 dev|test|prod
   profiles:
     active: dev
