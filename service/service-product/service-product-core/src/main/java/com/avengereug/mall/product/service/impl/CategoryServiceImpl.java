@@ -81,7 +81,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @param all
      * @return
      */
-    public List<CategoryEntity> getChildren(final CategoryEntity current, List<CategoryEntity> all) {
+    private final List<CategoryEntity> getChildren(final CategoryEntity current, List<CategoryEntity> all) {
         return all.stream()
                 // 找出当前item的所有子菜单
                 .filter(categoryEntity -> categoryEntity.getParentCid() == current.getCatId())
@@ -94,4 +94,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public void removeCategoryByIds(List<Long> asList) {
+        //TODO 1. 检查当前删除的菜单是否被别的地方引用
+
+        baseMapper.deleteBatchIds(asList);
+    }
 }

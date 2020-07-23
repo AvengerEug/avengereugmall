@@ -60,9 +60,14 @@ public class CategoryController {
     @PostMapping("/save")
     //@RequiresPermissions("product:category:save")
     public R save(@RequestBody CategoryEntity category){
+        /**
+         * TODO
+         * 1. 校验分类名是否相同
+         *
+         */
         categoryService.save(category);
 
-        return R.ok();
+        return R.ok().put("category", category);
     }
 
     /**
@@ -78,11 +83,15 @@ public class CategoryController {
 
     /**
      * 删除
+     *
+     * 请求体中不需要指定任何key,
+     * 直接写 [100] 即可
+     *
      */
     @DeleteMapping("/delete")
     //@RequiresPermissions("product:category:delete")
     public R delete(@RequestBody Long[] catIds){
-        categoryService.removeByIds(Arrays.asList(catIds));
+        categoryService.removeCategoryByIds(Arrays.asList(catIds));
 
         return R.ok();
     }

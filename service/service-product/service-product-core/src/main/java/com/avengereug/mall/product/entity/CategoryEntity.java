@@ -2,6 +2,7 @@ package com.avengereug.mall.product.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
@@ -42,7 +43,20 @@ public class CategoryEntity implements Serializable {
     private Integer catLevel;
     /**
      * 是否显示[0-不显示，1显示]
+     *
+     * TableLogic注解标识此字段是逻辑删除标志
+     *
+     * 当调用删除方法时，会执行如下SQL语句：
+     * UPDATE pms_category SET show_status=0 WHERE cat_id IN ( ? ) AND show_status=1
+     *
+     * ==> 因为使用@TableLogic注解，指定了删除的值用0表示
+     * 未删除的值用1表示
+     * 所以逻辑删除时，会使用到这两个值delval和value
+     *
+     * 同时在查询时，也会携带value的值
+     *
      */
+    @TableLogic(delval = "0", value = "1")
     private Integer showStatus;
     /**
      * 排序

@@ -10,6 +10,7 @@ spring:
         server-addr: 127.0.0.1:8848
     gateway:
       routes:
+        # service-product路由定义：
         - id: service-product
           uri: lb://service-product
           predicates:
@@ -18,7 +19,7 @@ spring:
           # - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
           - RewritePath=/api/(?<segment>/?.*), /$\{segment}
 
-        # 带 /api的后缀，则路由至renren-fast ==> renren-fast需要注册到注册中心
+        # renren-fast路由定义： 带 /api的后缀，则路由至renren-fast ==> renren-fast需要注册到注册中心
         - id: renren-fast
           # 此url表示使用负载均衡策略走renren-fast服务
           # 参考地址:(https://cloud.spring.io/spring-cloud-static/spring-cloud-gateway/2.2.3.RELEASE/reference/html/#the-loadbalancerclient-filter)
@@ -26,7 +27,6 @@ spring:
           predicates:
           - Path=/api/**
           filters:
-          # - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
           - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
       globalcors:
         cors-configurations:

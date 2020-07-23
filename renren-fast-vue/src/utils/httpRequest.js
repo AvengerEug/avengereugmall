@@ -6,7 +6,6 @@ import merge from 'lodash/merge'
 import { clearLoginInfo } from '@/utils'
 
 const http = axios.create({
-  baseURL: window.SITE_CONFIG['baseUrl'],
   timeout: 1000 * 30,
   withCredentials: true,
   headers: {
@@ -48,6 +47,8 @@ http.adornUrl = (actionName) => {
 
 /**
  * get请求参数处理
+ * 默认开启默认参数 ==> 有什么好处？ 因为get请求对浏览器而言是有缓存的，
+ * 若请求是一样的，浏览器则不会将请求转发给服务器，而是从缓存取
  * @param {*} params 参数对象
  * @param {*} openDefultParams 是否开启默认参数?
  */
