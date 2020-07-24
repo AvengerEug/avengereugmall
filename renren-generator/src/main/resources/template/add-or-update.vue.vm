@@ -75,7 +75,7 @@
           if (valid) {
             this.$http({
               url: #[[this.$http.adornUrl]]#(`/${moduleName}/${pathName}/${!this.dataForm.${pk.attrname} ? 'save' : 'update'}`),
-              method: 'post',
+              method: !this.dataForm.${pk.attrname} ? 'post' : 'put',
               #[[data: this.$http.adornData({]]#
 #foreach($column in $columns)
 #if($column.columnName == $pk.columnName)
