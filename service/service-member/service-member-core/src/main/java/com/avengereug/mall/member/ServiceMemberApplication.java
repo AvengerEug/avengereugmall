@@ -1,5 +1,6 @@
 package com.avengereug.mall.member;
 
+import com.avengereug.mall.common.anno.StartApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -10,7 +11,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
         "com.avengereug.mall.product.feign",
         "com.avengereug.mall.coupon.feign"
 })
-@SpringBootApplication
+@StartApplication
 public class ServiceMemberApplication {
 
     public static void main(String[] args) {

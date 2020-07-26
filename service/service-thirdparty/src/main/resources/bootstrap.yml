@@ -1,0 +1,16 @@
+spring:
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+  application:
+    name: service-thirdparty
+server:
+  port: 30000
+
+alibaba:
+  cloud:
+    bucket: avenger-mall
+    oss:
+      endpoint: oss-cn-hangzhou.aliyuncs.com
+    access-key: LTAI4G5ToauLf2ezHMXj
+    secret-key: aq9kirhYYxEPsujFRVW8TP3

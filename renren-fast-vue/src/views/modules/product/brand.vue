@@ -29,7 +29,12 @@
       <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
       <el-table-column prop="brandId" header-align="center" align="center" label="品牌id"></el-table-column>
       <el-table-column prop="name" header-align="center" align="center" label="品牌名"></el-table-column>
-      <el-table-column prop="logo" header-align="center" align="center" label="品牌logo地址"></el-table-column>
+      <el-table-column prop="logo" header-align="center" align="center" label="品牌logo">
+        <template slot-scope="scope">
+          <!-- <el-image style="width: 100px; height: 100px" :src="scope.row.logo" fit="cover" /> -->
+          <img width="100%" :src="scope.row.logo" :alt="scope.row.logo">
+        </template>
+      </el-table-column>
       <el-table-column prop="descript" header-align="center" align="center" label="介绍"></el-table-column>
       <el-table-column prop="showStatus" header-align="center" align="center" label="显示状态">
         <template slot-scope="scope">
@@ -91,15 +96,18 @@ export default {
   methods: {
     updateBrandStatus(brand) {
       let {brandId, showStatus} = brand
+
       this.$http({
-        url: this.$http.adornUrl('/product/brand/update'),
+        url: this.$http.adornUrl('/product/brand/update/status'),
         method: 'put',
         data: this.$http.adornParams({
           brandId: brandId,
           showStatus: showStatus
         }),
       }).then(({ data }) => {
-        this.$message.success('状态更新成功')
+        if (data.code === 0) {
+          this.$message.success('状态更新成功')
+        }
       })
     },
     // 获取数据列表

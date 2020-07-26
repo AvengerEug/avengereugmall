@@ -26,6 +26,7 @@
         <module>mall-common</module>
         <module>service/renren-fast</module>
         <module>server/api-gate-way</module>
+        <module>service/service-thirdparty</module>
         <!--<module>renren-generator</module>-->
     </modules>
 

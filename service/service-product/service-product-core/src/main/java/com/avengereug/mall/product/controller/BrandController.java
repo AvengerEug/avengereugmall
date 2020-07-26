@@ -3,7 +3,12 @@ package com.avengereug.mall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.common.controller.BaseController;
+import com.avengereug.mall.common.utils.jsr303.valid.group.SaveGroup;
+import com.avengereug.mall.common.utils.jsr303.valid.group.UpdateGroup;
+import com.avengereug.mall.common.utils.jsr303.valid.group.UpdateStatusGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +21,6 @@ import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.common.utils.R;
 
 
-
 /**
  * 品牌
  *
@@ -26,7 +30,7 @@ import com.avengereug.mall.common.utils.R;
  */
 @RestController
 @RequestMapping("product/brand")
-public class BrandController {
+public class BrandController extends BaseController {
 
     @Autowired
     private BrandService brandService;
@@ -59,7 +63,7 @@ public class BrandController {
      */
     @PostMapping("/save")
     //@RequiresPermissions("product:brand:save")
-    public R save(@RequestBody BrandEntity brand){
+    public R save(@Validated(SaveGroup.class) @RequestBody BrandEntity brand){
         brandService.save(brand);
 
         return R.ok();
@@ -70,8 +74,25 @@ public class BrandController {
      */
     @PutMapping("/update")
     //@RequiresPermissions("product:brand:update")
-    public R update(@RequestBody BrandEntity brand){
+    public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand){
         brandService.updateById(brand);
+
+        return R.ok();
+    }
+
+    /**
+     * 修改状态
+     */
+    @PutMapping("/update/status")
+    //@RequiresPermissions("product:brand:update")
+    public R updateStatus(@Validated(UpdateStatusGroup.class) @RequestBody BrandEntity brand) {
+
+        // 新创建一个对象，只获取到brandId和showStatus即可，防止更新到其他字段
+        BrandEntity brandInner = new BrandEntity();
+        brandInner.setBrandId(brand.getBrandId());
+        brandInner.setShowStatus(brand.getShowStatus());
+
+        brandService.updateById(brandInner);
 
         return R.ok();
     }

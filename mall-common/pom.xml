@@ -20,6 +20,16 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!--
+            官网连接查看mysql jdbc驱动与mysql版本兼容问题
+            https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-versions.html
+        -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.46</version>
+        </dependency>
+
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -30,16 +40,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.8</version>
-        </dependency>
-
-        <!--
-            官网连接查看mysql jdbc驱动与mysql版本兼容问题
-            https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-versions.html
-        -->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.46</version>
         </dependency>
 
         <dependency>
@@ -58,6 +58,12 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
+        <!-- 官网中spring cloud alibaba这个项目还未开发oss 的starter -->
+<!--        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
+        </dependency>-->
 
     </dependencies>
 
