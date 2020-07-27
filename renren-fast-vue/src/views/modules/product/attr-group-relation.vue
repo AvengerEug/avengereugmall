@@ -132,7 +132,7 @@ export default {
       });
       this.$http({
         url: this.$http.adornUrl("/product/attrgroup/attr/relation/delete"),
-        method: "post",
+        method: "delete",
         data: this.$http.adornData(postData, false)
       }).then(({ data }) => {
         if (data.code == 0) {
@@ -149,7 +149,7 @@ export default {
       data.push({ attrId, attrGroupId: this.attrGroupId });
       this.$http({
         url: this.$http.adornUrl("/product/attrgroup/attr/relation/delete"),
-        method: "post",
+        method: "delete",
         data: this.$http.adornData(data, false)
       }).then(({ data }) => {
         if (data.code == 0) {

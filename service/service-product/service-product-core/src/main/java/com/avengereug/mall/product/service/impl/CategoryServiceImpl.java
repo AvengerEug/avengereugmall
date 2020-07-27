@@ -1,12 +1,13 @@
 package com.avengereug.mall.product.service.impl;
 
+import com.avengereug.mall.common.anno.GlobalTransactional;
+import com.avengereug.mall.product.service.CategoryBrandRelationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,12 +19,16 @@ import com.avengereug.mall.common.utils.Query;
 import com.avengereug.mall.product.dao.CategoryDao;
 import com.avengereug.mall.product.entity.CategoryEntity;
 import com.avengereug.mall.product.service.CategoryService;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
 public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity> implements CategoryService {
 
     private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
+
+    @Autowired
+    private CategoryBrandRelationService categoryBrandRelationService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -99,5 +104,43 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         //TODO 1. 检查当前删除的菜单是否被别的地方引用
 
         baseMapper.deleteBatchIds(asList);
+    }
+
+    @Override
+    public List<Long> findCatelogPath(Long catelogId) {
+        List<Long> list = new ArrayList<>();
+        findParentPath(catelogId, list);
+        // 逆序返回
+        Collections.reverse(list);
+        return list;
+    }
+
+    @GlobalTransactional
+    @Override
+    public void updateCascade(CategoryEntity category) {
+        // 更新自己
+        this.updateById(category);
+
+        // 更新其他冗余的分类名称
+        categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
+
+        // TODO 更新剩余的冗余的分类名称
+
+    }
+
+    /**
+     * 传入225
+     *
+     * 返回[225, 34, 2]
+     * @param catelogId
+     * @param list
+     */
+    private void findParentPath(Long catelogId, List<Long> list) {
+        list.add(catelogId);
+        CategoryEntity entity = this.getById(catelogId);
+        // DB中设计了一级分类的parentCid为0
+        if (entity.getParentCid() != 0) {
+            findParentPath(entity.getParentCid(), list);
+        }
     }
 }

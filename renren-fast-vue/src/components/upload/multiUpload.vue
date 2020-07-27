@@ -51,7 +51,7 @@ export default {
   computed: {
     fileList() {
       let fileList = []
-      for (let i = 0 i < this.value.length i++) {
+      for (let i = 0; i < this.value.length; i++) {
         fileList.push({ url: this.value[i] })
       }
 
@@ -62,7 +62,7 @@ export default {
   methods: {
     emitInput(fileList) {
       let value = []
-      for (let i = 0 i < fileList.length i++) {
+      for (let i = 0; i < fileList.length; i++) {
         value.push(fileList[i].url)
       }
       this.$emit("input", value)
