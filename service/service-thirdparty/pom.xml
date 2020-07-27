@@ -13,6 +13,11 @@
     <artifactId>service-thirdparty</artifactId>
 
 
+    <!--
+        spring-cloud-alibaba已经没有依赖oss starter了，
+        参考：https://github.com/alibaba/spring-cloud-alibaba/issues/1603
+
+    -->
     <dependencyManagement>
         <dependencies>
             <dependency>
