@@ -229,6 +229,7 @@ export default {
               this.$nextTick(() => {
                 this.dataForm.attrGroupId = data.attr.attrGroupId;
               });
+
             }
           });
         }
@@ -242,7 +243,7 @@ export default {
             url: this.$http.adornUrl(
               `/product/attr/${!this.dataForm.attrId ? "save" : "update"}`
             ),
-            method: "post",
+            method: !this.dataForm.attrId ? 'post' : 'put' ,
             data: this.$http.adornData({
               attrId: this.dataForm.attrId || undefined,
               attrName: this.dataForm.attrName,

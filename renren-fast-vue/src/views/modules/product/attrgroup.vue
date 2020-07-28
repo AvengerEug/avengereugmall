@@ -43,11 +43,11 @@
             fixed="right"
             header-align="center"
             align="center"
-            width="150"
+            width="180"
             label="操作"
           >
             <template slot-scope="scope">
-              <el-button type="text" size="small" @click="relationHandle(scope.row.attrGroupId)">关联</el-button>
+              <el-button type="text" size="small" @click="relationHandle(scope.row.attrGroupId)">关联属性</el-button>
               <el-button
                 type="text"
                 size="small"

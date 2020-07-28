@@ -1,8 +1,10 @@
 package com.avengereug.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,6 +62,19 @@ public class AttrGroupController {
 
         return R.ok().put("attrGroup", attrGroup);
     }
+
+    /**
+     * 根据分组信息，获取它关联的属性
+     */
+    @GetMapping("/{attrGroupId}/attr/relation")
+    //@RequiresPermissions("product:attrgroup:info")
+    public R relationInfo(@PathVariable("attrGroupId") Long attrGroupId){
+        List<AttrEntity> attrEntityList = attrGroupService.relationInfo(attrGroupId);
+
+
+        return R.ok().put("data", attrEntityList);
+    }
+
 
     /**
      * 保存

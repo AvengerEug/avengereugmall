@@ -1,8 +1,17 @@
 package com.avengereug.mall.product.service.impl;
 
+import com.avengereug.mall.product.entity.AttrAttrgroupRelationEntity;
+import com.avengereug.mall.product.entity.AttrEntity;
+import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
+import com.avengereug.mall.product.service.AttrService;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -17,6 +26,13 @@ import com.avengereug.mall.product.service.AttrGroupService;
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
 
+
+    @Autowired
+    private AttrAttrgroupRelationService attrAttrgroupRelationService;
+
+    @Autowired
+    private AttrService attrService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<AttrGroupEntity> page = this.page(
@@ -29,14 +45,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Override
     public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
-        // 如果传0  ==>  查询所有
-        if (catelogId == 0) {
-            return new PageUtils(this.page(new Query<AttrGroupEntity>().getPage(params), new QueryWrapper<>()));
-        }
-
-        // 1.按照三级分类 和 key查询  ==> 前端传入key时，默认对应db中的attr_group_name模糊查找和attr_group_id精确查找
-        QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId);
-
+        QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<>();
         String key = (String) params.get("key");
         if (!StringUtils.isEmpty(key)) {
             wrapper.and((obj) -> {
@@ -45,7 +54,22 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             });
         }
 
+        // 如果传0  ==>  查询所有
+        if (catelogId == 0) {
+            return new PageUtils(this.page(new Query<AttrGroupEntity>().getPage(params), wrapper));
+        } else {
+            wrapper.eq("catelog_id", catelogId);
+            return new PageUtils(this.page(new Query<AttrGroupEntity>().getPage(params), wrapper));
+        }
+    }
 
-        return new PageUtils(this.page(new Query<AttrGroupEntity>().getPage(params), wrapper));
+    @Override
+    public List<AttrEntity> relationInfo(Long attrGroupId) {
+        List<AttrAttrgroupRelationEntity> list = attrAttrgroupRelationService.list(
+                new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrGroupId)
+        );
+
+        return list.stream().map((item) -> attrService.getById(item.getAttrId())).collect(Collectors.toList());
+
     }
 }
