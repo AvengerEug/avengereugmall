@@ -1,6 +1,7 @@
 package com.avengereug.mall.product.service.impl;
 
 import com.avengereug.mall.common.anno.GlobalTransactional;
+import com.avengereug.mall.common.constants.ProductConstant;
 import com.avengereug.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.avengereug.mall.product.entity.AttrGroupEntity;
 import com.avengereug.mall.product.entity.CategoryEntity;
@@ -64,21 +65,31 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         BeanUtils.copyProperties(attr, attrEntity);
         this.save(attrEntity);
 
-        // 2. 插入属性分组与属性关联关系表中的属性分组信息
-        AttrAttrgroupRelationEntity entity = new AttrAttrgroupRelationEntity();
-        entity.setAttrGroupId(attr.getAttrGroupId());
-        // 此id在mybatis插入后，会自动填充至对象中。
-        entity.setAttrId(attrEntity.getAttrId());
-        attrAttrgroupRelationService.save(entity);
+        // 只有基础属性，才更新group中间表
+        if (ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() == attr.getAttrType()) {
+            // 2. 插入属性分组与属性关联关系表中的属性分组信息
+            AttrAttrgroupRelationEntity entity = new AttrAttrgroupRelationEntity();
+            entity.setAttrGroupId(attr.getAttrGroupId());
+            // 此id在mybatis插入后，会自动填充至对象中。
+            entity.setAttrId(attrEntity.getAttrId());
+            attrAttrgroupRelationService.save(entity);
+        }
     }
 
     @Override
-    public PageUtils queryDetail(Map<String, Object> params, Long catelogId) {
+    public PageUtils queryBaseAttrListPage(Map<String, Object> params, Long catelogId, String type) {
         QueryWrapper<AttrEntity> wrapper = new QueryWrapper<>();
         String key = (String) params.get("key");
 
         if (catelogId != 0) {
             wrapper.eq("attr_id", key);
+        }
+
+        if (StringUtils.isNotEmpty(type)) {
+            wrapper.eq("attr_type",
+                    ProductConstant.AttrEnum.ATTR_TYPE_BASE.getAlias().equals(type) ?
+                    ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() :
+                    ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode());
         }
 
         if (StringUtils.isNotEmpty(key)) {
@@ -92,8 +103,6 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         );
 
         PageUtils pageUtils = new PageUtils(page);
-
-
         List<AttrRespVo> attrRespVos = page.getRecords().stream().map(attrEntity -> {
             AttrRespVo attrRespVo = new AttrRespVo();
             BeanUtils.copyProperties(attrEntity, attrRespVo);
@@ -103,14 +112,17 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 attrRespVo.setCatelogName(categoryEntity.getName());
             }
 
-            // 再根据groupId和catelogId来查找它的名称
-            // TODO 疑问：会不会出现一个attr同时出现在多个attrGroup中，如果是，这里将会出现问题
-            AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = attrAttrgroupRelationService.getOne(
-                    new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
-            );
-            if (attrAttrgroupRelationEntity.getAttrGroupId() != null) {
-                AttrGroupEntity attrGroupEntity = attrGroupService.getById(attrAttrgroupRelationEntity.getAttrGroupId());
-                attrRespVo.setGroupName(attrGroupEntity.getAttrGroupName());
+            // 只有基础属性才有分组
+            if (ProductConstant.AttrEnum.ATTR_TYPE_BASE.getAlias().equals(type)) {
+                // 再根据groupId和catelogId来查找它的名称
+                // TODO 疑问：会不会出现一个attr同时出现在多个attrGroup中，如果是，这里将会出现问题, 有可能getOne报"期待一条数据，却发现两条数据的"错
+                AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = attrAttrgroupRelationService.getOne(
+                        new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
+                );
+                if (attrAttrgroupRelationEntity != null && attrAttrgroupRelationEntity.getAttrGroupId() != null) {
+                    AttrGroupEntity attrGroupEntity = attrGroupService.getById(attrAttrgroupRelationEntity.getAttrGroupId());
+                    attrRespVo.setGroupName(attrGroupEntity.getAttrGroupName());
+                }
             }
 
             return attrRespVo;
@@ -135,13 +147,16 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             attrRespVo.setCatelogPath(catelogPath);
         }
 
-        // 填充当前属性所属分组
-        // TODO 疑问：会不会出现一个attr同时出现在多个attrGroup中，如果是，这里将会出现问题
-        AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationService.getOne(
-                new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
-        );
-
-        attrRespVo.setAttrGroupId(relationEntity.getAttrGroupId());
+        if (attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()) {
+            // 填充当前属性所属分组
+            // TODO 疑问：会不会出现一个attr同时出现在多个attrGroup中，如果是，这里将会出现问题, 有可能getOne报"期待一条数据，却发现两条数据的"错
+            AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationService.getOne(
+                    new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
+            );
+            if (relationEntity != null) {
+                attrRespVo.setAttrGroupId(relationEntity.getAttrGroupId());
+            }
+        }
 
         return attrRespVo;
     }
@@ -154,21 +169,25 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         // 1. 更新自己，
         this.updateById(attrEntity);
 
-        // 2. 更新所属的分组
-        // 2.1）、当前属性一开始创建时，未指定分组，此时更新添加了分组，这时就是要插入
-        // 2.2）、当前属性一开始创建时，指定了分组，此时更新修改了分组，这时就是更新
-        AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
-        relationEntity.setAttrGroupId(attrVo.getAttrGroupId());
-        relationEntity.setAttrId(attrVo.getAttrId());
-        int count = attrAttrgroupRelationService.count(
-                new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
-        );
-        if (count > 0) {
-            attrAttrgroupRelationService.update(relationEntity,
+
+        // 只有基础属性，才更新group中间表
+        if (ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() == attrVo.getAttrType()) {
+            // 2. 更新所属的分组
+            // 2.1）、当前属性一开始创建时，未指定分组，此时更新添加了分组，这时就是要插入
+            // 2.2）、当前属性一开始创建时，指定了分组，此时更新修改了分组，这时就是更新
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            relationEntity.setAttrGroupId(attrVo.getAttrGroupId());
+            relationEntity.setAttrId(attrVo.getAttrId());
+            int count = attrAttrgroupRelationService.count(
                     new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
             );
-        } else {
-            attrAttrgroupRelationService.save(relationEntity);
+            if (count > 0) {
+                attrAttrgroupRelationService.update(relationEntity,
+                        new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
+                );
+            } else {
+                attrAttrgroupRelationService.save(relationEntity);
+            }
         }
     }
 

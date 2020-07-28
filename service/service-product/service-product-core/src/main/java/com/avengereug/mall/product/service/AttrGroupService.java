@@ -1,6 +1,7 @@
 package com.avengereug.mall.product.service;
 
 import com.avengereug.mall.product.entity.AttrEntity;
+import com.avengereug.mall.product.vo.AttrGroupRelationVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.AttrGroupEntity;
@@ -28,5 +29,7 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     PageUtils queryPage(Map<String, Object> params, Long catelogId);
 
     List<AttrEntity> relationInfo(Long attrGroupId);
+
+    void deleteRelation(List<AttrGroupRelationVo> relationVos);
 }
 

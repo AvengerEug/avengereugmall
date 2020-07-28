@@ -33,12 +33,18 @@ public class AttrController {
     private AttrService attrService;
 
     /**
-     * 列表
+     * 获取基本/销售属性列表
+     *
+     * /base/list/{catelogId} ==> 获取基本属性
+     * /base/list/{catelogId} ==> 获取销售属性
      */
-    @GetMapping("/base/list/{catelogId}")
+    @GetMapping("/{attrType}/list/{catelogId}")
     //@RequiresPermissions("product:attr:list")
-    public R list(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId){
-        PageUtils page = attrService.queryDetail(params, catelogId);
+    public R saleAttrList(
+            @RequestParam Map<String, Object> params,
+            @PathVariable("catelogId") Long catelogId,
+            @PathVariable("attrType") String attrType){
+        PageUtils page = attrService.queryBaseAttrListPage(params, catelogId, attrType);
 
         return R.ok().put("page", page);
     }

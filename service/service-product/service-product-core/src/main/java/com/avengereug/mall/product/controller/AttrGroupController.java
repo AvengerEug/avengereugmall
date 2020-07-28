@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.CategoryService;
+import com.avengereug.mall.product.vo.AttrGroupRelationVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,14 +65,12 @@ public class AttrGroupController {
     }
 
     /**
-     * 根据分组信息，获取它关联的属性
+     * 根据分组信息，获取它关联的基本属性
      */
     @GetMapping("/{attrGroupId}/attr/relation")
     //@RequiresPermissions("product:attrgroup:info")
     public R relationInfo(@PathVariable("attrGroupId") Long attrGroupId){
         List<AttrEntity> attrEntityList = attrGroupService.relationInfo(attrGroupId);
-
-
         return R.ok().put("data", attrEntityList);
     }
 
@@ -105,6 +104,17 @@ public class AttrGroupController {
     //@RequiresPermissions("product:attrgroup:delete")
     public R delete(@RequestBody Long[] attrGroupIds){
         attrGroupService.removeByIds(Arrays.asList(attrGroupIds));
+
+        return R.ok();
+    }
+
+    /**
+     * 删除属性与分组的关联关系
+     */
+    @DeleteMapping("/attr/relation/delete")
+    //@RequiresPermissions("product:attrgroup:delete")
+    public R deleteAttrAttrgroupRelation(@RequestBody List<AttrGroupRelationVo> relationVos){
+        attrGroupService.deleteRelation(relationVos);
 
         return R.ok();
     }

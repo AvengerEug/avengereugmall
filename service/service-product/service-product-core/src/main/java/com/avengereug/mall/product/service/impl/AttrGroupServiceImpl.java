@@ -1,13 +1,18 @@
 package com.avengereug.mall.product.service.impl;
 
+import com.avengereug.mall.common.constants.ProductConstant;
+import com.avengereug.mall.product.dao.AttrAttrgroupRelationDao;
 import com.avengereug.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
 import com.avengereug.mall.product.service.AttrService;
+import com.avengereug.mall.product.vo.AttrGroupRelationVo;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -26,12 +31,11 @@ import com.avengereug.mall.product.service.AttrGroupService;
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
 
-
-    @Autowired
-    private AttrAttrgroupRelationService attrAttrgroupRelationService;
-
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    private AttrAttrgroupRelationDao attrAttrgroupRelationDao;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -65,11 +69,27 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Override
     public List<AttrEntity> relationInfo(Long attrGroupId) {
-        List<AttrAttrgroupRelationEntity> list = attrAttrgroupRelationService.list(
-                new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrGroupId)
+        List<AttrAttrgroupRelationEntity> list = attrAttrgroupRelationDao.selectList(
+                new QueryWrapper<AttrAttrgroupRelationEntity>()
+                        .eq("attr_group_id", attrGroupId)
         );
+        // 直接拿到所有的ids，再使用in去查找，不需要遍历每个item再查一次attrEntity
+        List<Long> attrIds = list.stream().map(item -> item.getAttrId()).collect(Collectors.toList());
 
-        return list.stream().map((item) -> attrService.getById(item.getAttrId())).collect(Collectors.toList());
+        return (List<AttrEntity>) attrService.listByIds(attrIds);
+    }
+
+    @Override
+    public void deleteRelation(List<AttrGroupRelationVo> relationVos) {
+        // 1. 根据这两个字段删除 attrGroup记录
+
+        List<AttrAttrgroupRelationEntity> entityList = relationVos.stream().map(item -> {
+            AttrAttrgroupRelationEntity entity = new AttrAttrgroupRelationEntity();
+            BeanUtils.copyProperties(item, entity);
+            return entity;
+        }).collect(Collectors.toList());
+
+        attrAttrgroupRelationDao.deleteBatchRelation(entityList);
 
     }
 }

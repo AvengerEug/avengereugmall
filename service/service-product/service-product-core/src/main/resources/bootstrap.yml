@@ -1,5 +1,5 @@
 server:
-  port: 10000
+  port: 10001
   tomcat:
     basedir: ./tomcat
     access-log-enabled: true

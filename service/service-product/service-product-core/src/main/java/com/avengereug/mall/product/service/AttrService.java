@@ -29,10 +29,18 @@ public interface AttrService extends IService<AttrEntity> {
      */
     void saveDetail(AttrVo attr);
 
-    PageUtils queryDetail(Map<String, Object> params, Long catelogId);
+    /**
+     * @param params 分页参数及搜索的key
+     * @param catelogId 0 => 不匹配catelogId， 否则匹配
+     * @param type 需要查询哪种销售属性，0 => 销售属性， 1 => 基本属性
+     * @return
+     */
+    PageUtils queryBaseAttrListPage(Map<String, Object> params, Long catelogId, String type);
 
     AttrRespVo getAttrRespVoById(Long attrId);
 
     void updateDetail(AttrVo attrVo);
+
+
 }
 
