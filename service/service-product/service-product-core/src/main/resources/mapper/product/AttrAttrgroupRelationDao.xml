@@ -26,5 +26,9 @@
         </foreach>
     </delete>
 
+    <select id="selectAttrIds" resultType="java.lang.Long">
+        SELECT attr_id FROM pms_attr_attrgroup_relation WHERE attr_group_id = #{attrGroupId}
+    </select>
+
 
 </mapper>

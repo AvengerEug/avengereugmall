@@ -1,0 +1,1 @@
+ALTER TABLE pms_attr ADD COLUMN value_type NOT NULL DEFAULT 0;

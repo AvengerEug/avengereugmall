@@ -5,6 +5,7 @@ import com.avengereug.mall.common.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -17,11 +18,11 @@ public class BaseController {
 
     @ExceptionHandler(Exception.class)
     @ResponseBody
-    public R exceptionHandler(Exception exception) {
-        log.error("发生异常", exception);
+    public R exceptionHandler(Exception e) {
+        log.error("发生异常", e);
 
-        if (exception instanceof MethodArgumentNotValidException) {
-            MethodArgumentNotValidException ex = (MethodArgumentNotValidException) exception;
+        if (e instanceof MethodArgumentNotValidException) {
+            MethodArgumentNotValidException ex = (MethodArgumentNotValidException) e;
             List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
             Map<String, Object> map = new HashMap<>();
             fieldErrors.stream().forEach(item -> map.put(item.getField(), item.getDefaultMessage()));

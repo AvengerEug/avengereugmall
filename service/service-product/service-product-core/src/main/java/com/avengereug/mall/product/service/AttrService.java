@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.AttrEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -42,5 +43,6 @@ public interface AttrService extends IService<AttrEntity> {
     void updateDetail(AttrVo attrVo);
 
 
+    List<AttrEntity> selectBatchIds(List<Long> attrIds);
 }
 

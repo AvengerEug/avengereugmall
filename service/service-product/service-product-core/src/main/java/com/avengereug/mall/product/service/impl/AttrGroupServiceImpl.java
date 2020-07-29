@@ -5,6 +5,8 @@ import com.avengereug.mall.product.dao.AttrAttrgroupRelationDao;
 import com.avengereug.mall.product.dao.AttrDao;
 import com.avengereug.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.avengereug.mall.product.entity.AttrEntity;
+import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
+import com.avengereug.mall.product.service.AttrService;
 import com.avengereug.mall.product.vo.AttrGroupRelationVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -29,10 +31,10 @@ import com.avengereug.mall.product.service.AttrGroupService;
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
 
     @Autowired
-    private AttrDao attrDao;
+    private AttrService attrService;
 
     @Autowired
-    private AttrAttrgroupRelationDao attrAttrgroupRelationDao;
+    private AttrAttrgroupRelationService attrAttrgroupRelationService;
 
     @Autowired
     private AttrGroupDao attrGroupDao;
@@ -70,14 +72,14 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Override
     public List<AttrEntity> relationInfo(Long attrGroupId) {
-        List<AttrAttrgroupRelationEntity> list = attrAttrgroupRelationDao.selectList(
+        List<AttrAttrgroupRelationEntity> list = attrAttrgroupRelationService.list(
                 new QueryWrapper<AttrAttrgroupRelationEntity>()
                         .eq("attr_group_id", attrGroupId)
         );
         // 直接拿到所有的ids，再使用in去查找，不需要遍历每个item再查一次attrEntity
         List<Long> attrIds = list.stream().map(item -> item.getAttrId()).collect(Collectors.toList());
 
-        return attrIds.size() > 0 ? attrDao.selectBatchIds(attrIds) : null;
+        return attrIds.size() > 0 ? attrService.selectBatchIds(attrIds) : null;
     }
 
     @Override
@@ -90,7 +92,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             return entity;
         }).collect(Collectors.toList());
 
-        attrAttrgroupRelationDao.deleteBatchRelation(entityList);
+        attrAttrgroupRelationService.deleteBatchRelation(entityList);
 
     }
 
@@ -123,7 +125,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
             List<Long> attrGroupIds = attrGroupEntities.stream().map(item -> item.getAttrGroupId()).collect(Collectors.toList());
 
             // 2.2 获取查询出来分组关联的所有属性
-            List<AttrAttrgroupRelationEntity> relationEntities = attrAttrgroupRelationDao.selectList(
+            List<AttrAttrgroupRelationEntity> relationEntities = attrAttrgroupRelationService.list(
                     new QueryWrapper<AttrAttrgroupRelationEntity>()
                             .in("attr_group_id", attrGroupIds)
             );
@@ -141,7 +143,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
                 wrapper.and(item -> item.eq("attr_id", key).or().like("attr_name", key));
             }
 
-            attrDao.selectPage(iPage,wrapper);
+            attrService.page(iPage, wrapper);
             pageUtils.setList(iPage.getRecords());
         }
 
@@ -162,6 +164,20 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         }).collect(Collectors.toList());
 
         // 也可以调用this.saveBatch api
-        attrAttrgroupRelationDao.insertBatch(entities);
+        attrAttrgroupRelationService.insertBatch(entities);
+    }
+
+    @Override
+    public List<AttrEntity> findAttrByAttrGroupId(Long attrGroupId) {
+        // 1、根据attrGroupId找出所有的attrId
+        List<Long> attrIds = attrAttrgroupRelationService.findAttrIdsByAttrGroupId(attrGroupId);
+
+        // 2、in查询所有的attr
+        List<AttrEntity> attrEntityList = attrService.list(
+                new QueryWrapper<AttrEntity>()
+                        .in("attr_id", attrIds)
+        );
+
+        return attrEntityList;
     }
 }

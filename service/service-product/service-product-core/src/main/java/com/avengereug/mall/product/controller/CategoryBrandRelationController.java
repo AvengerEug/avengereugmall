@@ -3,8 +3,12 @@ package com.avengereug.mall.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.avengereug.mall.product.entity.BrandEntity;
+import com.avengereug.mall.product.vo.BrandVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +37,6 @@ public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
 
-
     /**
      * 获取当前品牌关联的所有分类列表
      */
@@ -44,6 +47,32 @@ public class CategoryBrandRelationController {
         List<CategoryBrandRelationEntity> list = categoryBrandRelationService.list(
                 new QueryWrapper<CategoryBrandRelationEntity>().eq("brand_id", brandId)
         );
+
+        return R.ok().put("data", list);
+    }
+
+    /**
+     * 获取分类关联的品牌
+     *
+     * controller层只要做三件事
+     *
+     * 1、处理请求：使用JSR303校验前端传入的数据
+     * 2、调用service层方法，service层一般是处理完业务逻辑，返回通用的entity
+     * 3、接收service返回的entity并组装成前端需要的vo进行相应
+     * @param catId
+     * @return
+     */
+    @GetMapping("/brands/list")
+    //@RequiresPermissions("product:categorybrandrelation:list")
+    public R getBrandsInfoByCatId(@RequestParam("catId") Long catId){
+        List<CategoryBrandRelationEntity> brandEntities = categoryBrandRelationService.getBrandsInfoByCatId(catId);
+
+        // 组装成前端想要的vo
+        List<BrandVo> list = brandEntities.stream().map(item -> {
+            BrandVo vo = new BrandVo();
+            BeanUtils.copyProperties(item, vo);
+            return vo;
+        }).collect(Collectors.toList());
 
         return R.ok().put("data", list);
     }

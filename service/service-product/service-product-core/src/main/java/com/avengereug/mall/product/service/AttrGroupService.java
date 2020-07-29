@@ -35,5 +35,7 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     PageUtils noRelationInfoPage(Map<String, Object> params, Long attrGroupId);
 
     void addRelation(List<AttrGroupRelationVo> attrGroupRelationVos);
+
+    List<AttrEntity> findAttrByAttrGroupId(Long attrGroupId);
 }
 

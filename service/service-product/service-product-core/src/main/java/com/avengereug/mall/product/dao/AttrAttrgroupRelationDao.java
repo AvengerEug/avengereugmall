@@ -21,4 +21,6 @@ public interface AttrAttrgroupRelationDao extends BaseMapper<AttrAttrgroupRelati
     void deleteBatchRelation(@Param("entities") List<AttrAttrgroupRelationEntity> entityList);
 
     void insertBatch(@Param("entities") List<AttrAttrgroupRelationEntity> entities);
+
+    List<Long> selectAttrIds(@Param("attrGroupId") Long attrGroupId);
 }

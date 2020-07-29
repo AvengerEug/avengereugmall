@@ -380,7 +380,7 @@ export default {
         skus: [] //所有sku信息
       },
       spuBaseInfoRules: {
-        spuName: [
+        /* spuName: [
           { required: true, message: "请输入商品名字", trigger: "blur" }
         ],
         spuDescription: [
@@ -405,7 +405,7 @@ export default {
             message: "请填写正确的重量值",
             trigger: "blur"
           }
-        ]
+        ] */
       },
       dataResp: {
         //后台返回的所有数据

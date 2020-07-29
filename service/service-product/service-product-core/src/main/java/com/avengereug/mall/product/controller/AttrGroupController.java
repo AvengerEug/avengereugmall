@@ -3,11 +3,15 @@ package com.avengereug.mall.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.avengereug.mall.product.entity.AttrEntity;
+import com.avengereug.mall.product.service.AttrService;
 import com.avengereug.mall.product.service.CategoryService;
 import com.avengereug.mall.product.vo.AttrGroupRelationVo;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.avengereug.mall.product.vo.AttrGroupWithAttrVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +42,9 @@ public class AttrGroupController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private AttrService attrService;
 
     /**
      * 列表
@@ -135,6 +142,31 @@ public class AttrGroupController {
         attrGroupService.deleteRelation(relationVos);
 
         return R.ok();
+    }
+
+
+    /**
+     * 获取分类下所有分组&关联属性
+     */
+    @GetMapping("/{catelogId}/withattr")
+    public R findAllAttrGroupWithAttrs(@PathVariable("catelogId") Long catelogId) {
+        // 1. 获取当前catelogId下的所有分组
+        List<AttrGroupEntity> attrGroupEntities = attrGroupService.list(
+                new QueryWrapper<AttrGroupEntity>()
+                        .eq("catelog_id", catelogId)
+        );
+
+        // 2. 找出当前group下关联的所有attr
+        List<AttrGroupWithAttrVo> attrGroupWithAttrVos = attrGroupEntities.stream().map(item -> {
+            AttrGroupWithAttrVo vo = new AttrGroupWithAttrVo();
+            BeanUtils.copyProperties(item, vo);
+            List<AttrEntity> attrEntities = attrGroupService.findAttrByAttrGroupId(item.getAttrGroupId());
+
+            vo.setAttrs(attrEntities);
+            return vo;
+        }).collect(Collectors.toList());
+
+        return R.ok().put("data", attrGroupWithAttrVos);
     }
 
 }

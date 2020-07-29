@@ -1,9 +1,11 @@
 package com.avengereug.mall.product.service;
 
+import com.avengereug.mall.product.entity.BrandEntity;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.CategoryBrandRelationEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,5 +24,7 @@ public interface CategoryBrandRelationService extends IService<CategoryBrandRela
     void updateBrand(Long brandId, String name);
 
     void updateCategory(Long catId, String name);
+
+    List<CategoryBrandRelationEntity> getBrandsInfoByCatId(Long catId);
 }
 

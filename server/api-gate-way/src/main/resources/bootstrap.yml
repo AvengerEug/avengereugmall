@@ -27,6 +27,13 @@ spring:
           filters:
           - RewritePath=/api/thirdparty/(?<segment>/?.*), /$\{segment}
 
+        - id: service-member
+          uri: lb://service-member
+          predicates:
+          - Path=/api/member/**
+          filters:
+          - RewritePath=/api/(?<segment>/?.*), /$\{segment}
+
         # renren-fast路由定义： 带 /api的后缀，则路由至renren-fast ==> renren-fast需要注册到注册中心
         - id: renren-fast
           # 此url表示使用负载均衡策略走renren-fast服务
@@ -37,6 +44,7 @@ spring:
           filters:
           - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
       globalcors:
+        # 跨域配置
         cors-configurations:
           '[/**]':
             allowedOrigins: "*"

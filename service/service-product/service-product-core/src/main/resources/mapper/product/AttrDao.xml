@@ -13,6 +13,7 @@
         <result property="enable" column="enable"/>
         <result property="catelogId" column="catelog_id"/>
         <result property="showDesc" column="show_desc"/>
+        <result property="valueType" column="value_type"/>
     </resultMap>
 
 

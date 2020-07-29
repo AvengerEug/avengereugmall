@@ -196,4 +196,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }
     }
 
+    @Override
+    public List<AttrEntity> selectBatchIds(List<Long> attrIds) {
+        return baseMapper.selectBatchIds(attrIds);
+    }
+
 }

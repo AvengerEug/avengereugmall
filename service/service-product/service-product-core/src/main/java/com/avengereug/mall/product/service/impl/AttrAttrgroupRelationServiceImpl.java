@@ -1,6 +1,8 @@
 package com.avengereug.mall.product.service.impl;
 
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -24,6 +26,21 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void deleteBatchRelation(List<AttrAttrgroupRelationEntity> entityList) {
+        baseMapper.deleteBatchRelation(entityList);
+    }
+
+    @Override
+    public void insertBatch(List<AttrAttrgroupRelationEntity> entities) {
+        baseMapper.insertBatch(entities);
+    }
+
+    @Override
+    public List<Long> findAttrIdsByAttrGroupId(Long attrGroupId) {
+        return baseMapper.selectAttrIds(attrGroupId);
     }
 
 }
