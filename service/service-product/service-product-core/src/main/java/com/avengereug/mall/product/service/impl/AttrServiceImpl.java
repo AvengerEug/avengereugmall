@@ -66,7 +66,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         this.save(attrEntity);
 
         // 只有基础属性，才更新group中间表
-        if (ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() == attr.getAttrType()) {
+        if (ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode() == attr.getAttrType() &&
+                (attr.getAttrGroupId() != null || attr.getAttrId() != null)) {
             // 2. 插入属性分组与属性关联关系表中的属性分组信息
             AttrAttrgroupRelationEntity entity = new AttrAttrgroupRelationEntity();
             entity.setAttrGroupId(attr.getAttrGroupId());
@@ -81,7 +82,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         QueryWrapper<AttrEntity> wrapper = new QueryWrapper<>();
         String key = (String) params.get("key");
 
-        if (catelogId != 0) {
+        if (catelogId > 0) {
             wrapper.eq("attr_id", key);
         }
 
@@ -97,11 +98,13 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             wrapper.or().like("attr_name", key);
         }
 
+        // 开始分页查询
         IPage<AttrEntity> page = this.page(
                 new Query<AttrEntity>().getPage(params),
                 wrapper
         );
 
+        // 组装attrEntity，使之包含属于哪个组，属于哪个分类
         PageUtils pageUtils = new PageUtils(page);
         List<AttrRespVo> attrRespVos = page.getRecords().stream().map(attrEntity -> {
             AttrRespVo attrRespVo = new AttrRespVo();
@@ -119,6 +122,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = attrAttrgroupRelationService.getOne(
                         new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
                 );
+
+                // 因为在创建属性时，可以不指定所属分组，所以查询时，这里有可能查出来的为null
                 if (attrAttrgroupRelationEntity != null && attrAttrgroupRelationEntity.getAttrGroupId() != null) {
                     AttrGroupEntity attrGroupEntity = attrGroupService.getById(attrAttrgroupRelationEntity.getAttrGroupId());
                     attrRespVo.setGroupName(attrGroupEntity.getAttrGroupName());

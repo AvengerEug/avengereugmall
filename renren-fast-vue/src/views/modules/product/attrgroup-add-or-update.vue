@@ -124,7 +124,7 @@ export default {
                 !this.dataForm.attrGroupId ? "save" : "update"
               }`
             ),
-            method: !this.dataForm.attrId ? 'post' : 'put',
+            method: !this.dataForm.attrGroupId ? 'post' : 'put',
             data: this.$http.adornData({
               attrGroupId: this.dataForm.attrGroupId || undefined,
               attrGroupName: this.dataForm.attrGroupName,

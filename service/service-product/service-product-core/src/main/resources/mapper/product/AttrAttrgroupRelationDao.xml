@@ -10,10 +10,19 @@
         <result property="attrSort" column="attr_sort"/>
     </resultMap>
 
+    <insert id="insertBatch">
+        INSERT INTO
+            pms_attr_attrgroup_relation(attr_id, attr_group_id, attr_sort)
+        VALUES
+        <foreach collection="entities" index="1" item="item" separator=", ">
+            (#{item.attrId}, #{item.attrGroupId}, #{item.attrSort})
+        </foreach>
+    </insert>
+
     <delete id="deleteBatchRelation" >
         DELETE FROM pms_attr_attrgroup_relation WHERE 
-        <foreach collection="entityList" index="1" item="item" open="(" close=")" separator=" OR ">
-            attr_id = #{item.attrId} AND attr_group_id = #{item.attrGroupId}
+        <foreach collection="entities" index="1" item="item" separator=" OR ">
+            (attr_id = #{item.attrId} AND attr_group_id = #{item.attrGroupId})
         </foreach>
     </delete>
 

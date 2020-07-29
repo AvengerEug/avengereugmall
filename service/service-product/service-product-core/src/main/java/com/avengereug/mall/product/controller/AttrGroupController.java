@@ -7,6 +7,7 @@ import java.util.Map;
 import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.CategoryService;
 import com.avengereug.mall.product.vo.AttrGroupRelationVo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,6 +73,23 @@ public class AttrGroupController {
     public R relationInfo(@PathVariable("attrGroupId") Long attrGroupId){
         List<AttrEntity> attrEntityList = attrGroupService.relationInfo(attrGroupId);
         return R.ok().put("data", attrEntityList);
+    }
+
+    /**
+     * 获取属性分组里面还没有关联的本分类里面的其他基本属性，方便添加新的关联
+     */
+    @GetMapping("/{attrGroupId}/noattr/relation")
+    //@RequiresPermissions("product:attrgroup:info")
+    public R noRelationAttrInfo(@RequestParam Map<String, Object> params, @PathVariable("attrGroupId") Long attrGroupId){
+        PageUtils pages = attrGroupService.noRelationInfoPage(params, attrGroupId);
+        return R.ok().put("page", pages);
+    }
+
+    @PostMapping("/attr/relation")
+    public R addRelationWithAttrGroup(@RequestBody List<AttrGroupRelationVo> attrGroupRelationVo) {
+        attrGroupService.addRelation(attrGroupRelationVo);
+
+        return R.ok();
     }
 
 
