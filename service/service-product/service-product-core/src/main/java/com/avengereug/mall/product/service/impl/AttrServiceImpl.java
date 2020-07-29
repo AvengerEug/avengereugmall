@@ -61,7 +61,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     public void saveDetail(AttrVo attr) {
         // 1. 插入attr
         AttrEntity attrEntity = new AttrEntity();
-        // TODO spring 提供的对象copy方法，将源对象对应的属性copy至目标对象中  --> 待总结BeanUtils的用法
+        // 因为在为属性分组关联属性时，只能关联当前分类中没有被关联的属性，所以保证了一个属性只能在一个分组中存在。
         BeanUtils.copyProperties(attr, attrEntity);
         this.save(attrEntity);
 
@@ -118,7 +118,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             // 只有基础属性才有分组
             if (ProductConstant.AttrEnum.ATTR_TYPE_BASE.getAlias().equals(type)) {
                 // 再根据groupId和catelogId来查找它的名称
-                // TODO 疑问：会不会出现一个attr同时出现在多个attrGroup中，如果是，这里将会出现问题, 有可能getOne报"期待一条数据，却发现两条数据的"错
+                // 因为在为属性分组关联属性时，只能关联当前分类中没有被关联的属性，所以保证了一个属性只能在一个分组中存在。
                 AttrAttrgroupRelationEntity attrAttrgroupRelationEntity = attrAttrgroupRelationService.getOne(
                         new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
                 );
@@ -154,7 +154,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         if (attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()) {
             // 填充当前属性所属分组
-            // TODO 疑问：会不会出现一个attr同时出现在多个attrGroup中，如果是，这里将会出现问题, 有可能getOne报"期待一条数据，却发现两条数据的"错
+            // 因为在为属性分组关联属性时，只能关联当前分类中没有被关联的属性，所以保证了一个属性只能在一个分组中存在。
             AttrAttrgroupRelationEntity relationEntity = attrAttrgroupRelationService.getOne(
                     new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrEntity.getAttrId())
             );
