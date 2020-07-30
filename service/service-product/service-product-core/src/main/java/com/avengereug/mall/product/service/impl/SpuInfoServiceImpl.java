@@ -32,6 +32,7 @@ import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.common.utils.Query;
 
 import com.avengereug.mall.product.dao.SpuInfoDao;
+import org.springframework.util.CollectionUtils;
 
 
 @Service("spuInfoService")
@@ -100,41 +101,44 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         // 1、保存spu基本信息 pms_spu_info
         SpuInfoEntity spuInfo = saveSpuBaseInfo(spuSaveVo);
 
-        // 2、保存spu的描述图片 pms_spu_info_desc(多张大图)
-        batchSaveSpuInfoDesc(spuInfo.getId(), spuSaveVo.getDecript());
+        // 2、保存spu的描述图片 pms_spu_info_desc(多张大图), 用逗号隔开
+        saveSpuInfoDesc(spuInfo.getId(), spuSaveVo.getDecript());
 
         // 3、保存spu的图片集 pms_sku_images
-        batchSaveSpuImages(spuInfo.getId(), spuSaveVo.getImages());
+        saveBatchSpuImages(spuInfo.getId(), spuSaveVo.getImages());
 
         // 4、保存spu的基本属性(规格参数) pms_product_attr_value
-        batchSaveSkuBaseAttrValue(spuInfo.getId(), spuSaveVo.getBaseAttrs());
+        saveBatchSkuBaseAttrValue(spuInfo.getId(), spuSaveVo.getBaseAttrs());
 
         // 5、保存当前spu对应的所有sku信息
-        spuSaveVo.getSkus().stream().forEach(sku -> {
+        List<Skus> skus = spuSaveVo.getSkus();
+        if (!CollectionUtils.isEmpty(skus)) {
+            skus.stream().forEach(sku -> {
 
-            // 5.1）、保存sku基本信息 pms_sku_info
-            SkuInfoEntity skuInfoEntity = saveSkuInfoEntity(spuSaveVo, spuInfo, sku);
+                // 5.1）、保存sku基本信息 pms_sku_info
+                SkuInfoEntity skuInfoEntity = saveSkuInfoEntity(spuSaveVo, spuInfo, sku);
 
-            // 5.2）、保存sku销售属性 pms_sku_sale_attr_value
-            saveBatchSkuSaleAttrValue(sku, skuInfoEntity);
+                // 5.2）、保存sku销售属性 pms_sku_sale_attr_value
+                saveBatchSkuSaleAttrValue(sku, skuInfoEntity);
 
-            // 5.3）、保存sku图片集 pms_sku_images
-            saveBatchSkuImages(sku, skuInfoEntity);
+                // 5.3）、保存sku图片集 pms_sku_images
+                saveBatchSkuImages(sku, skuInfoEntity);
 
-            // 跨库存储
-            // 5.4）、保存sku优惠、满减等信息(跨库存储: mall_sms库)  ->
-            // 5.4.1）、sms_sku_full_reduction: 满减优惠，满多少件，减多少钱
-            saveSkuFullReduction(sku, skuInfoEntity);
+                // 跨库存储
+                // 5.4）、保存sku优惠、满减等信息(跨库存储: mall_sms库)  ->
+                // 5.4.1）、sms_sku_full_reduction: 满减优惠，满多少件，减多少钱
+                saveSkuFullReduction(sku, skuInfoEntity);
 
-            // 跨库存储
-            // 5.4.2）、sms_sku_ladder: 打折优惠，满多少件，打多少折
-            saveSkuLadder(sku, skuInfoEntity);
+                // 跨库存储
+                // 5.4.2）、sms_sku_ladder: 打折优惠，满多少件，打多少折
+                saveSkuLadder(sku, skuInfoEntity);
 
-            // 跨库存储
-            // 5.4.3）、sms_member_price: 一个商品在不同的会员消费时会存在不同的价格
-            saveBatchMemberPrice(sku, skuInfoEntity);
+                // 跨库存储
+                // 5.4.3）、sms_member_price: 一个商品在不同的会员消费时会存在不同的价格
+                saveBatchMemberPrice(sku, skuInfoEntity);
 
-        });
+            });
+        }
 
         // 跨库存储
         // 6、保存spu的积分信息：mall_sms库 -> sms_spu_bounds
@@ -215,6 +219,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         skuInfoEntity.setSpuId(spuInfo.getId());
         skuInfoEntity.setCatalogId(spuSaveVo.getCatalogId());
         skuInfoEntity.setBrandId(spuSaveVo.getBrandId());
+        // 默认填写0
+        skuInfoEntity.setSaleCount(0L);
 
         List<Images> imagesList = sku.getImages().stream()
                 .filter(imageItem -> imageItem.getDefaultImg() == 1)
@@ -226,7 +232,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         return skuInfoEntity;
     }
 
-    private void batchSaveSkuBaseAttrValue(Long spuId, List<BaseAttrs> baseAttrs) {
+    private void saveBatchSkuBaseAttrValue(Long spuId, List<BaseAttrs> baseAttrs) {
         List<ProductAttrValueEntity> productAttrValueEntityList = baseAttrs.stream().map(item -> {
             ProductAttrValueEntity entity = new ProductAttrValueEntity();
             entity.setSpuId(spuId);
@@ -246,9 +252,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         productAttrValueService.saveBatch(productAttrValueEntityList);
     }
 
-    private void batchSaveSpuImages(Long spuId, List<String> images) {
+    private void saveBatchSpuImages(Long spuId, List<String> images) {
         List<SpuImagesEntity> spuImagesEntityList = images.stream().map(item -> {
             SpuImagesEntity entity = new SpuImagesEntity();
+            // TODO 名字是截取的, 规则待确认
+            // entity.setImgName();
             entity.setSpuId(spuId);
             entity.setImgUrl(item);
             return entity;
@@ -257,15 +265,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         spuImagesService.saveBatch(spuImagesEntityList);
     }
 
-    private void batchSaveSpuInfoDesc(Long spuId, List<String> decript) {
-        List<SpuInfoDescEntity> spuInfoDescEntities = decript.stream().map(item -> {
-            SpuInfoDescEntity entity = new SpuInfoDescEntity();
-            entity.setDecript(item);
-            entity.setSpuId(spuId);
+    private void saveSpuInfoDesc(Long spuId, List<String> decript) {
+        SpuInfoDescEntity entity = new SpuInfoDescEntity();
+        entity.setDecript(String.join(",", decript));
+        entity.setSpuId(spuId);
 
-            return entity;
-        }).collect(Collectors.toList());
-        spuInfoDescService.saveBatch(spuInfoDescEntities);
+        spuInfoDescService.save(entity);
     }
 
     private SpuInfoEntity saveSpuBaseInfo(SpuSaveVO spuSaveVo) {

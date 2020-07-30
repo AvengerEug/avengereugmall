@@ -324,8 +324,27 @@
   通常是操作数据库的对象，比如项目中dao层的各种对象
   ```
 
+#### 八、后端编写的几个军规
 
-#### 八、spring-cloud feign重名的坑
+* 1、service的注入规范
+
+  ```txt
+  一般在当前service中要调用别的service，注入的是别的模块的service
+  ```
+
+* 2、controller中api的编写规范
+
+  ```txt
+   * controller层只要做三件事
+   *
+   * 1、处理请求：使用JSR303校验前端传入的数据
+   * 2、调用service层方法，service层一般是处理完业务逻辑，返回通用的entity
+   * 3、接收service返回的entity并组装成前端需要的vo进行相应
+  ```
+
+* 3、在高并发的系统下，不建议连表查询，建议分步查询。
+
+#### 九、spring-cloud feign重名的坑
 
 * 问题背景：
 
@@ -352,4 +371,6 @@
   ```
 
 * 此问题具体参考：[https://blog.csdn.net/u012211603/article/details/84312709](https://blog.csdn.net/u012211603/article/details/84312709)
+
+
 
