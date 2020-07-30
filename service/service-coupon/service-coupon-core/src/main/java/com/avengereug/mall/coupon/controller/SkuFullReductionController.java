@@ -3,6 +3,8 @@ package com.avengereug.mall.coupon.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.coupon.to.SkuFullReductionTO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,6 +66,21 @@ public class SkuFullReductionController {
 
         return R.ok();
     }
+
+    /**
+     * 保存
+     */
+    @PostMapping("/save/inner")
+    //@RequiresPermissions("coupon:skufullreduction:save")
+    public R saveInner(@RequestBody SkuFullReductionTO skuFullReductionTo){
+        SkuFullReductionEntity skuFullReduction = new SkuFullReductionEntity();
+        BeanUtils.copyProperties(skuFullReductionTo, skuFullReduction);
+        skuFullReduction.setAddOther(skuFullReductionTo.getPriceStatus());
+
+        skuFullReductionService.save(skuFullReduction);
+        return R.ok();
+    }
+
 
     /**
      * 修改

@@ -3,6 +3,7 @@ package com.avengereug.mall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.product.vo.spusave.SpuSaveVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,8 +60,8 @@ public class SpuInfoController {
      */
     @PostMapping("/save")
     //@RequiresPermissions("product:spuinfo:save")
-    public R save(@RequestBody SpuInfoEntity spuInfo){
-        spuInfoService.save(spuInfo);
+    public R save(@RequestBody SpuSaveVO spuSaveVo){
+        spuInfoService.save(spuSaveVo);
 
         return R.ok();
     }

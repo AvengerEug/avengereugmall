@@ -3,7 +3,7 @@ package com.avengereug.mall.product.vo;
 import lombok.Data;
 
 @Data
-public class BrandVo {
+public class BrandVO {
 
     /**
      * "brandId": 0,

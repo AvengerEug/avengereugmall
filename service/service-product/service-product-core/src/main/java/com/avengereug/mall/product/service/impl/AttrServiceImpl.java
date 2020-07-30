@@ -8,16 +8,14 @@ import com.avengereug.mall.product.entity.CategoryEntity;
 import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
 import com.avengereug.mall.product.service.AttrGroupService;
 import com.avengereug.mall.product.service.CategoryService;
-import com.avengereug.mall.product.vo.AttrRespVo;
-import com.avengereug.mall.product.vo.AttrVo;
+import com.avengereug.mall.product.vo.AttrRespVO;
+import com.avengereug.mall.product.vo.AttrVO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,7 +56,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @GlobalTransactional
     @Override
-    public void saveDetail(AttrVo attr) {
+    public void saveDetail(AttrVO attr) {
         // 1. 插入attr
         AttrEntity attrEntity = new AttrEntity();
         // 因为在为属性分组关联属性时，只能关联当前分类中没有被关联的属性，所以保证了一个属性只能在一个分组中存在。
@@ -83,7 +81,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         String key = (String) params.get("key");
 
         if (catelogId > 0) {
-            wrapper.eq("attr_id", key);
+            wrapper.eq("catelog_id", catelogId);
         }
 
         if (StringUtils.isNotEmpty(type)) {
@@ -95,7 +93,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         if (StringUtils.isNotEmpty(key)) {
             // 根据key和attrName进行筛选
-            wrapper.or().like("attr_name", key);
+            wrapper.and(item -> {
+                item.eq("attr_id", key).or().like("attr_name", key);
+            });
+
         }
 
         // 开始分页查询
@@ -106,8 +107,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
         // 组装attrEntity，使之包含属于哪个组，属于哪个分类
         PageUtils pageUtils = new PageUtils(page);
-        List<AttrRespVo> attrRespVos = page.getRecords().stream().map(attrEntity -> {
-            AttrRespVo attrRespVo = new AttrRespVo();
+        List<AttrRespVO> attrRespVOS = page.getRecords().stream().map(attrEntity -> {
+            AttrRespVO attrRespVo = new AttrRespVO();
             BeanUtils.copyProperties(attrEntity, attrRespVo);
 
             if (ObjectUtils.isNotEmpty(attrEntity.getCatelogId())) {
@@ -133,16 +134,16 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             return attrRespVo;
         }).collect(Collectors.toList());
 
-        pageUtils.setList(attrRespVos);
+        pageUtils.setList(attrRespVOS);
 
         return pageUtils;
     }
 
     @Override
-    public AttrRespVo getAttrRespVoById(Long attrId) {
+    public AttrRespVO getAttrRespVoById(Long attrId) {
         AttrEntity attrEntity = this.getById(attrId);
 
-        AttrRespVo attrRespVo = new AttrRespVo();
+        AttrRespVO attrRespVo = new AttrRespVO();
         BeanUtils.copyProperties(attrEntity, attrRespVo);
 
 
@@ -168,7 +169,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @GlobalTransactional
     @Override
-    public void updateDetail(AttrVo attrVo) {
+    public void updateDetail(AttrVO attrVo) {
         AttrEntity attrEntity = new AttrEntity();
         BeanUtils.copyProperties(attrVo, attrEntity);
         // 1. 更新自己，

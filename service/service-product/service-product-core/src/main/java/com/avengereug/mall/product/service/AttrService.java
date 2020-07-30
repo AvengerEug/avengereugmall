@@ -1,7 +1,7 @@
 package com.avengereug.mall.product.service;
 
-import com.avengereug.mall.product.vo.AttrRespVo;
-import com.avengereug.mall.product.vo.AttrVo;
+import com.avengereug.mall.product.vo.AttrRespVO;
+import com.avengereug.mall.product.vo.AttrVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.AttrEntity;
@@ -28,7 +28,7 @@ public interface AttrService extends IService<AttrEntity> {
      *
      * @param attr
      */
-    void saveDetail(AttrVo attr);
+    void saveDetail(AttrVO attr);
 
     /**
      * @param params 分页参数及搜索的key
@@ -38,9 +38,9 @@ public interface AttrService extends IService<AttrEntity> {
      */
     PageUtils queryBaseAttrListPage(Map<String, Object> params, Long catelogId, String type);
 
-    AttrRespVo getAttrRespVoById(Long attrId);
+    AttrRespVO getAttrRespVoById(Long attrId);
 
-    void updateDetail(AttrVo attrVo);
+    void updateDetail(AttrVO attrVo);
 
 
     List<AttrEntity> selectBatchIds(List<Long> attrIds);

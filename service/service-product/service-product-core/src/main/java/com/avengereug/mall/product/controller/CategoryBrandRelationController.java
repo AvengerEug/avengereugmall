@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.avengereug.mall.product.entity.BrandEntity;
-import com.avengereug.mall.product.vo.BrandVo;
+import com.avengereug.mall.product.vo.BrandVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +67,8 @@ public class CategoryBrandRelationController {
         List<CategoryBrandRelationEntity> brandEntities = categoryBrandRelationService.getBrandsInfoByCatId(catId);
 
         // 组装成前端想要的vo
-        List<BrandVo> list = brandEntities.stream().map(item -> {
-            BrandVo vo = new BrandVo();
+        List<BrandVO> list = brandEntities.stream().map(item -> {
+            BrandVO vo = new BrandVO();
             BeanUtils.copyProperties(item, vo);
             return vo;
         }).collect(Collectors.toList());

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @EnableTransactionManagement
 @Configuration
+@MapperScan("com.avengereug.mall.product.dao")
 public class MybatisPlusConfig {
 
     @Bean

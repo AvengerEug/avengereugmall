@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.AttrService;
 import com.avengereug.mall.product.service.CategoryService;
-import com.avengereug.mall.product.vo.AttrGroupRelationVo;
-import com.avengereug.mall.product.vo.AttrGroupWithAttrVo;
+import com.avengereug.mall.product.vo.AttrGroupRelationVO;
+import com.avengereug.mall.product.vo.AttrGroupWithAttrVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +93,7 @@ public class AttrGroupController {
     }
 
     @PostMapping("/attr/relation")
-    public R addRelationWithAttrGroup(@RequestBody List<AttrGroupRelationVo> attrGroupRelationVo) {
+    public R addRelationWithAttrGroup(@RequestBody List<AttrGroupRelationVO> attrGroupRelationVo) {
         attrGroupService.addRelation(attrGroupRelationVo);
 
         return R.ok();
@@ -138,7 +138,7 @@ public class AttrGroupController {
      */
     @DeleteMapping("/attr/relation/delete")
     //@RequiresPermissions("product:attrgroup:delete")
-    public R deleteAttrAttrgroupRelation(@RequestBody List<AttrGroupRelationVo> relationVos){
+    public R deleteAttrAttrgroupRelation(@RequestBody List<AttrGroupRelationVO> relationVos){
         attrGroupService.deleteRelation(relationVos);
 
         return R.ok();
@@ -157,8 +157,8 @@ public class AttrGroupController {
         );
 
         // 2. 找出当前group下关联的所有attr
-        List<AttrGroupWithAttrVo> attrGroupWithAttrVos = attrGroupEntities.stream().map(item -> {
-            AttrGroupWithAttrVo vo = new AttrGroupWithAttrVo();
+        List<AttrGroupWithAttrVO> attrGroupWithAttrVOS = attrGroupEntities.stream().map(item -> {
+            AttrGroupWithAttrVO vo = new AttrGroupWithAttrVO();
             BeanUtils.copyProperties(item, vo);
             List<AttrEntity> attrEntities = attrGroupService.findAttrByAttrGroupId(item.getAttrGroupId());
 
@@ -166,7 +166,7 @@ public class AttrGroupController {
             return vo;
         }).collect(Collectors.toList());
 
-        return R.ok().put("data", attrGroupWithAttrVos);
+        return R.ok().put("data", attrGroupWithAttrVOS);
     }
 
 }

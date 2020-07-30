@@ -1,7 +1,6 @@
 package com.avengereug.mall.product.dao;
 
 import com.avengereug.mall.product.entity.AttrAttrgroupRelationEntity;
-import com.avengereug.mall.product.vo.AttrGroupRelationVo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,4 +22,5 @@ public interface AttrAttrgroupRelationDao extends BaseMapper<AttrAttrgroupRelati
     void insertBatch(@Param("entities") List<AttrAttrgroupRelationEntity> entities);
 
     List<Long> selectAttrIds(@Param("attrGroupId") Long attrGroupId);
+
 }

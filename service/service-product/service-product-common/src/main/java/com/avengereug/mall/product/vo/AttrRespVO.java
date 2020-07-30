@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AttrRespVo extends AttrVo {
+public class AttrRespVO extends AttrVO {
 
 
     /**

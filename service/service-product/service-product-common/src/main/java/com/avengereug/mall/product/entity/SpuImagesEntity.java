@@ -8,7 +8,7 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * spu图片
+ * spu图片集合，spu的所有图片信息都存在于此，并且最终在选择sku信息时，都是从这些图片信息进行选择的
  * 
  * @author avengerEug
  * @email eugenesumarry@163.com

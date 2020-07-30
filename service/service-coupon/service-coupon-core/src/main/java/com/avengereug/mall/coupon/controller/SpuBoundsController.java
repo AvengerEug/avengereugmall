@@ -3,6 +3,8 @@ package com.avengereug.mall.coupon.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.coupon.to.SpuBoundsTO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,6 +64,18 @@ public class SpuBoundsController {
     public R save(@RequestBody SpuBoundsEntity spuBounds){
         spuBoundsService.save(spuBounds);
 
+        return R.ok();
+    }
+
+    /**
+     * 服务内部保存
+     */
+    @PostMapping("/save/inner")
+    public R saveInner(@RequestBody SpuBoundsTO spuBoundsTO) {
+        SpuBoundsEntity entity = new SpuBoundsEntity();
+        BeanUtils.copyProperties(spuBoundsTO, entity);
+
+        spuBoundsService.save(entity);
         return R.ok();
     }
 

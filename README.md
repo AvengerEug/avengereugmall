@@ -324,5 +324,32 @@
   通常是操作数据库的对象，比如项目中dao层的各种对象
   ```
 
+
+#### 八、spring-cloud feign重名的坑
+
+* 问题背景：
+
+  ```txt
+  当我们使用feign进行rpc调用时，通常要使用@FeignClint注解来标识当前的接口是一个feignClient，同时，我们需要添加name属性来指定当前的feign属于哪个服务下。但是，在SpringBoot 2.1之前，我们只需要添加如下配置:
+  @FeignClient(name = "service-coupon")就能声明一个客户端了，但是在SpringBoot 2.1之后，我们这样写，如果引入了多个feign的client，name此时会抛出如下错误：
+  ***************************
+  APPLICATION FAILED TO START
+  ***************************
   
+  Description:
+  
+  The bean 'service-coupon.FeignClientSpecification' could not be registered. A bean with that name has already been defined and overriding is disabled.
+  
+  Action:
+  
+  Consider renaming one of the beans or enabling overriding by setting spring.main.allow-bean-definition-overriding=true
+  
+  原因就是feign的声明，在底层使用动态代理生成spring bean对象时，默认是使用如下规则生成的bean name：
+  `beanName：name + "." + FeignClientSpecification.class.getSimpleName()`
+  因此，会出现上述的错误：beanName已经存在，解决这个问题可以在后面添加一个ContextId, eg:
+  @FeignClient(serviceId = "service-coupon", contextId = "couponClient"),
+  或者和提示中的一样，添加spring.main.allow-bean-definition-overriding=true的配置
+  ```
+
+* 此问题具体参考：[https://blog.csdn.net/u012211603/article/details/84312709](https://blog.csdn.net/u012211603/article/details/84312709)
 

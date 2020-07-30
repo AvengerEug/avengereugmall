@@ -4,7 +4,7 @@ import com.avengereug.mall.product.entity.AttrEntity;
 import lombok.Data;
 
 @Data
-public class AttrVo extends AttrEntity {
+public class AttrVO extends AttrEntity {
 
     private static final long serialVersionUID = 1L;
 

@@ -1,8 +1,11 @@
 package com.avengereug.mall.coupon.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.avengereug.mall.coupon.to.MemberPriceTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,6 +64,28 @@ public class MemberPriceController {
     //@RequiresPermissions("coupon:memberprice:save")
     public R save(@RequestBody MemberPriceEntity memberPrice){
         memberPriceService.save(memberPrice);
+
+        return R.ok();
+    }
+
+    /**
+     * 服务内保存会员价格
+     */
+    @PostMapping("/save/inner")
+    public R saveBatchInner(@RequestBody List<MemberPriceTO> memberPriceTOS) {
+        List<MemberPriceEntity> memberPriceEntityList = memberPriceTOS.stream().map(memberPriceTo -> {
+            MemberPriceEntity memberPrice = new MemberPriceEntity();
+            memberPrice.setSkuId(memberPriceTo.getSkuId());
+            memberPrice.setMemberLevelId(memberPriceTo.getId());
+            memberPrice.setMemberLevelName(memberPriceTo.getName());
+            memberPrice.setMemberPrice(memberPriceTo.getPrice());
+            // TODO 服务内保存会员价格中，需要确定是否叠加其他优惠的逻辑
+            //memberPrice.setAddOther();
+
+            return memberPrice;
+        }).collect(Collectors.toList());
+
+        memberPriceService.saveBatch(memberPriceEntityList);
 
         return R.ok();
     }

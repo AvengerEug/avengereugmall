@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class AttrGroupWithAttrVo {
+public class AttrGroupWithAttrVO {
 
     /**
      * 分组id

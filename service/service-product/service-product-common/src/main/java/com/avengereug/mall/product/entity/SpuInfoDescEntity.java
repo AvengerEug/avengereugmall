@@ -8,7 +8,8 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * spu信息介绍
+ * spu信息介绍，
+ *   可能是多张大图
  * 
  * @author avengerEug
  * @email eugenesumarry@163.com
@@ -23,7 +24,6 @@ public class SpuInfoDescEntity implements Serializable {
     /**
      * 商品id
      */
-    @TableId
     private Long spuId;
     /**
      * 商品介绍

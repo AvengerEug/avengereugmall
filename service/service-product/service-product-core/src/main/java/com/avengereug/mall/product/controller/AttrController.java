@@ -3,8 +3,8 @@ package com.avengereug.mall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
-import com.avengereug.mall.product.vo.AttrRespVo;
-import com.avengereug.mall.product.vo.AttrVo;
+import com.avengereug.mall.product.vo.AttrRespVO;
+import com.avengereug.mall.product.vo.AttrVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,7 +56,7 @@ public class AttrController {
     @GetMapping("/info/{attrId}")
     //@RequiresPermissions("product:attr:info")
     public R info(@PathVariable("attrId") Long attrId){
-        AttrRespVo attrRespVo = attrService.getAttrRespVoById(attrId);
+        AttrRespVO attrRespVo = attrService.getAttrRespVoById(attrId);
 
         return R.ok().put("attr", attrRespVo);
     }
@@ -66,7 +66,7 @@ public class AttrController {
      */
     @PostMapping("/save")
     //@RequiresPermissions("product:attr:save")
-    public R save(@RequestBody AttrVo attrVo){
+    public R save(@RequestBody AttrVO attrVo){
         attrService.saveDetail(attrVo);
 
         return R.ok();
@@ -77,7 +77,7 @@ public class AttrController {
      */
     @PutMapping("/update")
     //@RequiresPermissions("product:attr:update")
-    public R update(@RequestBody AttrVo attrVo){
+    public R update(@RequestBody AttrVO attrVo){
         attrService.updateDetail(attrVo);
 
         return R.ok();

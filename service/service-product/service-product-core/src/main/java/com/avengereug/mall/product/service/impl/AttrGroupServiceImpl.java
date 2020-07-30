@@ -1,13 +1,11 @@
 package com.avengereug.mall.product.service.impl;
 
 import com.avengereug.mall.common.constants.ProductConstant;
-import com.avengereug.mall.product.dao.AttrAttrgroupRelationDao;
-import com.avengereug.mall.product.dao.AttrDao;
 import com.avengereug.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
 import com.avengereug.mall.product.service.AttrService;
-import com.avengereug.mall.product.vo.AttrGroupRelationVo;
+import com.avengereug.mall.product.vo.AttrGroupRelationVO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +81,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     }
 
     @Override
-    public void deleteRelation(List<AttrGroupRelationVo> relationVos) {
+    public void deleteRelation(List<AttrGroupRelationVO> relationVos) {
         // 1. 根据这两个字段删除 attrGroup记录
 
         List<AttrAttrgroupRelationEntity> entityList = relationVos.stream().map(item -> {
@@ -152,12 +150,12 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     /**
      * 添加
-     * @param attrGroupRelationVos
+     * @param attrGroupRelationVOS
      */
     @Override
-    public void addRelation(List<AttrGroupRelationVo> attrGroupRelationVos) {
+    public void addRelation(List<AttrGroupRelationVO> attrGroupRelationVOS) {
         // 直接插入attrAttrGroup中间表即可
-        List<AttrAttrgroupRelationEntity> entities = attrGroupRelationVos.stream().map(item -> {
+        List<AttrAttrgroupRelationEntity> entities = attrGroupRelationVOS.stream().map(item -> {
             AttrAttrgroupRelationEntity entity = new AttrAttrgroupRelationEntity();
             BeanUtils.copyProperties(item, entity);
             return entity;

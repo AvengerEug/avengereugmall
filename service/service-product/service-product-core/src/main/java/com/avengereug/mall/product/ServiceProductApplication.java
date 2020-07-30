@@ -4,9 +4,10 @@ import com.avengereug.mall.common.anno.StartApplication;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @StartApplication
-@MapperScan("com.avengereug.mall.product.dao")
+@EnableFeignClients(basePackages = {"com.avengereug.mall.coupon.feign"})
 public class ServiceProductApplication {
 
     public static void main(String[] args) {

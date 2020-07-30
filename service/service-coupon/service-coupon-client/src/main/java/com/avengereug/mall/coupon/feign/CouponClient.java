@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.Map;
 
-@FeignClient("service-coupon")
+@FeignClient(serviceId = "service-coupon", contextId = "couponClient")
 @RequestMapping("/coupon/coupon")
 public interface CouponClient {
 
