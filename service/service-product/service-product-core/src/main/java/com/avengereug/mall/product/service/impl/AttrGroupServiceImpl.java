@@ -171,11 +171,15 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         List<Long> attrIds = attrAttrgroupRelationService.findAttrIdsByAttrGroupId(attrGroupId);
 
         // 2、in查询所有的attr
-        List<AttrEntity> attrEntityList = attrService.list(
-                new QueryWrapper<AttrEntity>()
-                        .in("attr_id", attrIds)
-        );
+        if (attrIds != null && attrIds.size() > 0) {
 
-        return attrEntityList;
+            List<AttrEntity> attrEntityList = attrService.list(
+                    new QueryWrapper<AttrEntity>()
+                            .in("attr_id", attrIds)
+            );
+            return attrEntityList;
+        }
+
+        return Collections.EMPTY_LIST;
     }
 }
