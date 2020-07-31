@@ -72,7 +72,7 @@ export default {
   methods: {
     getWares() {
       this.$http({
-        url: this.$http.adornUrl("/ware/wareinfo/list"),
+        url: this.$http.adornUrl("/warehouse/wareinfo/list"),
         method: "get",
         params: this.$http.adornParams({
           page: 1,
@@ -90,7 +90,7 @@ export default {
         if (this.dataForm.id) {
           this.$http({
             url: this.$http.adornUrl(
-              `/ware/purchasedetail/info/${this.dataForm.id}`
+              `/warehouse/purchasedetail/info/${this.dataForm.id}`
             ),
             method: "get",
             params: this.$http.adornParams()
@@ -113,7 +113,7 @@ export default {
         if (valid) {
           this.$http({
             url: this.$http.adornUrl(
-              `/ware/purchasedetail/${!this.dataForm.id ? "save" : "update"}`
+              `/warehouse/purchasedetail/${!this.dataForm.id ? "save" : "update"}`
             ),
             method: "post",
             data: this.$http.adornData({

@@ -40,12 +40,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     private static final Logger logger = LoggerFactory.getLogger(SpuInfoServiceImpl.class);
 
-    private static final String PMS_SALE_ATTR = "saleAttr";
-    private static final String PMS_SKU_INFO = "skuInfo";
-    private static final String PMS_SKU_IMAGES = "skuImages";
-    private static final String SMS_SKU_LADDER = "skuLadder";
-    private static final String SMS_SPU_BOUNDS = "spuBoundsd";
-
     @Autowired
     private SpuInfoDescService spuInfoDescService;
 
@@ -81,9 +75,40 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
+        QueryWrapper<SpuInfoEntity> wrapper = new QueryWrapper<>();
+
+        String key = (String) params.get("key");
+        if (StringUtils.isNotEmpty(key)) {
+            wrapper.and(item -> item.eq("id", key).or().like("spu_name", key));
+        }
+
+        String catelogId = (String) params.get("catelogId");
+        if (StringUtils.isNotEmpty(catelogId)) {
+            Long catelogIdVal = Long.valueOf(catelogId);
+            if (catelogIdVal > 0) {
+                wrapper.eq("catelog_id", catelogIdVal);
+            }
+        }
+
+        String status = (String)params.get("status");
+        if (StringUtils.isNotEmpty(status)) {
+            Integer statusVal = Integer.valueOf(status);
+            if (statusVal >= 0) {
+                wrapper.eq("publish_status", statusVal);
+            }
+        }
+
+        String brandId = (String) params.get("brandId");
+        if (StringUtils.isNotEmpty(brandId)) {
+            Long brandIdVal = Long.valueOf(brandId);
+            if (brandIdVal > 0) {
+                wrapper.eq("brand_id", brandIdVal);
+            }
+        }
+
         IPage<SpuInfoEntity> page = this.page(
                 new Query<SpuInfoEntity>().getPage(params),
-                new QueryWrapper<SpuInfoEntity>()
+                wrapper
         );
 
         return new PageUtils(page);
@@ -91,7 +116,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     /**
      * 1. 存在分布式事务问题
-     * 2. 教研传入数据的合法性
+     * 2. 校验传入数据的合法性
+     *
+     * 总结下开发这种大量保存，涉及到很多个表的debug策略，
+     * 在每个表执行完保存逻辑后，应该到对应的表中去查看是否保存成功，
+     * 但是由于，MySQL使用的事务默认隔离级别为：可重复读，这将导致
+     * 我们在MySQL的客户端读取不到插入的数据，此时我们可以在当前
+     * MySQL的会话中，设置事务隔离级别为可重复读，此时我们可以读取
+     * 到还未提交的数据，其实这是一个脏读(读到别的事务的数据了)的现象。
+     *
+     * TODO 服务重启，服务间调用超时，其他已经保存的信息怎么办？
+     * 分布式事务
+     * 业务失败层面的校验
      *
      * @param spuSaveVo
      */
@@ -161,19 +197,20 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
                     return memberPriceTO;
                 })
-                .filter(item -> !item.getPrice().equals(BigDecimal.ZERO))
+                .filter(item -> item.getPrice().compareTo(BigDecimal.ZERO) == 1)
                 .collect(Collectors.toList());
         memberPriceClient.saveBatchInner(memberPriceTOS);
     }
 
     private void saveSkuLadder(Skus sku, SkuInfoEntity skuInfoEntity) {
-        if (!sku.getDiscount().equals(BigDecimal.ZERO)) {
+        // 打折，一般传入的是小于1的数，比如打8折，传入的数据是0.80
+        if (sku.getFullCount() > 0 || -1 == sku.getDiscount().compareTo(BigDecimal.ZERO)) {
             SkuLadderTO skuLadderTo = new SkuLadderTO();
             skuLadderTo.setSkuId(skuInfoEntity.getSkuId());
             skuLadderTo.setCountStatus(sku.getCountStatus());
             skuLadderTo.setDiscount(sku.getDiscount());
             skuLadderTo.setFullCount(sku.getFullCount());
-            // 设置折后价
+            // 设置折后价，在下订单时还要再设置一次
             BigDecimal priceAfterDiscount = sku.getPrice().multiply(sku.getDiscount());
             skuLadderTo.setPrice(priceAfterDiscount);
 
@@ -182,7 +219,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     }
 
     private void saveSkuFullReduction(Skus sku, SkuInfoEntity skuInfoEntity) {
-        if (!sku.getReducePrice().equals(BigDecimal.ZERO)) {
+        // 满足满多少件 减少多少钱的条件
+        // BitDecimal的compareTo方法，
+        // -1表示前者比后者小
+        // 0 表示前者等于后者
+        // 1 表示前者大于后者
+        if (sku.getFullPrice().compareTo(BigDecimal.ZERO) == 1 || sku.getFullCount() > 0) {
             SkuFullReductionTO skuFullReductionTo = new SkuFullReductionTO();
             BeanUtils.copyProperties(sku, skuFullReductionTo);
             skuFullReductionTo.setSkuId(skuInfoEntity.getSkuId());
@@ -217,7 +259,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         SkuInfoEntity skuInfoEntity = new SkuInfoEntity();
         BeanUtils.copyProperties(sku, skuInfoEntity);
         skuInfoEntity.setSpuId(spuInfo.getId());
-        skuInfoEntity.setCatalogId(spuSaveVo.getCatalogId());
+        skuInfoEntity.setCatelogId(spuSaveVo.getCatelogId());
         skuInfoEntity.setBrandId(spuSaveVo.getBrandId());
         // 默认填写0
         skuInfoEntity.setSaleCount(0L);

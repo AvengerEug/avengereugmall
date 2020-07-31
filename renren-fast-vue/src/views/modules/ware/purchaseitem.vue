@@ -148,7 +148,7 @@ export default {
         )
           .then(() => {
             this.$http({
-              url: this.$http.adornUrl("/ware/purchase/merge"),
+              url: this.$http.adornUrl("/warehouse/purchase/merge"),
               method: "post",
               data: this.$http.adornData({ items: items }, false)
             }).then(({ data }) => {
@@ -158,7 +158,7 @@ export default {
           .catch(() => {});
       } else {
         this.$http({
-          url: this.$http.adornUrl("/ware/purchase/merge"),
+          url: this.$http.adornUrl("/warehouse/purchase/merge"),
           method: "post",
           data: this.$http.adornData(
             { purchaseId: this.purchaseId, items: items },
@@ -172,7 +172,7 @@ export default {
     },
     getUnreceivedPurchase() {
       this.$http({
-        url: this.$http.adornUrl("/ware/purchase/unreceive/list"),
+        url: this.$http.adornUrl("/warehouse/purchase/unreceive/list"),
         method: "get",
         params: this.$http.adornParams({})
       }).then(({ data }) => {
@@ -197,7 +197,7 @@ export default {
     },
     getWares() {
       this.$http({
-        url: this.$http.adornUrl("/ware/wareinfo/list"),
+        url: this.$http.adornUrl("/warehouse/wareinfo/list"),
         method: "get",
         params: this.$http.adornParams({
           page: 1,
@@ -211,7 +211,7 @@ export default {
     getDataList() {
       this.dataListLoading = true;
       this.$http({
-        url: this.$http.adornUrl("/ware/purchasedetail/list"),
+        url: this.$http.adornUrl("/warehouse/purchasedetail/list"),
         method: "get",
         params: this.$http.adornParams({
           page: this.pageIndex,
@@ -270,7 +270,7 @@ export default {
         }
       ).then(() => {
         this.$http({
-          url: this.$http.adornUrl("/ware/purchasedetail/delete"),
+          url: this.$http.adornUrl("/warehouse/purchasedetail/delete"),
           method: "post",
           data: this.$http.adornData(ids, false)
         }).then(({ data }) => {

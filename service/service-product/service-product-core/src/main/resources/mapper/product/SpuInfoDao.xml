@@ -7,7 +7,7 @@
         <result property="id" column="id"/>
         <result property="spuName" column="spu_name"/>
         <result property="spuDescription" column="spu_description"/>
-        <result property="catalogId" column="catalog_id"/>
+        <result property="catelogId" column="catelog_id"/>
         <result property="brandId" column="brand_id"/>
         <result property="weight" column="weight"/>
         <result property="publishStatus" column="publish_status"/>

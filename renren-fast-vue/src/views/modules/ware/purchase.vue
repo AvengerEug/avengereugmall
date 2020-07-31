@@ -143,7 +143,7 @@ export default {
       this.caigoudialogVisible = false;
       this.$http({
         url: this.$http.adornUrl(
-          `/ware/purchase/update`
+          `/warehouse/purchase/update`
         ),
         method: "post",
         data: this.$http.adornData({
@@ -184,7 +184,7 @@ export default {
     getDataList() {
       this.dataListLoading = true;
       this.$http({
-        url: this.$http.adornUrl("/ware/purchase/list"),
+        url: this.$http.adornUrl("/warehouse/purchase/list"),
         method: "get",
         params: this.$http.adornParams({
           page: this.pageIndex,
@@ -241,7 +241,7 @@ export default {
         }
       ).then(() => {
         this.$http({
-          url: this.$http.adornUrl("/ware/purchase/delete"),
+          url: this.$http.adornUrl("/warehouse/purchase/delete"),
           method: "post",
           data: this.$http.adornData(ids, false)
         }).then(({ data }) => {

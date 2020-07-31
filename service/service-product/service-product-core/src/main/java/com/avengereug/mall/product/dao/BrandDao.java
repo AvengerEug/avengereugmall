@@ -3,6 +3,7 @@ package com.avengereug.mall.product.dao;
 import com.avengereug.mall.product.entity.BrandEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 品牌
@@ -14,4 +15,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface BrandDao extends BaseMapper<BrandEntity> {
 
+    String selectNameByBrandId(@Param("brandId") Long brandId);
 }

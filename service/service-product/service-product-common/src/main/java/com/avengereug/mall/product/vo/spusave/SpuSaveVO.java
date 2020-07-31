@@ -13,7 +13,7 @@ public class SpuSaveVO {
     // ====== begin spu基本信息 mall_pms -> pms_spu_info ========
     private String spuName;
     private String spuDescription;
-    private Long catalogId;
+    private Long catelogId;
     private Long brandId;
     private BigDecimal weight;
     private int publishStatus;

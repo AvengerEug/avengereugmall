@@ -27,10 +27,19 @@ spring:
           filters:
           - RewritePath=/api/thirdparty/(?<segment>/?.*), /$\{segment}
 
+        # service-member
         - id: service-member
           uri: lb://service-member
           predicates:
           - Path=/api/member/**
+          filters:
+          - RewritePath=/api/(?<segment>/?.*), /$\{segment}
+
+        # service-warehouse
+        - id: service-warehouse
+          uri: lb://service-warehouse
+          predicates:
+          - Path=/api/warehouse/**
           filters:
           - RewritePath=/api/(?<segment>/?.*), /$\{segment}
 

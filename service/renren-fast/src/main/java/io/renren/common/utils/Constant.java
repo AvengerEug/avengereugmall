@@ -51,6 +51,7 @@ public class Constant {
         /**
          * 菜单
          */
+
         MENU(1),
         /**
          * 按钮

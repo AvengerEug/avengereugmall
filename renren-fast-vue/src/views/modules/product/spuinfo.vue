@@ -11,9 +11,9 @@
       <el-table-column prop="id" header-align="center" align="center" label="id"></el-table-column>
       <el-table-column prop="spuName" header-align="center" align="center" label="名称"></el-table-column>
       <el-table-column prop="spuDescription" header-align="center" align="center" label="描述"></el-table-column>
-      <el-table-column prop="catalogId" header-align="center" align="center" label="分类"></el-table-column>
-      <el-table-column prop="brandId" header-align="center" align="center" label="品牌"></el-table-column>
-      <el-table-column prop="weight" header-align="center" align="center" label="重量"></el-table-column>
+      <el-table-column prop="catelogName" header-align="center" align="center" label="分类"></el-table-column>
+      <el-table-column prop="brandName" header-align="center" align="center" label="品牌"></el-table-column>
+      <el-table-column prop="weight" header-align="center" align="center" label="重量（KG）"></el-table-column>
       <el-table-column prop="publishStatus" header-align="center" align="center" label="上架状态">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.publishStatus == 0">新建</el-tag>
@@ -97,7 +97,7 @@ export default {
       console.log(row);
       this.$router.push({
         path: "/product-attrupdate",
-        query: { spuId: row.id, catalogId: row.catalogId }
+        query: { spuId: row.id, catelogId: row.catelogId }
       });
     },
     // 获取数据列表

@@ -63,7 +63,7 @@ public class CategoryBrandRelationController {
      */
     @GetMapping("/brands/list")
     //@RequiresPermissions("product:categorybrandrelation:list")
-    public R getBrandsInfoByCatId(@RequestParam("catId") Long catId){
+    public R getBrandsInfoByCatId(@RequestParam(value = "catId", required = false) Long catId){
         List<CategoryBrandRelationEntity> brandEntities = categoryBrandRelationService.getBrandsInfoByCatId(catId);
 
         // 组装成前端想要的vo

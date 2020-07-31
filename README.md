@@ -372,5 +372,30 @@
 
 * 此问题具体参考：[https://blog.csdn.net/u012211603/article/details/84312709](https://blog.csdn.net/u012211603/article/details/84312709)
 
+#### 十、BigDecimal类型数据的比较
 
+* 应使用BigDecimal的compareTo方法进行比较
 
+  |         类别         | 结论分析 |
+  | :------------------: | :------: |
+  | a.compareTo(b) == -1 |  a小于b  |
+  | a.compareTo(b) == 0  |  a等于b  |
+  | a.compareTo(b) == 1  |  a大于b  |
+
+#### 十一、guli商城项目的坑 + 疑问
+
+##### 1、坑
+
+* 商品微服务(service-product)：
+
+  |                              坑                              |                          解决方案                          |
+  | :----------------------------------------------------------: | :--------------------------------------------------------: |
+  | 基本属性信息管理，pms_attr表缺少value_type字段，导致在前端的多选、单选设置的radio无法正常工作 | pms_attr表新增value_type字段，并在相应的实体类中添加此属性 |
+  |      pms_spu_info表中的品类字段写错了，写成了catalog_id      |       pms_spu_info对应模块的前后端对应的字段都要修改       |
+  |      pms_sku_info表中的分类字段写错了，写成了catelog_id      |       pms_sku_info对应模块的前后端对应的字段都要修改       |
+
+  
+
+##### 2、疑问点：
+
+* 单表查询时，若要拼接vo相应至前端，eg：在查找spuInfoEntiry时，相应给前端的vo包含cate

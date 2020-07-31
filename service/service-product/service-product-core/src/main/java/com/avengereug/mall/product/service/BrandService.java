@@ -18,5 +18,7 @@ public interface BrandService extends IService<BrandEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     void updateCascade(BrandEntity brand);
+
+    String getName(Long brandId);
 }
 

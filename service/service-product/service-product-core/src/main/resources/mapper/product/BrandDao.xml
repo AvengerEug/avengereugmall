@@ -13,5 +13,9 @@
         <result property="sort" column="sort"/>
     </resultMap>
 
+    <select id="selectNameByBrandId" resultType="java.lang.String">
+        SELECT name FROM pms_brand WHERE brand_id = #{brandId}
+    </select>
+
 
 </mapper>

@@ -1,1 +1,0 @@
-ALTER TABLE pms_attr ADD COLUMN value_type INT NOT NULL DEFAULT 0;

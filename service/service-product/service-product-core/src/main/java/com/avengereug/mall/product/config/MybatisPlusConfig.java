@@ -12,9 +12,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  *
  * 完成分页功能
  */
-@EnableTransactionManagement
 @Configuration
-@MapperScan("com.avengereug.mall.product.dao")
 public class MybatisPlusConfig {
 
     @Bean

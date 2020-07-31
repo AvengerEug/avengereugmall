@@ -1,7 +1,6 @@
 server:
   port: 11000
 
-
 spring:
   application:
     name: service-warehouse

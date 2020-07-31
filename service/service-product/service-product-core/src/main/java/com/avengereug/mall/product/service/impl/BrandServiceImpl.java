@@ -54,4 +54,10 @@ public class BrandServiceImpl extends ServiceImpl<BrandDao, BrandEntity> impleme
         }
     }
 
+    @Override
+    public String getName(Long brandId) {
+
+        return baseMapper.selectNameByBrandId(brandId);
+    }
+
 }

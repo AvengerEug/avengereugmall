@@ -1,10 +1,19 @@
 package com.avengereug.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.avengereug.mall.product.entity.BrandEntity;
+import com.avengereug.mall.product.entity.CategoryEntity;
+import com.avengereug.mall.product.service.BrandService;
+import com.avengereug.mall.product.service.CategoryService;
+import com.avengereug.mall.product.vo.SpuInfoSearchVO;
 import com.avengereug.mall.product.vo.spusave.SpuSaveVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
@@ -32,14 +41,39 @@ public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
 
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private BrandService brandService;
+
     /**
      * 列表
      */
     @GetMapping("/list")
     //@RequiresPermissions("product:spuinfo:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = spuInfoService.queryPage(params);
 
+        // 组装vo, 添加品牌名字、分类名字
+        // TODO 疑问：根据id循环去查还是批量查找
+        List<SpuInfoEntity> spuInfoEntityList = (List<SpuInfoEntity>) page.getList();
+        List<SpuInfoSearchVO> collect = spuInfoEntityList.stream().map(item -> {
+            SpuInfoSearchVO vo = new SpuInfoSearchVO();
+            BeanUtils.copyProperties(item, vo);
+
+            if (!ObjectUtils.isEmpty(item.getBrandId())) {
+                vo.setBrandName(brandService.getName(item.getBrandId()));
+            }
+
+            if (!ObjectUtils.isEmpty(item.getCatelogId())) {
+                vo.setCatelogName(categoryService.getName(item.getCatelogId()));
+            }
+
+            return vo;
+        }).collect(Collectors.toList());
+
+        page.setList(collect);
         return R.ok().put("page", page);
     }
 

@@ -37,7 +37,7 @@ public class SpuInfoEntity implements Serializable {
     /**
      * 所属分类id
      */
-    private Long catalogId;
+    private Long catelogId;
     /**
      * 品牌id
      */
@@ -47,7 +47,7 @@ public class SpuInfoEntity implements Serializable {
      */
     private BigDecimal weight;
     /**
-     * 上架状态[0 - 下架，1 - 上架]
+     * 上架状态[0 - 新建，1 - 上架, 2 - 下架]
      */
     private Integer publishStatus;
     /**

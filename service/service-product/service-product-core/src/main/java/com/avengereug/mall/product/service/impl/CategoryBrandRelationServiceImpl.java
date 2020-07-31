@@ -77,8 +77,14 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
 
     @Override
     public List<CategoryBrandRelationEntity> getBrandsInfoByCatId(Long catId) {
+        QueryWrapper<CategoryBrandRelationEntity> wrapper = new QueryWrapper<>();
+
+        if (catId != null && catId > 0) {
+            wrapper.eq("catelog_id", catId);
+        }
+
         List<CategoryBrandRelationEntity> list = categoryBrandRelationService.list(
-                new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId)
+                wrapper
         );
 
         return list;

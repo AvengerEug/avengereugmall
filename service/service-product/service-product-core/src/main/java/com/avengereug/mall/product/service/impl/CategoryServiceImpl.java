@@ -128,6 +128,12 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     }
 
+    @Override
+    public String getName(Long catelogId) {
+
+        return baseMapper.selectNameByCatelogId(catelogId);
+    }
+
     /**
      * 传入225
      *

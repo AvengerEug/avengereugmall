@@ -35,7 +35,6 @@ public class WareSkuController {
      * 列表
      */
     @GetMapping("/list")
-    //@RequiresPermissions("warehouse:waresku:list")
     public R list(@RequestParam Map<String, Object> params){
         PageUtils page = wareSkuService.queryPage(params);
 
