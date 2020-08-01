@@ -1,6 +1,8 @@
 package com.avengereug.mall.warehouse.service.impl;
 
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -25,5 +27,20 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
         return new PageUtils(page);
     }
+
+    @Override
+    public void saveDetail(PurchaseEntity purchase) {
+        purchase.setCreateTime(new Date());
+        purchase.setUpdateTime(new Date());
+
+        this.save(purchase);
+    }
+
+    @Override
+    public boolean updateById(PurchaseEntity entity) {
+        entity.setUpdateTime(new Date());
+        return super.updateById(entity);
+    }
+
 
 }

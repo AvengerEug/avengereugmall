@@ -3,6 +3,7 @@ package com.avengereug.mall.warehouse.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.warehouse.vo.PurchaseDetailSaveVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,8 +60,9 @@ public class PurchaseDetailController {
      */
     @PostMapping("/save")
     //@RequiresPermissions("warehouse:purchasedetail:save")
-    public R save(@RequestBody PurchaseDetailEntity purchaseDetail){
-        purchaseDetailService.save(purchaseDetail);
+    public R save(@RequestBody PurchaseDetailSaveVO purchaseDetailSaveVO){
+        // 继承关系，所以不需要进行属性对拷
+        purchaseDetailService.saveDetail(purchaseDetailSaveVO);
 
         return R.ok();
     }

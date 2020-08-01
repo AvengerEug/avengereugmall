@@ -1,6 +1,6 @@
 package com.avengereug.mall.common.constants;
 
-public class ProductConstant {
+public final class ProductConstant {
 
     public enum AttrEnum {
         ATTR_TYPE_BASE(1, "基础属性", "base"), ATTR_TYPE_SALE(0, "销售属性", "sale");

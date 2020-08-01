@@ -60,7 +60,7 @@ public class PurchaseController {
     @PostMapping("/save")
     //@RequiresPermissions("warehouse:purchase:save")
     public R save(@RequestBody PurchaseEntity purchase){
-        purchaseService.save(purchase);
+        purchaseService.saveDetail(purchase);
 
         return R.ok();
     }

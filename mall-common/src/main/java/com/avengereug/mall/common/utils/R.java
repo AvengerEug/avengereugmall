@@ -12,9 +12,11 @@ import java.util.Map;
  */
 public class R extends HashMap<String, Object> {
     private static final long serialVersionUID = 1L;
-    
+
+    public static final int SUCCESS_CODE = 0;
+
     public R() {
-        put("code", 0);
+        put("code", SUCCESS_CODE);
     }
     
     public static R error() {
@@ -37,7 +39,7 @@ public class R extends HashMap<String, Object> {
         r.put("msg", msg);
         return r;
     }
-    
+
     public static R ok(Map<String, Object> map) {
         R r = new R();
         r.putAll(map);
@@ -52,4 +54,17 @@ public class R extends HashMap<String, Object> {
         super.put(key, value);
         return this;
     }
+
+    public Integer getCode() {
+        return Integer.valueOf(this.get("code").toString());
+    }
+
+    public String getMsg() {
+        return (String) this.get("msg");
+    }
+
+    public <T> T getResult(String key) {
+        return (T) this.get(key);
+    }
+
 }

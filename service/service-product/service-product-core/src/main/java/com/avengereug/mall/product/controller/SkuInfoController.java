@@ -3,6 +3,9 @@ package com.avengereug.mall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.common.utils.RPCResult;
+import com.avengereug.mall.product.vo.SkuInfoEntityVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,6 +56,18 @@ public class SkuInfoController {
 
         return R.ok().put("skuInfo", skuInfo);
     }
+
+
+    @GetMapping("/info/inner/{skuId}")
+    //@RequiresPermissions("product:skuinfo:info")
+    public RPCResult<SkuInfoEntityVO> infoInner(@PathVariable("skuId") Long skuId){
+        SkuInfoEntity skuInfo = skuInfoService.getById(skuId);
+        SkuInfoEntityVO skuInfoEntityVO = new SkuInfoEntityVO();
+        BeanUtils.copyProperties(skuInfo, skuInfoEntityVO);
+
+        return new RPCResult<SkuInfoEntityVO>().ok(skuInfoEntityVO);
+    }
+
 
     /**
      * 保存
