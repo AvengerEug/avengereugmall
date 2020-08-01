@@ -216,7 +216,7 @@
         }).then(() => {
           this.$http({
             url: this.$http.adornUrl('/warehouse/wareordertask/delete'),
-            method: 'post',
+            method: 'delete',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {
             if (data && data.code === 0) {

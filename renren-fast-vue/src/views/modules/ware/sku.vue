@@ -11,7 +11,7 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <el-button v-if="isAuth('ware:waresku:save')" type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button v-if="isAuth('ware:waresku:save')" type="primary" @click="addOrUpdateHandle()">新增(库存的新增应该源于采购单，此处只是为了方便测试)</el-button>
         <el-button
           v-if="isAuth('ware:waresku:delete')"
           type="danger"
@@ -161,7 +161,7 @@ export default {
       ).then(() => {
         this.$http({
           url: this.$http.adornUrl("/warehouse/waresku/delete"),
-          method: "post",
+          method: "delete",
           data: this.$http.adornData(ids, false)
         }).then(({ data }) => {
           if (data && data.code === 0) {

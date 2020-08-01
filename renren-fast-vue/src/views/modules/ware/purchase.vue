@@ -145,7 +145,7 @@ export default {
         url: this.$http.adornUrl(
           `/warehouse/purchase/update`
         ),
-        method: "post",
+        method: "put",
         data: this.$http.adornData({
           id: this.currentRow.id || undefined,
           assigneeId: user.userId,
@@ -242,7 +242,7 @@ export default {
       ).then(() => {
         this.$http({
           url: this.$http.adornUrl("/warehouse/purchase/delete"),
-          method: "post",
+          method: "delete",
           data: this.$http.adornData(ids, false)
         }).then(({ data }) => {
           if (data && data.code === 0) {

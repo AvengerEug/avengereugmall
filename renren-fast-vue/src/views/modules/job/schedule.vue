@@ -181,7 +181,7 @@
         }).then(() => {
           this.$http({
             url: this.$http.adornUrl('/sys/schedule/delete'),
-            method: 'post',
+            method: 'delete',
             data: this.$http.adornData(ids, false)
           }).then(({data}) => {
             if (data && data.code === 0) {
