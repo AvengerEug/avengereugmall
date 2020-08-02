@@ -1,6 +1,7 @@
 package com.avengereug.mall.common.controller;
 
 import com.avengereug.mall.common.Enum.BusinessCodeEnum;
+import com.avengereug.mall.common.exception.RRException;
 import com.avengereug.mall.common.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.FieldError;
@@ -29,6 +30,9 @@ public class BaseController {
 
             return R.error(BusinessCodeEnum.VALID_EXCEPTION.getCode(),
                     BusinessCodeEnum.VALID_EXCEPTION.getMsg()).put("data", map);
+        } else if (e instanceof RRException) {
+            RRException rrException = ((RRException) e);
+            return R.error(rrException.getCode(), rrException.getMsg());
         }
 
         return R.error(BusinessCodeEnum.UNKNOWN_EXCEPTION.getCode(), BusinessCodeEnum.UNKNOWN_EXCEPTION.getMsg());

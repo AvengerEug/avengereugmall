@@ -43,7 +43,7 @@ public class PurchaseEntity implements Serializable {
      */
     private Integer priority;
     /**
-     * 状态
+     * 状态, [新建：0， 已分配：1，已领取：2，已完成：3，有异常：4]
      */
     private Integer status;
     /**

@@ -17,7 +17,12 @@ package com.avengereug.mall.common.Enum;
 public enum BusinessCodeEnum {
 
     UNKNOWN_EXCEPTION(10000, "系统未知异常"),
-    VALID_EXCEPTION(10001, "参数格式校验失败");
+    VALID_EXCEPTION(10001, "参数格式校验失败"),
+
+    NOT_ALLOWED_MERGED_CAUSED_BY_ILLEGAL_PURCHASE_ID(14001, "purchase id 非法，不允许被合并"),
+    NOT_ALLOWED_MERGED_CAUSED_BY_ILLEGAL_STATUS(14001, "采购单目前状态不允许被合并"),
+
+    ;
 
     private int code;
     private String msg;

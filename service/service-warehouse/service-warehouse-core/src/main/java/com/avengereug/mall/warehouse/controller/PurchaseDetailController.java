@@ -43,7 +43,6 @@ public class PurchaseDetailController {
         return R.ok().put("page", page);
     }
 
-
     /**
      * 信息 - byId
      */
