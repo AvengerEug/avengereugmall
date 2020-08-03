@@ -24,6 +24,7 @@ import com.avengereug.mall.common.utils.Query;
 import com.avengereug.mall.warehouse.dao.PurchaseDao;
 import com.avengereug.mall.warehouse.entity.PurchaseEntity;
 import com.avengereug.mall.warehouse.service.PurchaseService;
+import org.springframework.util.CollectionUtils;
 
 
 @Service("purchaseService")
@@ -50,6 +51,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         this.save(purchase);
     }
 
+    @GlobalTransactional
     @Override
     public boolean updateById(PurchaseEntity entity) {
         entity.setUpdateTime(new Date());
@@ -82,7 +84,7 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             purchaseId = purchaseEntity.getId();
         }
 
-        // 保证当前的采购单的状态是允许被合并的，即当前采购单的状态是新建或者已分配
+        // 保证当前需要被合并的采购单状态是允许被合并的，即当前采购单的状态是新建或者已分配
         if (!isCreated) {
             PurchaseEntity purchaseEntity = this.getById(purchaseId);
             if (purchaseEntity == null) {
@@ -107,6 +109,53 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             return entity;
         }).collect(Collectors.toList());
         purchaseDetailService.updateBatchById(purchaseDetailEntityList);
+
+    }
+
+    @GlobalTransactional
+    @Override
+    public void receivePurchase(List<Long> purchaseIds, Long receivedId) {
+        // 1. 拿到所有的采购单
+        List<PurchaseEntity> purchaseEntityList = (List<PurchaseEntity>) this.listByIds(purchaseIds);
+
+        if (!CollectionUtils.isEmpty(purchaseEntityList)) {
+
+            purchaseEntityList.forEach(item -> {
+                // 2. 验证采购单为已分配状态下的当前领取采购单的人和采购单已分配的人是否为同一人，如果不是，则无法领取
+                // 不需要验证新建状态下的采购单，因为新建状态下的采购单，直接就会分配给当前调用此api的人，即形参的receivedId
+                if (item.getStatus() == WarehouseConstant.PurchaseStatusEnum.ASSIGNED.getCode()) {
+                    if (!receivedId.equals(item.getAssigneeId())) {
+                        throw new RRException(
+                                BusinessCodeEnum.NOT_ASSIGNED_PURCHASE_CAUSED_BY_NO_SAME_ASSIGNED.getMsg()
+                                        + "，采购单id为：" + item.getId(),
+                                BusinessCodeEnum.NOT_ASSIGNED_PURCHASE_CAUSED_BY_NO_SAME_ASSIGNED.getCode());
+                    }
+                }
+
+                // 3. 校验当前采购单的状态是否合法，只能从新建和已分配的状态转成已领取状态
+                // 采购单的状态处于非新建和非已分配状态，则抛出异常
+                if (item.getStatus() >= WarehouseConstant.PurchaseStatusEnum.RECEIVED.getCode()) {
+                    throw new RRException(
+                            BusinessCodeEnum.NOT_ASSIGNED_PURCHASE_CAUSED_BY_ILLEGAL_PURCHASE_STATUS.getMsg()
+                                    + "，采购单id为：" + item.getId(),
+                            BusinessCodeEnum.NOT_ASSIGNED_PURCHASE_CAUSED_BY_ILLEGAL_PURCHASE_STATUS.getCode());
+                }
+
+                // 4. 把所有的采购单的状态改为已领取,
+                // TODO 采购单要采购的数量和仓库，待采购人员调用完成采购api再更新
+                item.setStatus(WarehouseConstant.PurchaseStatusEnum.RECEIVED.getCode());
+                item.setUpdateTime(new Date());
+                this.updateById(item);
+
+                // 5. 将采购单对应的所有采购需求的状态改为正在采购
+                purchaseDetailService.updateStatusByPurchaseId(WarehouseConstant.PurchaseDetailStatusEnum.BUYING.getCode(), item.getId());
+
+            });
+
+        }
+
+
+
 
     }
 

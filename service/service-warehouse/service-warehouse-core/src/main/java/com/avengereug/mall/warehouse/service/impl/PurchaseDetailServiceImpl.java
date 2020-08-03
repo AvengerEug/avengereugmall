@@ -5,6 +5,7 @@ import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.product.entity.SkuInfoEntity;
 import com.avengereug.mall.product.feign.SkuInfoClient;
 import com.avengereug.mall.product.vo.SkuInfoEntityVO;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,14 @@ public class PurchaseDetailServiceImpl extends ServiceImpl<PurchaseDetailDao, Pu
         purchaseDetail.setSkuPrice(rpcResult.getPrice());
 
         this.save(purchaseDetail);
+    }
+
+    @Override
+    public void updateStatusByPurchaseId(int statusCode, Long id) {
+        PurchaseDetailEntity entity = new PurchaseDetailEntity();
+        entity.setStatus(statusCode);
+
+        this.baseMapper.update(entity, new UpdateWrapper<PurchaseDetailEntity>().eq("purchase_id", id));
     }
 
 }

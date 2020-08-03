@@ -1,6 +1,7 @@
 package com.avengereug.mall.warehouse.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import com.avengereug.mall.common.controller.BaseController;
@@ -61,12 +62,27 @@ public class PurchaseController extends BaseController {
      * 若purchaseId不存在，则新建一个采购单，并关联至新创建的采购单
      *
      */
-    @PostMapping("/mergePurchase")
-    public R merge(@RequestBody PurchaseMergeVo purchaseMergeVo){
+    @PostMapping("/merge")
+    public R mergePurchase(@RequestBody PurchaseMergeVo purchaseMergeVo){
         purchaseService.mergePurchase(purchaseMergeVo);
 
         return R.ok();
     }
+
+    /**
+     * 领取采购单
+     * @param purchaseIds
+     * @param assignedId
+     * @return
+     */
+    @PostMapping("/receive")
+    public R receivePurchase(@RequestBody List<Long> purchaseIds, @RequestParam("assignedId") Long assignedId) {
+        purchaseService.receivePurchase(purchaseIds, assignedId);
+
+        return R.ok();
+    }
+
+
 
 
     /**

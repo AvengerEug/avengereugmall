@@ -20,7 +20,9 @@ public enum BusinessCodeEnum {
     VALID_EXCEPTION(10001, "参数格式校验失败"),
 
     NOT_ALLOWED_MERGED_CAUSED_BY_ILLEGAL_PURCHASE_ID(14001, "purchase id 非法，不允许被合并"),
-    NOT_ALLOWED_MERGED_CAUSED_BY_ILLEGAL_STATUS(14001, "采购单目前状态不允许被合并"),
+    NOT_ALLOWED_MERGED_CAUSED_BY_ILLEGAL_STATUS(14002, "采购单目前状态不允许被合并"),
+    NOT_ASSIGNED_PURCHASE_CAUSED_BY_ILLEGAL_PURCHASE_STATUS(14003, "采购单状态非法，无法分配给采购人员"),
+    NOT_ASSIGNED_PURCHASE_CAUSED_BY_NO_SAME_ASSIGNED(14004, "采购单领取者与采购单分配者不相同，无法领取"),
 
     ;
 

@@ -18,5 +18,7 @@ public interface PurchaseDetailService extends IService<PurchaseDetailEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     void saveDetail(PurchaseDetailEntity purchaseDetail);
+
+    void updateStatusByPurchaseId(int code, Long id);
 }
 
