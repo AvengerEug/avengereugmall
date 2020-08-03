@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.avengereug.mall.common.controller.BaseController;
+import com.avengereug.mall.warehouse.vo.PurchaseDoneVO;
 import com.avengereug.mall.warehouse.vo.PurchaseMergeVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.*;
@@ -71,6 +73,12 @@ public class PurchaseController extends BaseController {
 
     /**
      * 领取采购单
+     * 请求格式：
+     * method: post
+     * url: /warehouse/purchase/received?assignedId=xxx
+     * body:
+     *   [1,2,3,4] //采购单id
+     *
      * @param purchaseIds
      * @param assignedId
      * @return
@@ -82,8 +90,25 @@ public class PurchaseController extends BaseController {
         return R.ok();
     }
 
+    /**
+     * 完成采购单
+     * 请求格式：
+     * method: post
+     * url: /warehouse/purchase/done
+     * body:
+     *   {
+     *    purchaseId: 123, //采购单id
+     *    purchaseDetailsItem: [ {purchaseDetailId:1, status:4, reason:"", actualSkuNum: 8} ]//完成/失败的需求详情
+     * }
+     *
+     * @return
+     */
+    @PostMapping("/done")
+    public R done(@Validated @RequestBody PurchaseDoneVO purchaseDoneVO) {
+        purchaseService.done(purchaseDoneVO);
 
-
+        return R.ok();
+    }
 
     /**
      * 信息 - byId

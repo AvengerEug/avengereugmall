@@ -1,5 +1,6 @@
 package com.avengereug.mall.warehouse.service;
 
+import com.avengereug.mall.warehouse.vo.PurchaseDoneVO;
 import com.avengereug.mall.warehouse.vo.PurchaseMergeVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
@@ -33,5 +34,7 @@ public interface PurchaseService extends IService<PurchaseEntity> {
     void mergePurchase(PurchaseMergeVo purchaseMergeVo);
 
     void receivePurchase(List<Long> purchaseIds, Long receivedId);
+
+    void done(PurchaseDoneVO purchaseDoneVO);
 }
 

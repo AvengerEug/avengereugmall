@@ -8,9 +8,10 @@ import java.io.Serializable;
 import java.util.Date;
 import lombok.Data;
 
+
 /**
- * 
- * 
+ *
+ *
  * @author avengerEug
  * @email eugenesumarry@163.com
  * @date 2020-07-20 10:59:40
@@ -22,7 +23,7 @@ public class PurchaseDetailEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     @TableId
     private Long id;
@@ -50,5 +51,16 @@ public class PurchaseDetailEntity implements Serializable {
      * 状态[0新建，1已分配，2正在采购，3已完成，4采购失败]
      */
     private Integer status;
+
+    /**
+     * 采购失败原因
+     */
+    private String comment;
+
+    /**
+     * 实际采购数量
+     */
+    private Integer actualSkuNum;
+
 
 }

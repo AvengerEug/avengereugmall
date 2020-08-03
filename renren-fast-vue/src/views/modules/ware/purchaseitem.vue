@@ -53,8 +53,18 @@
       </el-table-column>
       <el-table-column prop="skuId" header-align="center" align="center" label="采购商品id"></el-table-column>
       <el-table-column prop="skuNum" header-align="center" align="center" label="采购数量"></el-table-column>
-      <el-table-column prop="skuPrice" header-align="center" align="center" label="采购金额"></el-table-column>
+      <el-table-column header-align="center" align="center" label="￥采购金额">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ "￥" + scope.row.skuPrice }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="wareId" header-align="center" align="center" label="仓库id"></el-table-column>
+      <el-table-column prop="actualSkuNum" header-align="center" align="center" label="实际采购数量"></el-table-column>
+      <el-table-column header-align="center" align="center" label="采购员备注">
+        <template slot-scope="scope">
+          <span style="margin-left: 10px">{{ scope.row.comment || "暂无备注" }}</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="status" header-align="center" align="center" label="状态">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.status==0">新建</el-tag>

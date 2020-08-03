@@ -11,6 +11,8 @@
         <result property="skuPrice" column="sku_price"/>
         <result property="wareId" column="ware_id"/>
         <result property="status" column="status"/>
+        <result property="comment" column="comment"/>
+        <result property="actualSkuNum" column="actual_sku_num"/>
     </resultMap>
 
 

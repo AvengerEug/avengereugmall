@@ -42,7 +42,7 @@ public class PurchaseDetailServiceImpl extends ServiceImpl<PurchaseDetailDao, Pu
          */
         String key = (String) params.get("key");
         if (StringUtils.isNotEmpty(key)) {
-            wrapper.and(item -> item.eq("id", key).or().like("sku_id", key));
+            wrapper.and(item -> item.eq("id", key).or().like("sku_id", key).or().like("purchase_id", key));
         }
 
         String status = (String) params.get("status");

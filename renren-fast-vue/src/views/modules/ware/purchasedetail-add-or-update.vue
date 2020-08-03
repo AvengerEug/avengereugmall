@@ -115,7 +115,7 @@ export default {
             url: this.$http.adornUrl(
               `/warehouse/purchasedetail/${!this.dataForm.id ? "save" : "update"}`
             ),
-            method: "post",
+            method: !this.dataForm.id ? "post" : "put",
             data: this.$http.adornData({
               id: this.dataForm.id || undefined,
               purchaseId: this.dataForm.purchaseId,
