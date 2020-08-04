@@ -2,12 +2,8 @@ package com.avengereug.mall.product.service.impl;
 
 import com.avengereug.mall.common.anno.GlobalTransactional;
 import com.avengereug.mall.common.constants.ProductConstant;
-import com.avengereug.mall.product.entity.AttrAttrgroupRelationEntity;
-import com.avengereug.mall.product.entity.AttrGroupEntity;
-import com.avengereug.mall.product.entity.CategoryEntity;
-import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
-import com.avengereug.mall.product.service.AttrGroupService;
-import com.avengereug.mall.product.service.CategoryService;
+import com.avengereug.mall.product.entity.*;
+import com.avengereug.mall.product.service.*;
 import com.avengereug.mall.product.vo.AttrRespVO;
 import com.avengereug.mall.product.vo.AttrVO;
 import org.apache.commons.lang.StringUtils;
@@ -27,8 +23,6 @@ import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.common.utils.Query;
 
 import com.avengereug.mall.product.dao.AttrDao;
-import com.avengereug.mall.product.entity.AttrEntity;
-import com.avengereug.mall.product.service.AttrService;
 
 
 @Service("attrService")
@@ -43,6 +37,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 
     @Autowired
     private AttrGroupService attrGroupService;
+
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -200,6 +197,13 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     @Override
     public List<AttrEntity> selectBatchIds(List<Long> attrIds) {
         return baseMapper.selectBatchIds(attrIds);
+    }
+
+    @Override
+    public List<ProductAttrValueEntity> getSpuBaseAttr(Long spuId) {
+        return productAttrValueService.list(
+                new QueryWrapper<ProductAttrValueEntity>().eq("spu_id", spuId)
+        );
     }
 
 }

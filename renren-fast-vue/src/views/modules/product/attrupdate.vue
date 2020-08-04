@@ -16,14 +16,16 @@
                   v-for="(attr,aidx) in group.attrs"
                   :key="attr.attrId"
                 >
+                  <!-- {{ "【" + dataResp.baseAttrs[gidx][aidx].attrValues + "】"}} -->
                   <el-input
                     v-model="dataResp.baseAttrs[gidx][aidx].attrId"
                     type="hidden"
                     v-show="false"
                   ></el-input>
+                  
                   <el-select
                     v-model="dataResp.baseAttrs[gidx][aidx].attrValues"
-                    :multiple="attr.valueType == 1"
+                    :multiple="attr.valueType === 1"
                     filterable
                     allow-create
                     default-first-option
@@ -85,7 +87,7 @@ export default {
         data.data.forEach(item => {
           this.spuAttrsMap["" + item.attrId] = item;
         });
-        console.log("~~~~", this.spuAttrsMap);
+        console.log("spu的基础属性~~~~", this.spuAttrsMap);
       });
     },
     getQueryParams() {
@@ -102,29 +104,33 @@ export default {
         method: "get",
         params: this.$http.adornParams({})
       }).then(({ data }) => {
-        //先对表单的baseAttrs进行初始化
+        //先对表单的baseAttrs进行初始化，回显
         data.data.forEach(item => {
-          let attrArray = [];
+          const attrArray = []
           item.attrs.forEach(attr => {
             let v = "";
             if (_this.spuAttrsMap["" + attr.attrId]) {
               v = _this.spuAttrsMap["" + attr.attrId].attrValue.split(";");
               if (v.length == 1) {
-                v = v[0] + "";
+                v = v[0].trim();
               }
             }
-            attrArray.push({
+
+            const obj = {
               attrId: attr.attrId,
               attrName: attr.attrName,
-              attrValues: v,
+              attrValues: attr.valueType === 1 ? (v.length ? [].concat(v) : []) : v,
               showDesc: _this.spuAttrsMap["" + attr.attrId]
                 ? _this.spuAttrsMap["" + attr.attrId].quickShow
                 : attr.showDesc
-            });
+            }
+
+            attrArray.push(obj);
           });
-          this.dataResp.baseAttrs.push(attrArray);
+          _this.dataResp.baseAttrs.push(attrArray);
         });
-        this.dataResp.attrGroups = data.data;
+        _this.dataResp.attrGroups = data.data;
+        console.log('this.dataResp :>> ', this.dataResp);
       });
     },
     submitSpuAttrs() {
@@ -181,8 +187,8 @@ export default {
     this.clearData();
     this.getQueryParams();
     if (this.spuId && this.catelogId) {
-      this.showBaseAttrs();
       this.getSpuBaseAttrs();
+      this.showBaseAttrs();
     }
   }
 };

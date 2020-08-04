@@ -1,6 +1,9 @@
 package com.avengereug.mall.product.service.impl;
 
+import com.avengereug.mall.common.anno.GlobalTransactional;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -24,6 +27,19 @@ public class ProductAttrValueServiceImpl extends ServiceImpl<ProductAttrValueDao
         );
 
         return new PageUtils(page);
+    }
+
+    @GlobalTransactional
+    @Override
+    public void updateSpuBaseAttr(Long spuId, List<ProductAttrValueEntity> productAttrValueEntity) {
+        // 直接删除
+        this.remove(new QueryWrapper<ProductAttrValueEntity>().eq("spu_id", spuId));
+
+        productAttrValueEntity.forEach( item -> {
+            item.setSpuId(spuId);
+        });
+
+        this.saveBatch(productAttrValueEntity);
     }
 
 }

@@ -75,7 +75,7 @@ public class PurchaseController extends BaseController {
      * 领取采购单
      * 请求格式：
      * method: post
-     * url: /warehouse/purchase/received?assignedId=xxx
+     * url: /warehouse/purchase/receive?assignedId=xxx
      * body:
      *   [1,2,3,4] //采购单id
      *

@@ -29,7 +29,7 @@
   |      服务名       |          作用          | 端口  |                             备注                             |
   | :---------------: | :--------------------: | :---: | :----------------------------------------------------------: |
   |    mall-common    | 各微服务共同依赖的模块 |  无   |                              无                              |
-  | renren-generator  |     代码逆向生成器     |  80   | 若需要启动它，需要将根目录的pom文件中的模块依赖加上(<module>renren-generator</module>-->) |
+  | renren-generator  |     代码逆向生成器     |  80   | 若需要启动它，需要将根目录的pom文件中的模块依赖加上(<module>renren-generator</module>) |
   |  service-coupon   |       优惠券服务       | 7000  |                      连接mall-sms数据库                      |
   |  service-member   |        会员服务        | 8000  |                      连接mall-msm数据库                      |
   |   service-order   |        订单服务        | 9000  |                      连接mall-oms数据库                      |
@@ -394,7 +394,6 @@
   |      pms_spu_info表中的品类字段写错了，写成了catalog_id      |       pms_spu_info对应模块的前后端对应的字段都要修改       |
   |      pms_sku_info表中的分类字段写错了，写成了catelog_id      |       pms_sku_info对应模块的前后端对应的字段都要修改       |
 
-  
 
 ##### 2、疑问点：
 

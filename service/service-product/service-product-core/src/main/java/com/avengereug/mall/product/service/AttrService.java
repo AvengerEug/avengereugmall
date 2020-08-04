@@ -1,5 +1,6 @@
 package com.avengereug.mall.product.service;
 
+import com.avengereug.mall.product.entity.ProductAttrValueEntity;
 import com.avengereug.mall.product.vo.AttrRespVO;
 import com.avengereug.mall.product.vo.AttrVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -44,5 +45,8 @@ public interface AttrService extends IService<AttrEntity> {
 
 
     List<AttrEntity> selectBatchIds(List<Long> attrIds);
+
+    List<ProductAttrValueEntity> getSpuBaseAttr(Long spuId);
+
 }
 

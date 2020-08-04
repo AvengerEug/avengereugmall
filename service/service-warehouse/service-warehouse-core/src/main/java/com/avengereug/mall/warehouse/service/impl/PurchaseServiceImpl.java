@@ -175,9 +175,14 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         }
     }
 
+    /**
+     * TODO 幂等性：相同的参数在多次调用完成采购的api时，应保持幂等
+     * @param purchaseDoneVO
+     */
     @GlobalTransactional
     @Override
     public void done(PurchaseDoneVO purchaseDoneVO) {
+        // TODO 验证采购单是否存在并且采购单详情是否属于采购单
         Long purchaseId = purchaseDoneVO.getPurchaseId();
 
         // 1. 批量更新采购单的item

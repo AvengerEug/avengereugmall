@@ -1,8 +1,11 @@
 package com.avengereug.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.avengereug.mall.product.entity.ProductAttrValueEntity;
+import com.avengereug.mall.product.service.ProductAttrValueService;
 import com.avengereug.mall.product.vo.AttrRespVO;
 import com.avengereug.mall.product.vo.AttrVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +35,14 @@ public class AttrController {
     @Autowired
     private AttrService attrService;
 
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
+
     /**
      * 获取基本/销售属性列表
      *
      * /base/list/{catelogId} ==> 获取基本属性
-     * /base/list/{catelogId} ==> 获取销售属性
+     * /sale/list/{catelogId} ==> 获取销售属性
      */
     @GetMapping("/{attrType}/list/{catelogId}")
     //@RequiresPermissions("product:attr:list")
@@ -47,6 +53,21 @@ public class AttrController {
         PageUtils page = attrService.queryBaseAttrListPage(params, catelogId, attrType);
 
         return R.ok().put("page", page);
+    }
+
+
+    /**
+     * 获取spu的基本属性  <---> spu的规格
+     *
+     * /base/listforspu/1
+     *
+     */
+    @GetMapping("/base/listforspu/{spuId}")
+    //@RequiresPermissions("product:attr:list")
+    public R getSpuBaseAttr(@PathVariable("spuId") Long spuId) {
+        List<ProductAttrValueEntity> productAttrValueEntityList = attrService.getSpuBaseAttr(spuId);
+
+        return R.ok().put("data", productAttrValueEntityList);
     }
 
 
@@ -79,6 +100,19 @@ public class AttrController {
     //@RequiresPermissions("product:attr:update")
     public R update(@RequestBody AttrVO attrVo){
         attrService.updateDetail(attrVo);
+
+        return R.ok();
+    }
+
+    /**
+     * 更新spu的规格参数(基础属性)
+     */
+    @PutMapping("/update/{spuId}")
+    //@RequiresPermissions("product:attr:update")
+    public R update(
+            @PathVariable("spuId") Long spuId,
+            @RequestBody List<ProductAttrValueEntity> productAttrValueEntity){
+        productAttrValueService.updateSpuBaseAttr(spuId, productAttrValueEntity);
 
         return R.ok();
     }
