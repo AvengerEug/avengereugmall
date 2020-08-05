@@ -27,6 +27,7 @@
         <module>service/renren-fast</module>
         <module>server/api-gate-way</module>
         <module>service/service-thirdparty</module>
+        <module>service/service-es</module>
         <!--<module>renren-generator</module>-->
     </modules>
 
