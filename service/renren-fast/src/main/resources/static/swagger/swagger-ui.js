@@ -234,9 +234,9 @@ templates['oauth2'] = template({"1":function(container,depth0,helpers,partials,d
 },"7":function(container,depth0,helpers,partials,data) {
     var stack1;
 
-  return "        <p>Setup client authentication."
+  return "        <p>Setup feign authentication."
     + ((stack1 = helpers["if"].call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.requireClientAuthenticaiton : depth0),{"name":"if","hash":{},"fn":container.program(8, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "</p>\n        <fieldset>\n            <div><label>Type:\n                <select class=\"oauth-client-authentication-type\" name=\"client-authentication-type\">\n                    <option value=\"none\" selected>None or other</option>\n                    <option value=\"basic\">Basic auth</option>\n                    <option value=\"request-body\">Request body</option>\n                </select>\n            </label></div>\n            <div class=\"oauth-client-authentication\" hidden>\n                <div><label>ClientId: <input class=\"oauth-client-id\" type=\"text\" name=\"client-id\"></label></div>\n                <div><label>Secret: <input class=\"oauth-client-secret\" type=\"text\" name=\"client-secret\"></label></div>\n            </div>\n        </fieldset>\n";
+    + "</p>\n        <fieldset>\n            <div><label>Type:\n                <select class=\"oauth-feign-authentication-type\" name=\"feign-authentication-type\">\n                    <option value=\"none\" selected>None or other</option>\n                    <option value=\"basic\">Basic auth</option>\n                    <option value=\"request-body\">Request body</option>\n                </select>\n            </label></div>\n            <div class=\"oauth-feign-authentication\" hidden>\n                <div><label>ClientId: <input class=\"oauth-feign-id\" type=\"text\" name=\"feign-id\"></label></div>\n                <div><label>Secret: <input class=\"oauth-feign-secret\" type=\"text\" name=\"feign-secret\"></label></div>\n            </div>\n        </fieldset>\n";
 },"8":function(container,depth0,helpers,partials,data) {
     return "(Required)";
 },"10":function(container,depth0,helpers,partials,data) {
@@ -3174,7 +3174,7 @@ this._cbs.ontext(data)}};Tokenizer.prototype.reset=function(){Tokenizer.call(thi
 state.pendingcb++;ret=writeOrBuffer(this,state,chunk,encoding,cb)}return ret};Writable.prototype.cork=function(){var state=this._writableState;state.corked++};Writable.prototype.uncork=function(){var state=this._writableState;if(state.corked){state.corked--;if(!state.writing&&!state.corked&&!state.finished&&!state.bufferProcessing&&state.bufferedRequest)clearBuffer(this,state)}};Writable.prototype.setDefaultEncoding=function setDefaultEncoding(encoding){if(typeof encoding==="string")encoding=encoding.toLowerCase();if(!(["hex","utf8","utf-8","ascii","binary","base64","ucs2","ucs-2","utf16le","utf-16le","raw"].indexOf((encoding+"").toLowerCase())>-1))throw new TypeError("Unknown encoding: "+encoding);this._writableState.defaultEncoding=encoding;return this};function decodeChunk(state,chunk,encoding){if(!state.objectMode&&state.decodeStrings!==false&&typeof chunk==="string"){chunk=bufferShim.from(chunk,encoding)}return chunk}function writeOrBuffer(stream,state,chunk,encoding,cb){chunk=decodeChunk(state,chunk,encoding);if(Buffer.isBuffer(chunk))encoding="buffer";var len=state.objectMode?1:chunk.length;state.length+=len;var ret=state.length<state.highWaterMark;if(!ret)state.needDrain=true;if(state.writing||state.corked){var last=state.lastBufferedRequest;state.lastBufferedRequest=new WriteReq(chunk,encoding,cb);if(last){last.next=state.lastBufferedRequest}else{state.bufferedRequest=state.lastBufferedRequest}state.bufferedRequestCount+=1}else{doWrite(stream,state,false,len,chunk,encoding,cb)}return ret}function doWrite(stream,state,writev,len,chunk,encoding,cb){state.writelen=len;state.writecb=cb;state.writing=true;state.sync=true;if(writev)stream._writev(chunk,state.onwrite);else stream._write(chunk,encoding,state.onwrite);state.sync=false}function onwriteError(stream,state,sync,er,cb){--state.pendingcb;if(sync)processNextTick(cb,er);else cb(er);stream._writableState.errorEmitted=true;stream.emit("error",er)}function onwriteStateUpdate(state){state.writing=false;state.writecb=null;state.length-=state.writelen;state.writelen=0}function onwrite(stream,er){var state=stream._writableState;var sync=state.sync;var cb=state.writecb;onwriteStateUpdate(state);if(er)onwriteError(stream,state,sync,er,cb);else{var finished=needFinish(state);if(!finished&&!state.corked&&!state.bufferProcessing&&state.bufferedRequest){clearBuffer(stream,state)}if(sync){asyncWrite(afterWrite,stream,state,finished,cb)}else{afterWrite(stream,state,finished,cb)}}}function afterWrite(stream,state,finished,cb){if(!finished)onwriteDrain(stream,state);state.pendingcb--;cb();finishMaybe(stream,state)}function onwriteDrain(stream,state){if(state.length===0&&state.needDrain){state.needDrain=false;stream.emit("drain")}}function clearBuffer(stream,state){state.bufferProcessing=true;var entry=state.bufferedRequest;if(stream._writev&&entry&&entry.next){var l=state.bufferedRequestCount;var buffer=new Array(l);var holder=state.corkedRequestsFree;holder.entry=entry;var count=0;while(entry){buffer[count]=entry;entry=entry.next;count+=1}doWrite(stream,state,true,state.length,buffer,"",holder.finish);state.pendingcb++;state.lastBufferedRequest=null;if(holder.next){state.corkedRequestsFree=holder.next;holder.next=null}else{state.corkedRequestsFree=new CorkedRequest(state)}}else{while(entry){var chunk=entry.chunk;var encoding=entry.encoding;var cb=entry.callback;var len=state.objectMode?1:chunk.length;doWrite(stream,state,false,len,chunk,encoding,cb);entry=entry.next;if(state.writing){break}}if(entry===null)state.lastBufferedRequest=null}state.bufferedRequestCount=0;state.bufferedRequest=entry;state.bufferProcessing=false}Writable.prototype._write=function(chunk,encoding,cb){cb(new Error("not implemented"))};Writable.prototype._writev=null;Writable.prototype.end=function(chunk,encoding,cb){var state=this._writableState;if(typeof chunk==="function"){cb=chunk;chunk=null;encoding=null}else if(typeof encoding==="function"){cb=encoding;encoding=null}if(chunk!==null&&chunk!==undefined)this.write(chunk,encoding);if(state.corked){state.corked=1;this.uncork()}if(!state.ending&&!state.finished)endWritable(this,state,cb)};function needFinish(state){return state.ending&&state.length===0&&state.bufferedRequest===null&&!state.finished&&!state.writing}function prefinish(stream,state){if(!state.prefinished){state.prefinished=true;stream.emit("prefinish")}}function finishMaybe(stream,state){var need=needFinish(state);if(need){if(state.pendingcb===0){prefinish(stream,state);state.finished=true;stream.emit("finish")}else{prefinish(stream,state)}}return need}function endWritable(stream,state,cb){state.ending=true;finishMaybe(stream,state);if(cb){if(state.finished)processNextTick(cb);else stream.once("finish",cb)}state.ended=true;stream.writable=false}function CorkedRequest(state){var _this=this;this.next=null;this.entry=null;this.finish=function(err){var entry=_this.entry;_this.entry=null;while(entry){var cb=entry.callback;state.pendingcb--;cb(err);entry=entry.next}if(state.corkedRequestsFree){state.corkedRequestsFree.next=_this}else{state.corkedRequestsFree=_this}}}}).call(this,require("_process"))},{"./_stream_duplex":44,_process:42,buffer:5,"buffer-shims":4,"core-util-is":6,events:28,inherits:38,"process-nextick-args":41,"util-deprecate":57}],49:[function(require,module,exports){"use strict";var Buffer=require("buffer").Buffer;var bufferShim=require("buffer-shims");module.exports=BufferList;function BufferList(){this.head=null;this.tail=null;this.length=0}BufferList.prototype.push=function(v){var entry={data:v,next:null};if(this.length>0)this.tail.next=entry;else this.head=entry;this.tail=entry;++this.length};BufferList.prototype.unshift=function(v){var entry={data:v,next:this.head};if(this.length===0)this.tail=entry;this.head=entry;++this.length};BufferList.prototype.shift=function(){if(this.length===0)return;var ret=this.head.data;if(this.length===1)this.head=this.tail=null;else this.head=this.head.next;--this.length;return ret};BufferList.prototype.clear=function(){this.head=this.tail=null;this.length=0};BufferList.prototype.join=function(s){if(this.length===0)return"";var p=this.head;var ret=""+p.data;while(p=p.next){ret+=s+p.data}return ret};BufferList.prototype.concat=function(n){if(this.length===0)return bufferShim.alloc(0);if(this.length===1)return this.head.data;var ret=bufferShim.allocUnsafe(n>>>0);var p=this.head;var i=0;while(p){p.data.copy(ret,i);i+=p.data.length;p=p.next}return ret}},{buffer:5,"buffer-shims":4}],50:[function(require,module,exports){module.exports=require("./lib/_stream_passthrough.js")},{"./lib/_stream_passthrough.js":45}],51:[function(require,module,exports){(function(process){var Stream=function(){try{return require("st"+"ream")}catch(_){}}();exports=module.exports=require("./lib/_stream_readable.js");exports.Stream=Stream||exports;exports.Readable=exports;exports.Writable=require("./lib/_stream_writable.js");exports.Duplex=require("./lib/_stream_duplex.js");exports.Transform=require("./lib/_stream_transform.js");exports.PassThrough=require("./lib/_stream_passthrough.js");if(!process.browser&&process.env.READABLE_STREAM==="disable"&&Stream){module.exports=Stream}}).call(this,require("_process"))},{"./lib/_stream_duplex.js":44,"./lib/_stream_passthrough.js":45,"./lib/_stream_readable.js":46,"./lib/_stream_transform.js":47,"./lib/_stream_writable.js":48,_process:42}],52:[function(require,module,exports){module.exports=require("./lib/_stream_transform.js")},{"./lib/_stream_transform.js":47}],53:[function(require,module,exports){module.exports=require("./lib/_stream_writable.js")},{"./lib/_stream_writable.js":48}],54:[function(require,module,exports){module.exports=function(string){return string.replace(/[-\\^$*+?.()|[\]{}]/g,"\\$&")}},{}],55:[function(require,module,exports){module.exports=Stream;var EE=require("events").EventEmitter;var inherits=require("inherits");inherits(Stream,EE);Stream.Readable=require("readable-stream/readable.js");Stream.Writable=require("readable-stream/writable.js");Stream.Duplex=require("readable-stream/duplex.js");Stream.Transform=require("readable-stream/transform.js");Stream.PassThrough=require("readable-stream/passthrough.js");Stream.Stream=Stream;function Stream(){EE.call(this)}Stream.prototype.pipe=function(dest,options){var source=this;function ondata(chunk){if(dest.writable){if(false===dest.write(chunk)&&source.pause){source.pause()}}}source.on("data",ondata);function ondrain(){if(source.readable&&source.resume){source.resume()}}dest.on("drain",ondrain);if(!dest._isStdio&&(!options||options.end!==false)){source.on("end",onend);source.on("close",onclose)}var didOnEnd=false;function onend(){if(didOnEnd)return;didOnEnd=true;dest.end()}function onclose(){if(didOnEnd)return;didOnEnd=true;if(typeof dest.destroy==="function")dest.destroy()}function onerror(er){cleanup();if(EE.listenerCount(this,"error")===0){throw er}}source.on("error",onerror);dest.on("error",onerror);function cleanup(){source.removeListener("data",ondata);dest.removeListener("drain",ondrain);source.removeListener("end",onend);source.removeListener("close",onclose);source.removeListener("error",onerror);dest.removeListener("error",onerror);source.removeListener("end",cleanup);source.removeListener("close",cleanup);dest.removeListener("close",cleanup)}source.on("end",cleanup);source.on("close",cleanup);dest.on("close",cleanup);dest.emit("pipe",source);return dest}},{events:28,inherits:38,"readable-stream/duplex.js":43,"readable-stream/passthrough.js":50,"readable-stream/readable.js":51,"readable-stream/transform.js":52,"readable-stream/writable.js":53}],56:[function(require,module,exports){var Buffer=require("buffer").Buffer;var isBufferEncoding=Buffer.isEncoding||function(encoding){switch(encoding&&encoding.toLowerCase()){case"hex":case"utf8":case"utf-8":case"ascii":case"binary":case"base64":case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":case"raw":return true;default:return false}};function assertEncoding(encoding){if(encoding&&!isBufferEncoding(encoding)){throw new Error("Unknown encoding: "+encoding)}}var StringDecoder=exports.StringDecoder=function(encoding){this.encoding=(encoding||"utf8").toLowerCase().replace(/[-_]/,"");assertEncoding(encoding);switch(this.encoding){case"utf8":this.surrogateSize=3;break;case"ucs2":case"utf16le":this.surrogateSize=2;this.detectIncompleteChar=utf16DetectIncompleteChar;break;case"base64":this.surrogateSize=3;this.detectIncompleteChar=base64DetectIncompleteChar;break;default:this.write=passThroughWrite;return}this.charBuffer=new Buffer(6);this.charReceived=0;this.charLength=0};StringDecoder.prototype.write=function(buffer){var charStr="";while(this.charLength){var available=buffer.length>=this.charLength-this.charReceived?this.charLength-this.charReceived:buffer.length;buffer.copy(this.charBuffer,this.charReceived,0,available);this.charReceived+=available;if(this.charReceived<this.charLength){return""}buffer=buffer.slice(available,buffer.length);charStr=this.charBuffer.slice(0,this.charLength).toString(this.encoding);var charCode=charStr.charCodeAt(charStr.length-1);if(charCode>=55296&&charCode<=56319){this.charLength+=this.surrogateSize;charStr="";continue}this.charReceived=this.charLength=0;if(buffer.length===0){return charStr}break}this.detectIncompleteChar(buffer);var end=buffer.length;if(this.charLength){buffer.copy(this.charBuffer,0,buffer.length-this.charReceived,end);end-=this.charReceived}charStr+=buffer.toString(this.encoding,0,end);var end=charStr.length-1;var charCode=charStr.charCodeAt(end);if(charCode>=55296&&charCode<=56319){var size=this.surrogateSize;this.charLength+=size;this.charReceived+=size;this.charBuffer.copy(this.charBuffer,size,0,size);buffer.copy(this.charBuffer,0,0,size);return charStr.substring(0,end)}return charStr};StringDecoder.prototype.detectIncompleteChar=function(buffer){var i=buffer.length>=3?3:buffer.length;for(;i>0;i--){var c=buffer[buffer.length-i];if(i==1&&c>>5==6){this.charLength=2;break}if(i<=2&&c>>4==14){this.charLength=3;break}if(i<=3&&c>>3==30){this.charLength=4;break}}this.charReceived=i};StringDecoder.prototype.end=function(buffer){var res="";if(buffer&&buffer.length)res=this.write(buffer);if(this.charReceived){var cr=this.charReceived;var buf=this.charBuffer;var enc=this.encoding;res+=buf.slice(0,cr).toString(enc)}return res};function passThroughWrite(buffer){return buffer.toString(this.encoding)}function utf16DetectIncompleteChar(buffer){this.charReceived=buffer.length%2;this.charLength=this.charReceived?2:0}function base64DetectIncompleteChar(buffer){this.charReceived=buffer.length%3;this.charLength=this.charReceived?3:0}},{buffer:5}],57:[function(require,module,exports){(function(global){module.exports=deprecate;function deprecate(fn,msg){if(config("noDeprecation")){return fn}var warned=false;function deprecated(){if(!warned){if(config("throwDeprecation")){throw new Error(msg)}else if(config("traceDeprecation")){console.trace(msg)}else{console.warn(msg)}warned=true}return fn.apply(this,arguments)}return deprecated}function config(name){try{if(!global.localStorage)return false}catch(_){return false}var val=global.localStorage[name];if(null==val)return false;return String(val).toLowerCase()==="true"}}).call(this,typeof global!=="undefined"?global:typeof self!=="undefined"?self:typeof window!=="undefined"?window:{})},{}],58:[function(require,module,exports){module.exports=extend;var hasOwnProperty=Object.prototype.hasOwnProperty;function extend(){var target={};for(var i=0;i<arguments.length;i++){var source=arguments[i];for(var key in source){if(hasOwnProperty.call(source,key)){target[key]=source[key]}}}return target}},{}]},{},[1])(1)});
 
 /**
- * swagger-client - swagger-client is a javascript client for use with swaggering APIs.
+ * swagger-feign - swagger-feign is a javascript feign for use with swaggering APIs.
  * @version v2.1.29
  * @link http://swagger.io
  * @license Apache-2.0
@@ -3184,7 +3184,7 @@ state.pendingcb++;ret=writeOrBuffer(this,state,chunk,encoding,cb)}return ret};Wr
 
 var auth = require('./lib/auth');
 var helpers = require('./lib/helpers');
-var SwaggerClient = require('./lib/client');
+var SwaggerClient = require('./lib/feign');
 var deprecationWrapper = function (url, options) {
   helpers.log('This is deprecated, use "new SwaggerClient" instead.');
 
@@ -3401,7 +3401,7 @@ var SwaggerSpecConverter = require('./spec-converter');
 var Q = require('q');
 
 // We have to keep track of the function/property names to avoid collisions for tag names which are used to allow the
-// following usage: 'client.{tagName}'
+// following usage: 'feign.{tagName}'
 var reservedClientTags = [
   'apis',
   'authorizationScheme',
@@ -3448,7 +3448,7 @@ var reservedClientTags = [
   'jqueryAjaxCache'
 ];
 // We have to keep track of the function/property names to avoid collisions for tag names which are used to allow the
-// following usage: 'client.apis.{tagName}'
+// following usage: 'feign.apis.{tagName}'
 var reservedApiTags = [
   'apis',
   'asCurl',
@@ -3788,7 +3788,7 @@ SwaggerClient.prototype.buildFromSpec = function (response) {
 
   // get paths, create functions for each operationId
 
-  // Bind help to 'client.apis'
+  // Bind help to 'feign.apis'
   self.apis.help = _.bind(self.help, self);
 
   _.forEach(response.paths, function (pathObj, path) {
@@ -3849,22 +3849,22 @@ SwaggerClient.prototype.buildFromSpec = function (response) {
         var operationGroup = self[clientProperty];
 
         if (clientProperty !== tag) {
-          helpers.log('The \'' + tag + '\' tag conflicts with a SwaggerClient function/property name.  Use \'client.' +
-                      clientProperty + '\' or \'client.apis.' + tag + '\' instead of \'client.' + tag + '\'.');
+          helpers.log('The \'' + tag + '\' tag conflicts with a SwaggerClient function/property name.  Use \'feign.' +
+                      clientProperty + '\' or \'feign.apis.' + tag + '\' instead of \'feign.' + tag + '\'.');
         }
 
         if (apiProperty !== tag) {
           helpers.log('The \'' + tag + '\' tag conflicts with a SwaggerClient operation function/property name.  Use ' +
-                      '\'client.apis.' + apiProperty + '\' instead of \'client.apis.' + tag + '\'.');
+                      '\'feign.apis.' + apiProperty + '\' instead of \'feign.apis.' + tag + '\'.');
         }
 
         if (_.indexOf(reservedApiTags, operationId) > -1) {
           helpers.log('The \'' + operationId + '\' operationId conflicts with a SwaggerClient operation ' +
-                      'function/property name.  Use \'client.apis.' + apiProperty + '._' + operationId +
-                      '\' instead of \'client.apis.' + apiProperty + '.' + operationId + '\'.');
+                      'function/property name.  Use \'feign.apis.' + apiProperty + '._' + operationId +
+                      '\' instead of \'feign.apis.' + apiProperty + '.' + operationId + '\'.');
 
           operationId = '_' + operationId;
-          operationObject.nickname = operationId; // So 'client.apis.[tag].operationId.help() works properly
+          operationObject.nickname = operationId; // So 'feign.apis.[tag].operationId.help() works properly
         }
 
         if (_.isUndefined(operationGroup)) {
@@ -4184,14 +4184,14 @@ var _ = {
 };
 
 /*
- * JQueryHttpClient is a light-weight, node or browser HTTP client
+ * JQueryHttpClient is a light-weight, node or browser HTTP feign
  */
 var JQueryHttpClient = function () {
   this.type = 'JQueryHttpClient';
 };
 
 /*
- * SuperagentHttpClient is a light-weight, node or browser HTTP client
+ * SuperagentHttpClient is a light-weight, node or browser HTTP feign
  */
 var SuperagentHttpClient = function () {
   this.type = 'SuperagentHttpClient';
@@ -7485,7 +7485,7 @@ Operation.prototype.execute = function (arg1, arg2, arg3, arg4, parent) {
     opts.requestAgent = this.requestAgent;
   }
 
-  // add the request interceptor from parent, if none sent from client
+  // add the request interceptor from parent, if none sent from feign
   if(!opts.requestInterceptor && this.requestInterceptor ) {
     opts.requestInterceptor = this.requestInterceptor ;
   }
@@ -7712,7 +7712,7 @@ Operation.prototype.setContentTypes = function (args, opts) {
 /**
  * Returns true if the request accepts header matches anything in this.produces.
  *  If this.produces contains * / *, ignore the accept header.
- * @param {string=} accepts The client request accept header.
+ * @param {string=} accepts The feign request accept header.
  * @return {boolean}
  */
 Operation.prototype.matchesAccept = function(accepts) {
@@ -21154,7 +21154,7 @@ module.exports = isObject;
 
 },{}],160:[function(require,module,exports){
 /**
- * Module of mixed-in functions shared between node and client code
+ * Module of mixed-in functions shared between node and feign code
  */
 var isObject = require('./is-object');
 
@@ -23000,12 +23000,12 @@ SwaggerUi.Views.Oauth2View = Backbone.View.extend({
 
         switch(type) {
             case 'none':
-                $el.find('.oauth-client-authentication').hide();
+                $el.find('.oauth-feign-authentication').hide();
                 break;
             case 'basic':
             case 'request-body':
-                $el.find('.oauth-client-id').removeClass(this.cls.error);
-                $el.find('.oauth-client-authentication').show();
+                $el.find('.oauth-feign-id').removeClass(this.cls.error);
+                $el.find('.oauth-feign-authentication').show();
                 break;
         }
     },
@@ -23029,7 +23029,7 @@ SwaggerUi.Views.Oauth2View = Backbone.View.extend({
         }
 
         if (!this.model.get('clientId')) {
-            this.$el.find('.oauth-client-id').addClass(this.cls.error);
+            this.$el.find('.oauth-feign-id').addClass(this.cls.error);
         }
     }
 });

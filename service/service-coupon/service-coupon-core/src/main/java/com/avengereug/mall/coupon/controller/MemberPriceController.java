@@ -71,8 +71,8 @@ public class MemberPriceController {
     /**
      * 服务内保存会员价格
      */
-    @PostMapping("/save/inner")
-    public R saveBatchInner(@RequestBody List<MemberPriceTO> memberPriceTOS) {
+    @PostMapping("/inner/save")
+    public R innerSaveBatch(@RequestBody List<MemberPriceTO> memberPriceTOS) {
         List<MemberPriceEntity> memberPriceEntityList = memberPriceTOS.stream().map(memberPriceTo -> {
             MemberPriceEntity memberPrice = new MemberPriceEntity();
             memberPrice.setSkuId(memberPriceTo.getSkuId());

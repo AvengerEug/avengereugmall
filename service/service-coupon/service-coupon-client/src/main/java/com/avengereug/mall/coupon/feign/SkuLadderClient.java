@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("coupon/skuladder")
 public interface SkuLadderClient {
 
-    @PostMapping("/save/inner")
-    R saveInner(@RequestBody SkuLadderTO skuLadderTo);
+    @PostMapping("/inner/save")
+    R innerSave(@RequestBody SkuLadderTO skuLadderTo);
 }

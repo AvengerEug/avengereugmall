@@ -1,5 +1,6 @@
 package com.avengereug.mall.warehouse.service.impl;
 
+import com.avengereug.mall.common.utils.R;
 import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.product.feign.SkuInfoClient;
 import com.avengereug.mall.product.vo.SkuInfoEntityVO;
@@ -66,7 +67,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             // 远程获取skuName, 这仅仅是一个冗余字段，没必要因为远程服务的调用超时等原因而引起的异常而导致事务回滚
             // TODO 有更优雅的方式解决！！！待解决
             try {
-                RPCResult<SkuInfoEntityVO> skuInfoEntityVORPCResult = skuInfoClient.infoInner(skuId);
+                RPCResult<SkuInfoEntityVO> skuInfoEntityVORPCResult = skuInfoClient.innerInfo(skuId);
                 if (skuInfoEntityVORPCResult.getCode() == 0) {
                     SkuInfoEntityVO result = skuInfoEntityVORPCResult.getResult();
                     entity.setSkuName(result.getSkuName());
@@ -77,6 +78,17 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             baseMapper.insert(entity);
         }
 
+    }
+
+    @Override
+    public boolean hasStock(Long skuId) {
+        Long stock = this.getStock(skuId);
+        return stock == null ? false : stock > 0;
+    }
+
+    @Override
+    public Long getStock(Long skuId) {
+        return baseMapper.getStock(skuId);
     }
 
 }

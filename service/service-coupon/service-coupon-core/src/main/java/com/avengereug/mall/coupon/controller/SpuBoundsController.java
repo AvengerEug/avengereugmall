@@ -70,8 +70,8 @@ public class SpuBoundsController {
     /**
      * 服务内部保存
      */
-    @PostMapping("/save/inner")
-    public R saveInner(@RequestBody SpuBoundsTO spuBoundsTO) {
+    @PostMapping("/inner/save")
+    public R innerSave(@RequestBody SpuBoundsTO spuBoundsTO) {
         SpuBoundsEntity entity = new SpuBoundsEntity();
         BeanUtils.copyProperties(spuBoundsTO, entity);
 

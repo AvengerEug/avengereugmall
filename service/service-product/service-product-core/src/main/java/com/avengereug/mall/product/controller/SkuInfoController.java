@@ -58,9 +58,9 @@ public class SkuInfoController {
     }
 
 
-    @GetMapping("/info/inner/{skuId}")
+    @GetMapping("/inner/info/{skuId}")
     //@RequiresPermissions("product:skuinfo:info")
-    public RPCResult<SkuInfoEntityVO> infoInner(@PathVariable("skuId") Long skuId){
+    public RPCResult<SkuInfoEntityVO> innerInfo(@PathVariable("skuId") Long skuId){
         SkuInfoEntity skuInfo = skuInfoService.getById(skuId);
         SkuInfoEntityVO skuInfoEntityVO = new SkuInfoEntityVO();
         BeanUtils.copyProperties(skuInfo, skuInfoEntityVO);

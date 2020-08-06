@@ -8,7 +8,11 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @EnableTransactionManagement
-@EnableFeignClients(basePackages = {"com.avengereug.mall.coupon.feign"})
+@EnableFeignClients(basePackages = {
+        "com.avengereug.mall.coupon.feign",
+        "com.avengereug.mall.warehouse.feign",
+        "com.avengereud.mall.es.client"
+})
 @MapperScan("com.avengereug.mall.product.dao")
 @StartApplication
 public class ServiceProductApplication {

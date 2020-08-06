@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("coupon/spubounds")
 public interface SpuBoundsClient {
 
-    @PostMapping("/save/inner")
-    R saveInner(@RequestBody SpuBoundsTO spuBoundsTO);
+    @PostMapping("/inner/save")
+    R innerSave(@RequestBody SpuBoundsTO spuBoundsTO);
 }

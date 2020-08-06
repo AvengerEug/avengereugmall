@@ -28,4 +28,47 @@ public final class ProductConstant {
         }
     }
 
+    public enum AttrSearchTypeEnum {
+        SUPPORT(1, "支持搜索"), UN_SUPPORT(0, "销售属性");
+
+        AttrSearchTypeEnum(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        private int code;
+        private String message;
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+    }
+
+
+    public enum PublishStatusEnum {
+        NEW(0, "新建"), UP(1, "上架"), DOWN(2, "下架");
+
+        PublishStatusEnum(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        private int code;
+        private String message;
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+    }
+
 }

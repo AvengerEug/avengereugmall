@@ -18,15 +18,15 @@ public class R extends HashMap<String, Object> {
     public R() {
         put("code", SUCCESS_CODE);
     }
-    
+
     public static R error() {
         return error(500, "未知异常，请联系管理员");
     }
-    
+
     public static R error(String msg) {
         return error(500, msg);
     }
-    
+
     public static R error(int code, String msg) {
         R r = new R();
         r.put("code", code);
@@ -45,7 +45,7 @@ public class R extends HashMap<String, Object> {
         r.putAll(map);
         return r;
     }
-    
+
     public static R ok() {
         return new R();
     }
@@ -63,8 +63,25 @@ public class R extends HashMap<String, Object> {
         return (String) this.get("msg");
     }
 
-    public <T> T getResult(String key) {
-        return (T) this.get(key);
+    /**
+     * TODO 因为R继承了HashMap，我们直接给R添加一个泛型是不起作用的，就算我们调用了setData方法，最终还是获取不到这个数据，待确认为什么会有这种情况的发生。
+     *
+     * TODO 为了解决全局统一返回对象(服务间调用与前后端服务调用都使用R对象)，且支持服务间传输指定类型数据的情况，我们可以把R再次进行封装, 目前先写一个普通
+     * 响应类来处理
+     *
+     *
+     */
+    /*private T data;
+
+    public T getData() {
+        return data;
     }
+
+    public R<T> setData(T data) {
+        this.data = data;
+        return this;
+    }*/
+
+
 
 }

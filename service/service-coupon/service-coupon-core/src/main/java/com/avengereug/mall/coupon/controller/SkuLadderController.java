@@ -70,8 +70,8 @@ public class SkuLadderController {
     /**
      * 微服务内部调用存储
      */
-    @PostMapping("/save/inner")
-    public R saveInner(@RequestBody SkuLadderTO skuLadderTo){
+    @PostMapping("/inner/save")
+    public R innerSave(@RequestBody SkuLadderTO skuLadderTo){
         SkuLadderEntity skuLadder = new SkuLadderEntity();
         BeanUtils.copyProperties(skuLadderTo, skuLadder);
         skuLadder.setAddOther(skuLadderTo.getCountStatus());

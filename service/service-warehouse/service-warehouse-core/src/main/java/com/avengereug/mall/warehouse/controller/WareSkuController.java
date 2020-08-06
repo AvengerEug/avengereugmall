@@ -3,6 +3,7 @@ package com.avengereug.mall.warehouse.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.common.utils.RPCResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +15,6 @@ import com.avengereug.mall.warehouse.entity.WareSkuEntity;
 import com.avengereug.mall.warehouse.service.WareSkuService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.common.utils.R;
-
 
 
 /**
@@ -84,6 +84,13 @@ public class WareSkuController {
         wareSkuService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+    @GetMapping("/inner/has-stock/{skuId}")
+    public RPCResult<Boolean> innerHasStock(@PathVariable("skuId") Long skuId) {
+        boolean result = wareSkuService.hasStock(skuId);
+
+        return new RPCResult<Boolean>().ok(result);
     }
 
 }

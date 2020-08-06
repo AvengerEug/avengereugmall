@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/coupon/skufullreduction")
 public interface SkuFullReductionClient {
 
-    @PostMapping("/save/inner")
-    R saveInner(@RequestBody SkuFullReductionTO skuFullReductionTo);
+    @PostMapping("/inner/save")
+    R innerSave(@RequestBody SkuFullReductionTO skuFullReductionTo);
 }

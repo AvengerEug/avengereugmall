@@ -35,6 +35,27 @@
             <artifactId>service-coupon-client</artifactId>
             <version>0.0.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.avengereug.mall</groupId>
+            <artifactId>service-es-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.avengereug.mall</groupId>
+            <artifactId>service-warehouse-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

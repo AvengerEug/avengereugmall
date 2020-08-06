@@ -5,3 +5,5 @@ spring:
   application:
     name: service-es
 
+server:
+  port: 12000

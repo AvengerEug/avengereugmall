@@ -70,9 +70,9 @@ public class SkuFullReductionController {
     /**
      * 保存
      */
-    @PostMapping("/save/inner")
+    @PostMapping("/inner/save")
     //@RequiresPermissions("coupon:skufullreduction:save")
-    public R saveInner(@RequestBody SkuFullReductionTO skuFullReductionTo){
+    public R innerSave(@RequestBody SkuFullReductionTO skuFullReductionTo){
         SkuFullReductionEntity skuFullReduction = new SkuFullReductionEntity();
         BeanUtils.copyProperties(skuFullReductionTo, skuFullReduction);
         skuFullReduction.setAddOther(skuFullReductionTo.getPriceStatus());

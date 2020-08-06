@@ -14,6 +14,6 @@ import java.util.List;
 public interface MemberPriceClient {
 
 
-    @PostMapping("/save/inner")
-    R saveBatchInner(@RequestBody List<MemberPriceTO> memberPriceTo);
+    @PostMapping("/inner/save")
+    R innerSaveBatch(@RequestBody List<MemberPriceTO> memberPriceTo);
 }

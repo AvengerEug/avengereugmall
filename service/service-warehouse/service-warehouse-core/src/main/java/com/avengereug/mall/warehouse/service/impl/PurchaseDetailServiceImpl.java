@@ -2,7 +2,6 @@ package com.avengereug.mall.warehouse.service.impl;
 
 import com.avengereug.mall.common.utils.R;
 import com.avengereug.mall.common.utils.RPCResult;
-import com.avengereug.mall.product.entity.SkuInfoEntity;
 import com.avengereug.mall.product.feign.SkuInfoClient;
 import com.avengereug.mall.product.vo.SkuInfoEntityVO;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -68,7 +66,7 @@ public class PurchaseDetailServiceImpl extends ServiceImpl<PurchaseDetailDao, Pu
 
         // 计算采购单的价格
         Long skuId = purchaseDetail.getSkuId();
-        RPCResult<SkuInfoEntityVO> info = skuInfoClient.infoInner(skuId);
+        RPCResult<SkuInfoEntityVO> info = skuInfoClient.innerInfo(skuId);
         if (R.SUCCESS_CODE != info.getCode()) {
             logger.error("调用商品微服务获取skuInfoEntity失败，", info.getMsg());
         }

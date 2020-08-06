@@ -1,6 +1,10 @@
 package com.avengereug.mall.product.service.impl;
 
+import com.avengereud.mall.es.client.ESClient;
 import com.avengereug.mall.common.anno.GlobalTransactional;
+import com.avengereug.mall.common.constants.ProductConstant;
+import com.avengereug.mall.common.utils.R;
+import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.coupon.feign.MemberPriceClient;
 import com.avengereug.mall.coupon.feign.SkuFullReductionClient;
 import com.avengereug.mall.coupon.feign.SkuLadderClient;
@@ -12,6 +16,8 @@ import com.avengereug.mall.coupon.to.SpuBoundsTO;
 import com.avengereug.mall.product.entity.*;
 import com.avengereug.mall.product.service.*;
 import com.avengereug.mall.product.vo.spusave.*;
+import com.avengereug.mall.to.SpuESTO;
+import com.avengereug.mall.warehouse.feign.WareSkuClient;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -53,7 +57,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private ProductAttrValueService productAttrValueService;
 
     @Autowired
-    private SkuInfoService saveSkuBaseInfo;
+    private SkuInfoService skuInfoService;
 
     @Autowired
     private SkuSaleAttrValueService skuSaleAttrValueService;
@@ -72,6 +76,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private SpuBoundsClient spuBoundsClient;
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
+    private WareSkuClient wareSkuClient;
+
+    @Autowired
+    private BrandService brandService;
+
+    @Autowired
+    private ESClient esClient;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -181,11 +197,103 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         saveSpuBounds(spuSaveVo, spuInfo);
     }
 
+    @GlobalTransactional
+    @Override
+    public void up(Long spuId) {
+        // 商品上架，大前提：拿到spu下面的所有sku，并组装SpuESTO对象交由ES处理
+        List<SpuESTO> spuESTOList = new ArrayList<>();
+
+        // 1、根据spuId，拿到所有sku信息
+        List<SkuInfoEntity> skuInfoEntityList = skuInfoService.list(
+                new QueryWrapper<SkuInfoEntity>().eq("spu_id", spuId)
+        );
+
+        // 2、 拿到spu信息
+        SpuInfoEntity spuInfoEntity = this.getById(spuId);
+
+        // 3、构建sku共用的Attrs
+        List<SpuESTO.Attrs> spuESTOAttrsList = buildSpuESTOAttrsList(spuInfoEntity);
+
+        // 4、构建sku共用的category, 根据spu中的categoryId拿到category的名称
+        CategoryEntity categoryEntity = categoryService.getById(spuInfoEntity.getCatelogId());
+
+        // 5、构建sku共用的branch, 根据spu中的品牌，拿到品牌id实体类，所有spu下的sku都共用品牌信息
+        BrandEntity brandEntity = brandService.getById(spuInfoEntity.getBrandId());
+
+        for (SkuInfoEntity skuInfoEntity : skuInfoEntityList) {
+            // 6、构建SpuESTO
+            SpuESTO spuESTO = new SpuESTO();
+            BeanUtils.copyProperties(skuInfoEntity, spuESTO);
+
+            spuESTO.setSkuPrice(skuInfoEntity.getPrice());
+            spuESTO.setSkuImg(skuInfoEntity.getSkuDefaultImg());
+
+            // 结合库存服务拿到此sku的库存  -> 根据skuId，校验它是否还有库存
+            // TODO 可以优化成，查找出所有的sku的库存，以skuId为key，库存值为value，存入map中，这样就避免了循环中调用远程服务了
+            // 目前的情况是：如果这个sku没有进行采购，那么它的库存就是null，这个时候其实没有必要查询的，
+            // 期望结果是，在外面把所有的sku的库存信息都查出来，以skuId为key，库存值为value，存入map中
+            // 最终在比较的时候，只需要根据skuId去map中去取数据，如果有数据，则说明有库存，否则，则没有库存
+            try {
+                RPCResult<Boolean> rpcResult = wareSkuClient.innerHasStock(skuInfoEntity.getSkuId());
+                spuESTO.setHasStock(rpcResult.getResult());
+            } catch (Exception e) {
+                // 有可能因为网络问题、部分sku商品没有分配采购单，导致查询的为null
+                logger.error("远程调用 获取sku库存api失败, 默认设置为没有库存", e);
+                spuESTO.setHasStock(false);
+            }
+
+            // 商品热度，默认为0
+            spuESTO.setHotScope(0L);
+            spuESTO.setBrandName(brandEntity.getName());
+            spuESTO.setBrandImg(brandEntity.getLogo());
+            spuESTO.setCatelogName(categoryEntity.getName());
+            spuESTO.setAttrs(spuESTOAttrsList);
+
+            spuESTOList.add(spuESTO);
+        }
+        System.out.println(spuESTOList);
+
+        // 7、将spuESTOList给service-es服务，添加文档
+        // TODO 远程服务调用，如何保证接口幂等性
+        RPCResult<Boolean> booleanR = esClient.indexSpu(spuESTOList);
+        if (booleanR.getResult() && booleanR.getCode() == 0) {
+            // 8、更新spu的状态为上架状态
+            SpuInfoEntity entity = new SpuInfoEntity();
+            entity.setId(spuId);
+            entity.setPublishStatus(ProductConstant.PublishStatusEnum.UP.getCode());
+            entity.setUpdateTime(new Date());
+
+            baseMapper.updateById(entity);
+        }
+
+    }
+
+    private List<SpuESTO.Attrs> buildSpuESTOAttrsList(SpuInfoEntity spuInfoEntity) {
+        // 3.1 拿出当前spu对应分类下所有支持搜索的规格属性
+        Set<Long> supportSearchAttrIds = attrService.list(
+                new QueryWrapper<AttrEntity>().eq("catelog_id", spuInfoEntity.getCatelogId())
+                        .eq("search_type", ProductConstant.AttrSearchTypeEnum.SUPPORT.getCode())
+        ).stream().map(AttrEntity::getAttrId).collect(Collectors.toSet());
+        // 3.2 拿到当前spu中拥有的规格参数
+        List<ProductAttrValueEntity> ownedAttrsWithSpu = productAttrValueService.list(
+                new QueryWrapper<ProductAttrValueEntity>()
+                        .eq("spu_id", spuInfoEntity.getId())
+        );
+        // 3.3 构建SpuESTO中的Attrs (可以被检索的属性)，将ownedAttrsWithSpu中包含在supportSearchAttrIds的属性都拿出来
+        return ownedAttrsWithSpu.stream()
+                .filter(item -> supportSearchAttrIds.contains(item.getAttrId()))
+                .map(item -> {
+                    SpuESTO.Attrs attrs = new SpuESTO.Attrs();
+                    BeanUtils.copyProperties(item, attrs);
+                    return attrs;
+                }).collect(Collectors.toList());
+    }
+
     private void saveSpuBounds(SpuSaveVO spuSaveVo, SpuInfoEntity spuInfo) {
         SpuBoundsTO spuBoundsTO = new SpuBoundsTO();
         BeanUtils.copyProperties(spuSaveVo.getBounds(), spuBoundsTO);
         spuBoundsTO.setSpuId(spuInfo.getId());
-        spuBoundsClient.saveInner(spuBoundsTO);
+        spuBoundsClient.innerSave(spuBoundsTO);
     }
 
     private void saveBatchMemberPrice(Skus sku, SkuInfoEntity skuInfoEntity) {
@@ -199,7 +307,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 })
                 .filter(item -> item.getPrice().compareTo(BigDecimal.ZERO) == 1)
                 .collect(Collectors.toList());
-        memberPriceClient.saveBatchInner(memberPriceTOS);
+        memberPriceClient.innerSaveBatch(memberPriceTOS);
     }
 
     private void saveSkuLadder(Skus sku, SkuInfoEntity skuInfoEntity) {
@@ -214,7 +322,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             BigDecimal priceAfterDiscount = sku.getPrice().multiply(sku.getDiscount());
             skuLadderTo.setPrice(priceAfterDiscount);
 
-            skuLadderClient.saveInner(skuLadderTo);
+            skuLadderClient.innerSave(skuLadderTo);
         }
     }
 
@@ -228,7 +336,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             SkuFullReductionTO skuFullReductionTo = new SkuFullReductionTO();
             BeanUtils.copyProperties(sku, skuFullReductionTo);
             skuFullReductionTo.setSkuId(skuInfoEntity.getSkuId());
-            skuFullReductionClient.saveInner(skuFullReductionTo);
+            skuFullReductionClient.innerSave(skuFullReductionTo);
         }
     }
 
@@ -270,7 +378,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         Images defaultImg = imagesList.size() > 0 ? imagesList.get(0) : sku.getImages().get(0);
         skuInfoEntity.setSkuDefaultImg(defaultImg.getImgUrl());
 
-        saveSkuBaseInfo.save(skuInfoEntity);
+        skuInfoService.save(skuInfoEntity);
         return skuInfoEntity;
     }
 
