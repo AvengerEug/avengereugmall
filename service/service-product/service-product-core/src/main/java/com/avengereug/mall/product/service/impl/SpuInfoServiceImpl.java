@@ -220,26 +220,36 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         // 5、构建sku共用的branch, 根据spu中的品牌，拿到品牌id实体类，所有spu下的sku都共用品牌信息
         BrandEntity brandEntity = brandService.getById(spuInfoEntity.getBrandId());
 
+        // 6、查询出所有sku的库存
+        // 结合库存服务拿到此sku的库存  -> 根据skuId，校验它是否还有库存
+        // TODO 可以优化成，查找出所有的sku的库存，以skuId为key，库存值为value，存入map中，这样就避免了循环中调用远程服务了
+        // 目前的情况是：如果这个sku没有进行采购，那么它的库存就是null，这个时候其实没有必要查询的，
+        // 期望结果是，在外面把所有的sku的库存信息都查出来，以skuId为key，库存值为value，存入map中
+        // 最终在比较的时候，只需要根据skuId去map中去取数据，如果有数据，则说明有库存，否则，则没有库存
+        Map<Long, Boolean> skuStockMap = null;
+
+        try {
+            List<Long> skuIds = skuInfoEntityList.stream().map(item -> item.getSkuId()).collect(Collectors.toList());
+            RPCResult<Map<Long, Boolean>> rpcResult = wareSkuClient.innerHasStock(skuIds);
+            skuStockMap = rpcResult.getResult();
+        } catch (Exception e) {
+            // 有可能因为网络问题、部分sku商品没有分配采购单，导致查询的为null
+            logger.error("远程调用 获取sku库存api失败, 默认设置为没有库存", e);
+        }
+
         for (SkuInfoEntity skuInfoEntity : skuInfoEntityList) {
-            // 6、构建SpuESTO
+            // 7、构建SpuESTO
             SpuESTO spuESTO = new SpuESTO();
             BeanUtils.copyProperties(skuInfoEntity, spuESTO);
 
             spuESTO.setSkuPrice(skuInfoEntity.getPrice());
             spuESTO.setSkuImg(skuInfoEntity.getSkuDefaultImg());
 
-            // 结合库存服务拿到此sku的库存  -> 根据skuId，校验它是否还有库存
-            // TODO 可以优化成，查找出所有的sku的库存，以skuId为key，库存值为value，存入map中，这样就避免了循环中调用远程服务了
-            // 目前的情况是：如果这个sku没有进行采购，那么它的库存就是null，这个时候其实没有必要查询的，
-            // 期望结果是，在外面把所有的sku的库存信息都查出来，以skuId为key，库存值为value，存入map中
-            // 最终在比较的时候，只需要根据skuId去map中去取数据，如果有数据，则说明有库存，否则，则没有库存
-            try {
-                RPCResult<Boolean> rpcResult = wareSkuClient.innerHasStock(skuInfoEntity.getSkuId());
-                spuESTO.setHasStock(rpcResult.getResult());
-            } catch (Exception e) {
-                // 有可能因为网络问题、部分sku商品没有分配采购单，导致查询的为null
-                logger.error("远程调用 获取sku库存api失败, 默认设置为没有库存", e);
+            if (skuStockMap == null) {
                 spuESTO.setHasStock(false);
+            } else {
+                Boolean hasStock = skuStockMap.get(skuInfoEntity.getSkuId());
+                spuESTO.setHasStock(hasStock == null ? false : hasStock);
             }
 
             // 商品热度，默认为0
@@ -254,7 +264,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         System.out.println(spuESTOList);
 
         // 7、将spuESTOList给service-es服务，添加文档
-        // TODO 远程服务调用，如何保证接口幂等性
+        // TODO 远程服务调用，需要保证接口幂等性
         RPCResult<Boolean> booleanR = esClient.indexSpu(spuESTOList);
         if (booleanR.getResult() && booleanR.getCode() == 0) {
             // 8、更新spu的状态为上架状态

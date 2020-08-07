@@ -16,8 +16,20 @@
         UPDATE wms_ware_sku SET stock = stock + #{actualSkuNum} WHERE ware_id = #{wareId} AND sku_id = #{skuId}
     </update>
 
-    <select id="getStock" resultType="java.lang.Long">
-        SELECT SUM(stock - stock_locked) AS available_stock FROM wms_ware_sku WHERE sku_id = #{skuId}
+    <select id="listStockGroupBySkuId" resultType="com.avengereug.mall.warehouse.dto.StockInfoDTO">
+        SELECT
+            sku_id, SUM(stock - stock_locked) AS tock
+        FROM
+            wms_ware_sku
+        GROUP BY
+            sku_id
+        HAVING
+            sku_id
+        IN
+        <foreach collection="skuIds" item="skuId" open="(" close=")" separator=",">
+            #{skuId}
+        </foreach>
+
     </select>
 
 

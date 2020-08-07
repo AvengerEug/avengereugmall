@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.warehouse.entity.WareSkuEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,8 +20,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 
     void addStock(Long skuId, Long wareId, Integer actualSkuNum);
 
-    boolean hasStock(Long skuId);
+    Map<Long, Boolean> stockInfo(List<Long> skuIds);
 
-    Long getStock(Long skuId);
 }
 

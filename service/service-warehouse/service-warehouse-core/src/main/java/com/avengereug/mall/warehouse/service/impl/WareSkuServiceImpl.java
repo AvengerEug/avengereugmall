@@ -4,10 +4,15 @@ import com.avengereug.mall.common.utils.R;
 import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.product.feign.SkuInfoClient;
 import com.avengereug.mall.product.vo.SkuInfoEntityVO;
+import com.avengereug.mall.warehouse.dto.StockInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -81,14 +86,12 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     }
 
     @Override
-    public boolean hasStock(Long skuId) {
-        Long stock = this.getStock(skuId);
-        return stock == null ? false : stock > 0;
-    }
+    public Map<Long, Boolean> stockInfo(List<Long> skuIds) {
+        List<StockInfoDTO> stockInfoDTOList = baseMapper.listStockGroupBySkuId(skuIds);
+        Map<Long, Boolean> map = stockInfoDTOList.stream()
+                .collect(Collectors.toMap(key -> key.getSkuId(), value -> value.getStock() == null ? false : value.getStock() > 0));
 
-    @Override
-    public Long getStock(Long skuId) {
-        return baseMapper.getStock(skuId);
+        return map;
     }
 
 }

@@ -1,6 +1,7 @@
 package com.avengereug.mall.warehouse.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import com.avengereug.mall.common.utils.RPCResult;
@@ -86,11 +87,11 @@ public class WareSkuController {
         return R.ok();
     }
 
-    @GetMapping("/inner/has-stock/{skuId}")
-    public RPCResult<Boolean> innerHasStock(@PathVariable("skuId") Long skuId) {
-        boolean result = wareSkuService.hasStock(skuId);
+    @PostMapping("/inner/has-stock")
+    public RPCResult<Map<Long, Boolean>> innerHasStock(@RequestBody List<Long> skuIds) {
+        Map<Long, Boolean> stockInfo = wareSkuService.stockInfo(skuIds);
 
-        return new RPCResult<Boolean>().ok(result);
+        return new RPCResult<Map<Long, Boolean>>().ok(stockInfo);
     }
 
 }
