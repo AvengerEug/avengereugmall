@@ -1,5 +1,6 @@
 package com.avengereug.mall.product.service;
 
+import com.avengereug.mall.product.vo.Catelog2Vo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.CategoryEntity;
@@ -32,5 +33,9 @@ public interface CategoryService extends IService<CategoryEntity> {
     void updateCascade(CategoryEntity category);
 
     String getName(Long catelogId);
+
+    List<CategoryEntity> getLevel1Categorys();
+
+    Map<String,List<Catelog2Vo>> getCatalogJson();
 }
 
