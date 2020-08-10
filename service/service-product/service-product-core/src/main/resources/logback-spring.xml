@@ -32,7 +32,7 @@
         <!-- 因为root中过滤的是大于INFO级别的日志, 但是mybatis的sql语句是debug级别,  -->
         <logger name="com.avengereug.mall" level="DEBUG"/>
         <!-- 过滤所有输出日志 > INFO级别的日志 -->
-        <root level="INFO">
+        <root level="ERROR">
             <appender-ref ref="CONSOLE" />
         </root>
     </springProfile>

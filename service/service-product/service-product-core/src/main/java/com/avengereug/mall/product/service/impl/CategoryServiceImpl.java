@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -155,6 +156,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return categoryEntities;
     }
 
+
+
     /**
      * 使用spring-boot-starter-data-redis的
      * stringRedisTemplate保存分类数据时，会出现非常严重的问题，
@@ -178,55 +181,84 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     public Map<String, List<Catelog2Vo>> getCatalogJson() {
-        String categoryJSON = stringRedisTemplate.opsForValue().get(CATEGORY_CACHE_KEY);
+        String categoryJSON = getCategoryJSONFromCache();
 
         if (StringUtils.isNotEmpty(categoryJSON)) {
+            System.out.println("命中缓存。。。。");
             return JSON.parseObject(categoryJSON, new TypeReference<Map<String, List<Catelog2Vo>>>() {});
         }
 
-        System.out.println("查询了数据库");
-
-        //将数据库的多次查询变为一次
-        List<CategoryEntity> selectList = this.baseMapper.selectList(null);
-
-        //1、查出所有分类
-        //1、1）查出所有一级分类
-        List<CategoryEntity> level1Categorys = getParent_cid(selectList, 0L);
-
-        //封装数据
-        Map<String, List<Catelog2Vo>> parentCid = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
-            //1、每一个的一级分类,查到这个一级分类的二级分类
-            List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
-
-            //2、封装上面的结果
-            List<Catelog2Vo> catelog2Vos = null;
-            if (categoryEntities != null) {
-                catelog2Vos = categoryEntities.stream().map(l2 -> {
-                    Catelog2Vo catelog2Vo = new Catelog2Vo(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName().toString());
-
-                    //1、找当前二级分类的三级分类封装成vo
-                    List<CategoryEntity> level3Catelog = getParent_cid(selectList, l2.getCatId());
-
-                    if (level3Catelog != null) {
-                        List<Catelog2Vo.Category3Vo> category3Vos = level3Catelog.stream().map(l3 -> {
-                            //2、封装成指定格式
-                            Catelog2Vo.Category3Vo category3Vo = new Catelog2Vo.Category3Vo(l2.getCatId().toString(), l3.getCatId().toString(), l3.getName());
-
-                            return category3Vo;
-                        }).collect(Collectors.toList());
-                        catelog2Vo.setCatalog3List(category3Vos);
-                    }
-
-                    return catelog2Vo;
-                }).collect(Collectors.toList());
+        /**
+         * 加锁，解决缓存击穿的问题。
+         * 核心：
+         * 1、从缓存中获取值的过程中不添加锁，直接从缓存中获取
+         * 2、缓存中没有，应该添加一把锁，来防止高并发下对热点key的频繁访问，最终导致DB性能拖垮
+         * 3、线程拥有锁后，应该要将查询DB + 将数据放入redis的操作变成原子性操作。所以这两个操作要放在同一把锁中
+         * 4、线程拿到锁后，还要从缓存中取一次，防止在高并发的情况下，所有线程阻塞到获取锁的过程中，待上一个线程将
+         *    数据放置缓存中后，另外一个线程也会拿到锁，进而执行锁内的逻辑，所以在拿到锁后，还需要再从缓存中获取一遍
+         *
+         * // TODO 引申出来的问题：加锁的时候，我们要考虑哪些方面？
+         */
+        synchronized (this) {
+            categoryJSON = getCategoryJSONFromCache();
+            if (StringUtils.isNotEmpty(categoryJSON)) {
+                System.out.println("命中缓存。。。。");
+                return JSON.parseObject(categoryJSON, new TypeReference<Map<String, List<Catelog2Vo>>>() {});
             }
 
-            return catelog2Vos;
-        }));
+            System.out.println("查询了数据库");
+            //将数据库的多次查询变为一次
+            List<CategoryEntity> selectList = this.baseMapper.selectList(null);
 
-        stringRedisTemplate.opsForValue().set(CATEGORY_CACHE_KEY, JSON.toJSONString(parentCid));
+            //1、查出所有分类
+            //1、1）查出所有一级分类
+            List<CategoryEntity> level1Categorys = getParent_cid(selectList, 0L);
 
-        return parentCid;
+            //封装数据
+            Map<String, List<Catelog2Vo>> parentCid = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+                //1、每一个的一级分类,查到这个一级分类的二级分类
+                List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
+
+                //2、封装上面的结果
+                List<Catelog2Vo> catelog2Vos = null;
+                if (categoryEntities != null) {
+                    catelog2Vos = categoryEntities.stream().map(l2 -> {
+                        Catelog2Vo catelog2Vo = new Catelog2Vo(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName().toString());
+
+                        //1、找当前二级分类的三级分类封装成vo
+                        List<CategoryEntity> level3Catelog = getParent_cid(selectList, l2.getCatId());
+
+                        if (level3Catelog != null) {
+                            List<Catelog2Vo.Category3Vo> category3Vos = level3Catelog.stream().map(l3 -> {
+                                //2、封装成指定格式
+                                Catelog2Vo.Category3Vo category3Vo = new Catelog2Vo.Category3Vo(l2.getCatId().toString(), l3.getCatId().toString(), l3.getName());
+
+                                return category3Vo;
+                            }).collect(Collectors.toList());
+                            catelog2Vo.setCatalog3List(category3Vos);
+                        }
+
+                        return catelog2Vo;
+                    }).collect(Collectors.toList());
+                }
+
+                return catelog2Vos;
+            }));
+
+            // 不管处理后的数据存不存在，都放在redis中，防止缓存穿透，且为key设置了随机的过期时间，防止缓存雪崩
+            // TODO: 有个缺点，若有人写脚本每次高并发查询不相同的key，此时这种方案不好，应该使用布隆过滤器来解决
+            long min = 1;
+            long max = 10;
+            long rangeLong = min + (((long) (new Random().nextDouble() * (max - min))));
+            stringRedisTemplate.opsForValue().set(CATEGORY_CACHE_KEY, parentCid == null ? null : JSON.toJSONString(parentCid), rangeLong, TimeUnit.DAYS);
+
+            return parentCid;
+        }
+
+    }
+
+    private String getCategoryJSONFromCache() {
+        return stringRedisTemplate.opsForValue().get(CATEGORY_CACHE_KEY);
     }
 
     /**
