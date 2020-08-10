@@ -1,11 +1,15 @@
 package com.avengereug.mall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.avengereug.mall.common.anno.GlobalTransactional;
 import com.avengereug.mall.product.service.CategoryBrandRelationService;
 import com.avengereug.mall.product.vo.Catelog2Vo;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,8 +32,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     private static final Logger logger = LoggerFactory.getLogger(CategoryServiceImpl.class);
 
+    private static final String CATEGORY_CACHE_KEY = "categoryList";
+
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -146,8 +155,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return categoryEntities;
     }
 
+    /**
+     * 使用spring-boot-starter-data-redis的
+     * stringRedisTemplate保存分类数据时，会出现非常严重的问题，
+     * 因为在springboot2.0之后，redisTemplate在初始化的过程中，默认使用的是Lettuce作为redis的客户端，
+     * 而Lettuce底层使用的netty通信，又因为netty存储堆外内存的概念，当我们没有显示的
+     * 指定netty的对外内存时，它会使用默认的jvm的-Xmx的参数。
+     * Lettuce的一些bug，导致netty的堆外内存没有正常释放，在高并发长时间交互redis的情况下，会频繁的进行
+     * 反序列化操作，因为反序列化是netty在处理，所以会用到netty的堆外内存，最终会导致netty堆外内存被占满，
+     * 进而触发OutOfDirectMemoryError的异常。
+     * 在高并发的情况下如果使用Lettuce操作redis，那么这个问题是一定会发生的，只是时间长短问题。
+     *
+     * 解决方案：
+     * 1、升级Lettuce客户端版本，但是好像没有一个很好的解决方案
+     * 2、使用jedis客户端来替代Lettuce(直接在xml中配置即可，redisTemplate的自动装配支持根据依赖来决定
+     *    redisTemplate底层是使用哪种客户端来与redis进行交互)
+     * 3、使用其他的redis客户端来操作，eg：redisson
+     *
+     * TODO: 后续部署生产环境时，可以把客户端改成Lettuce来定位问题
+     *
+     * @return
+     */
     @Override
     public Map<String, List<Catelog2Vo>> getCatalogJson() {
+        String categoryJSON = stringRedisTemplate.opsForValue().get(CATEGORY_CACHE_KEY);
+
+        if (StringUtils.isNotEmpty(categoryJSON)) {
+            return JSON.parseObject(categoryJSON, new TypeReference<Map<String, List<Catelog2Vo>>>() {});
+        }
+
         System.out.println("查询了数据库");
 
         //将数据库的多次查询变为一次
@@ -187,6 +223,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
             return catelog2Vos;
         }));
+
+        stringRedisTemplate.opsForValue().set(CATEGORY_CACHE_KEY, JSON.toJSONString(parentCid));
 
         return parentCid;
     }

@@ -633,7 +633,59 @@
   >
   > 2、虚拟机的nginx配置server模块，标识 **avengereugmall.com**域名绑定80端口，并配置反向代理至后台微服务的网关服务
   >
+  > ```txt
+  > 1、在nginx的默认配置文件的http模块中添加如下配置(目的是为了在如下文件夹中寻找其他的配置文件)：
+  >    include /usr/local/nginx/conf/conf.d/**.conf;
+  > 2、在/usr/local/nginx/conf/conf.d文件夹中创建配置文件mall.conf, 并填充如下内容
+  >     upstream malldomain {
+  >         #指向windows的ip地址，一般是虚拟机最后面一个数字改成1，并且反向代理后微服务的网关服务
+  >         server 192.168.111.1:88;
+  >     }
+  > 
+  >     server {
+  >             listen       80;
+  >             server_name  avengereugmall.com;
+  > 
+  >             #charset koi8-r;
+  > 
+  >             #access_log  logs/host.access.log  main;
+  > 
+  >             location / {
+  >                 proxy_set_header Host $host;
+  >                 proxy_set_header X-Real-IP $remote_addr;
+  >                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  >                 proxy_pass http://malldomain;
+  >             }
+  > 
+  >             #error_page  404              /404.html;
+  > 
+  >             # redirect server error pages to the static page /50x.html
+  >             #
+  >             error_page   500 502 503 504  /50x.html;
+  >             location = /50x.html {
+  >                 root   html;
+  >             }
+  >     }
+  > 3、让nginx重新加载配置文件
+  >    /usr/local/nginx/sbin/nginx -s reload
+  > ```
+  >
+  > 
+  >
   > 3、后台网关服务根据host的断言来进行路由转发(一定要放在最后面，否则所有相同的host转发都将转发至相同的服务)
+  
+* 踩到的坑：
+
+  ```shell
+  upstream malldomain {
+  	#指向windows的ip地址，一般是虚拟机最后面一个数字改成1，并且反向代理后微服务的网关服务
+  	server 192.168.111.1:88;
+  }
+  
+  # 上面填写的ip地址，在一般情况下的确是将最后面一个数字改成1，但要注意windows的防火墙要关闭，nginx反向代理会失败，会报超时异常
+  ```
+
+  
 
 #### 十五、压力测试
 
@@ -681,11 +733,111 @@
   window提供给tpc/ip链接的端口为1024-5000,并且要四分钟来循环回收他们. 就导致我们在短时间内跑大量的请求时将端口占满.
   ```
 
+
+##### 15.3 性能优化思考方向
+
+* 思考方向
+
+  ```txt
+  1、数据库性能高不高，接口有没有走索引
+  2、应用程序中的业务逻辑是否可以优化，使用空间换时间方式提供响应速度
+  3、中间件的性能是否影响了响应速度，比如网关的转发、DNS的寻址
+  4、网络IO，带宽很慢
+  5、操作系统，内核内部对握手链接的实现细节
+  ```
+
+* 要对上述方向进行定位之前，我们要了解我们的项目是属于**I/O密集型**还是**CPU密集型**的项目。
+
+  ```txt
+  1、CPU密集型：
+     概念：当前项目会进行大量的计算，比如查到了一堆数据还需要进行遍历、过滤等操作，这些操作都是直接操作
+          CPU的，或者在性能监控中，能看到cpu的占用率达到百分之七八十的利用，那说明这也是cpu密集型应用
+     优化：升级硬件，将CPU的核心数加上去就可以了。
+     
+  2、I/O密集型：
+     概念：CPU占用率低，但是服务器的内存挤爆了、磁盘在疯狂的读取数据，网络传输的数据很大。这些都是属于
+          I/O密集型的应用
+     优化：换固态、加内存(加内存条、加应用运行内存)、添加缓存技术、提高网卡的传输效率就可以了。
   
+  ```
 
+  除此之外，如果是对应用程序进行优化时，我们需要监控JVM内存使用情况，比如**年轻代**和**老年代**的内存使用情况，
 
+  进而进行针对性的优化。
 
+##### 15.4 服务页面动静分离
 
+* 步骤
+
+  > 1、将静态资源移动至nginx中，可以定义一个规则：比如将每个微服务中所有页面的静态文件都放到nginx中叫mall的文件夹内，同时内部以服务名进行区分。
+  >
+  > eg: /usr/local/nginx/html/mall/product/static路径下存放的是product服务的classpath下的static文件夹下的所有文件
+  >
+  > 2、修改nginx配置文件(对应avengereugmall.com域名监听的80端口配置文件)，并添加如下内容
+  >
+  > ```json
+  > location /mall {
+  > 	root /usr/local/nginx/html;
+  > }
+  > ```
+  >
+  > 上述有如下两种含义：
+  >
+  > ```txt
+  > 1、当使用avengereugmall.com/mall请求nginx时，会到/usr/local/nginx/html路径下去找mall文件
+  > 2、当使用avengereugmall.com/mall/product/static/index/1.png请求nginx时，会到/usr/local/nginx/html路径下去找mall/product/static/index/1.png资源
+  > ```
+  >
+  > 同时要注意：location后面的 **/mall** 不能改成 **/mall/**，localtion模块中的配置只是表示要获取哪些资源，就到配置下root中指定的路径去寻找
+  >
+  > 3、最好是在生成环境下这么玩，否则每次更改了一些js文件还要将文件同步至nginx中。
+  >
+  > 
+
+##### 15.5 jvisualvm安装插件
+
+* 在cmd命令行中执行jvisualvm命令启动jvisualvm(因为配置了java的环境变量，所以在cmd中直接输入命令，可以查找到对应的exe文件)
+* 使用jvisualvm来监控jvm时，一般会添加**Visual GC**插件，要安装此插件可以通过菜单中**工具->插件**来定位，其中有个**设置**选项，我们要在线安装，所以需要配置下载插件的url，每个jdk版本使用的url不一样，可以参考此网站[https://visualvm.github.io/pluginscenters.html](https://visualvm.github.io/pluginscenters.html)来进行查询，eg，我的jdk版本为**1.8.0_131**，那么我们可以在上述网站中找到对应的jdk版本，点进去，并在最上方找到**updates.xml.gz**的路径，我的版本中路径为：https://visualvm.github.io/uc/8u131/updates.xml.gz，因此，直接把jvisualvm中下载插件的url修改成https://visualvm.github.io/uc/8u131/updates.xml.gz即可。
+
+##### 15.6 jvm参数对调优的影响
+
+* 我们设置**-Xmx1024m -Xms1024m -Xmn512m**，来设置堆内存大小为1G，以及新生代大小为512m，调大新生代的大小能保证**young gc**的次数减少，虽然**young gc**没有**full gc**那么耗时，但多多少少它也会耗时，这方面的原因我们也需要考虑到。所以增加新生代的大小可以减少**Young gc**的次数，进而减少gc影响的时间，进而增加接口的QPS。
+
+#### 十六、分布式系统提高QPS神器 - 缓存
+
+* 在系统设计中，我们的DB最好只承担**数据落地**角色，即把数据持久化。但是，因为我们大多数使用关系型数据库，所
+
+  以它的每次查询都会将硬盘中的数据读取至内存，这里就会存在I/O操作，这是一个比较慢的操作，因此，为了提高系
+
+  统接口的QPS，我们通常会引入缓存。
+
+  **注意：这里的缓存不是本地缓存，在分布式系统中，本地缓存会出现非常大的问题**
+
+##### 16.1 什么数据适用于缓存？
+
+* 即时性、数据一致性要求不高的
+* 读多写少的数据
+* 举例：**商品分类、权限验证**信息这样的数据就适合存入缓存
+
+##### 16.2 spring-boot-starter-data-redis中redisTemplate使用Lettuce的坑
+
+> ```txt
+> 使用spring-boot-starter-data-redis的
+> stringRedisTemplate保存分类数据时，会出现非常严重的问题，
+> 因为在springboot2.0之后，redisTemplate在初始化的过程中，默认使用的是Lettuce作为redis的客户端，
+> 而Lettuce底层使用的netty通信，又因为netty存储堆外内存的概念，当我们没有显示的
+> 指定netty的对外内存时，它会使用默认的jvm的-Xmx的参数。
+> Lettuce的一些bug，导致netty的堆外内存没有正常释放，在高并发长时间交互redis的情况下，会频繁的进行
+> 反序列化操作，因为反序列化是netty在处理，所以会用到netty的堆外内存，最终会导致netty堆外内存被占满，
+> 进而触发OutOfDirectMemoryError的异常。
+> 在高并发的情况下如果使用Lettuce操作redis，那么这个问题是一定会发生的，只是时间长短问题。
+> 
+> 解决方案：
+> 1、升级Lettuce客户端版本，但是好像没有一个很好的解决方案
+> 2、使用jedis客户端来替代Lettuce(直接在xml中配置即可，redisTemplate的自动装配支持根据依赖来决定
+>    redisTemplate底层是使用哪种客户端来与redis进行交互)
+> 3、使用其他的redis客户端来操作，eg：redisson
+> ```
 
 
 
