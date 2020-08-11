@@ -6,6 +6,8 @@ import com.avengereug.mall.common.anno.GlobalTransactional;
 import com.avengereug.mall.product.service.CategoryBrandRelationService;
 import com.avengereug.mall.product.vo.Catelog2Vo;
 import org.apache.commons.lang.StringUtils;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -199,6 +204,91 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
          *
          * // TODO 引申出来的问题：加锁的时候，我们要考虑哪些方面？
          */
+        return getCategoryListWithDistributedLock();
+
+    }
+
+    private Map<String, List<Catelog2Vo>> getCategoryListWithDistributedLock() {
+        String categoryJSON = getCategoryJSONFromCache();
+        if (StringUtils.isNotEmpty(categoryJSON)) {
+            System.out.println("命中缓存。。。。");
+            return JSON.parseObject(categoryJSON, new TypeReference<Map<String, List<Catelog2Vo>>>() {});
+        }
+
+        RLock categoryLock = redissonClient.getLock("categoryLock");
+
+        Map<String, List<Catelog2Vo>> parentCid = null;
+
+        // 使用tryLock的话，加锁失败则不会阻塞
+        // categoryLock.tryLock(10, TimeUnit.SECONDS);  ==> 加锁等待10s，若还未获取到锁，则直接返回false
+        categoryLock.lock();
+        try {
+            System.out.println("获取到锁");
+            Thread.sleep(30000);
+
+            categoryJSON = getCategoryJSONFromCache();
+            if (StringUtils.isNotEmpty(categoryJSON)) {
+                System.out.println("命中缓存。。。。");
+                return JSON.parseObject(categoryJSON, new TypeReference<Map<String, List<Catelog2Vo>>>() {});
+            }
+
+            System.out.println("查询了数据库");
+            //将数据库的多次查询变为一次
+            List<CategoryEntity> selectList = this.baseMapper.selectList(null);
+
+            //1、查出所有分类
+            //1、1）查出所有一级分类
+            List<CategoryEntity> level1Categorys = getParent_cid(selectList, 0L);
+
+            //封装数据
+            parentCid = level1Categorys.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+                //1、每一个的一级分类,查到这个一级分类的二级分类
+                List<CategoryEntity> categoryEntities = getParent_cid(selectList, v.getCatId());
+                //2、封装上面的结果
+                List<Catelog2Vo> catelog2Vos = null;
+                if (categoryEntities != null) {
+                    catelog2Vos = categoryEntities.stream().map(l2 -> {
+                        Catelog2Vo catelog2Vo = new Catelog2Vo(v.getCatId().toString(), null, l2.getCatId().toString(), l2.getName().toString());
+
+                        //1、找当前二级分类的三级分类封装成vo
+                        List<CategoryEntity> level3Catelog = getParent_cid(selectList, l2.getCatId());
+
+                        if (level3Catelog != null) {
+                            List<Catelog2Vo.Category3Vo> category3Vos = level3Catelog.stream().map(l3 -> {
+                                //2、封装成指定格式
+                                Catelog2Vo.Category3Vo category3Vo = new Catelog2Vo.Category3Vo(l2.getCatId().toString(), l3.getCatId().toString(), l3.getName());
+
+                                return category3Vo;
+                            }).collect(Collectors.toList());
+                            catelog2Vo.setCatalog3List(category3Vos);
+                        }
+
+                        return catelog2Vo;
+                    }).collect(Collectors.toList());
+                }
+
+                return catelog2Vos;
+            }));
+
+            // 不管处理后的数据存不存在，都放在redis中，防止缓存穿透，且为key设置了随机的过期时间，防止缓存雪崩
+            // TODO: 有个缺点，若有人写脚本每次高并发查询不相同的key，此时这种方案不好，应该使用布隆过滤器来解决
+            long min = 1;
+            long max = 10;
+            long rangeLong = min + (((long) (new Random().nextDouble() * (max - min))));
+            stringRedisTemplate.opsForValue().set(CATEGORY_CACHE_KEY, parentCid == null ? null : JSON.toJSONString(parentCid), rangeLong, TimeUnit.DAYS);
+
+            return parentCid;
+        } catch (Exception e) {
+        } finally {
+            System.out.println("解锁");
+            categoryLock.unlock();
+        }
+
+        return parentCid;
+    }
+
+    private Map<String, List<Catelog2Vo>> getCategoryListWithLocalLock() {
+        String categoryJSON;
         synchronized (this) {
             categoryJSON = getCategoryJSONFromCache();
             if (StringUtils.isNotEmpty(categoryJSON)) {
@@ -254,7 +344,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
             return parentCid;
         }
-
     }
 
     private String getCategoryJSONFromCache() {

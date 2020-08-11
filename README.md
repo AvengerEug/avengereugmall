@@ -839,6 +839,74 @@
 > 3、使用其他的redis客户端来操作，eg：redisson
 > ```
 
+##### 16.3 优化首页获取三级分类api
+
+* 优化方向：
+
+  ```txt
+  1、添加堆内存大小，防止年轻代的eden区太小，导致频繁出现Young GC。(Young GC的执行时间虽然比Full GC短，但
+     多多少少也会影响到接口的性能)
+  2、将嵌套与db进行交互，改成一次性从DB拿出所有，后续所有组装分类的操作都将基于JVM内存操作，减少到只与DB交互
+     一次。
+  3、引入缓存，将数据组装完成后放入缓存，下一次直接从缓存中获取。
+  4、解决缓存穿透：不管有没有组装完数据，都要将对应的数据放入缓存，防止缓存穿透。(但其实这不是一个很好的方
+     案，若恶意攻击者使用jmeter每次以不同的key进行攻击，这种方式不是特别好。此时应该使用布隆过滤器)
+  5、解决缓存雪崩：对每个set进去的key设置随机过期时间
+  6、解决缓存击穿：添加锁解决缓存击穿、或者设置key永远不过期，由运营人员通过api手动更新或删除key。
+  ```
+
+* 优化效果：在每秒100个并发的压测下，从每秒5个的QPS上升到每秒400的QPS，性能提升80倍。
+
+##### 16.4 使用锁需要考虑到的问题
+
+* 一般需要考虑如下问题：
+
+  ```txt
+  1、避免死锁  --- 添加过期时间
+  2、避免删除他人添加的锁  --- 添加随机value
+  3、最好使用重入锁  --- 验证当前的key和value是不是相同
+  ```
+
+##### 16.5 使用redisson框架实现redis分布式锁
+
+* redisson框架是redis官网推荐的基于redis的分布式框架，其内部实现了许多分布式的功能，比如分布式锁、型号量
+
+  等等。对于redis的分布式锁而言，不管我们使用spring的redisTemplate还是jedis或lettuce客户端来实现分布式锁都是
+
+  非常麻烦的。因此我们要学习redisson这个神器。
+
+* springboot项目集成redisson框架：redisson专门为springboot也开发了一个starter，我们可以使用它，参考链接：
+
+  [https://github.com/redisson/redisson/tree/master/redisson-spring-boot-starter#spring-boot-starter](https://github.com/redisson/redisson/tree/master/redisson-spring-boot-starter#spring-boot-starter)。但我选择了最原
+
+  始的依赖，不通过starter进行配置，因为通过starter进行配置需要额外编写配置文件，而我更倾向于java config的方式
+
+  进行配置。通过java config的方式配置redisson参考教程：[https://github.com/redisson/redisson/wiki/2.-配置方法](https://github.com/redisson/redisson/wiki/2.-配置方法)
+
+* 因为redisson底层内部实现了JUC下面的Lock接口，所以我们可以直接使用Lock接口中的tryLock、lock和unlock方
+
+  法，上手简单。同时它内部还有一个叫看门口的机制，当我们调用加锁方式时，内部会对这把锁设置默认的30s过期
+
+  时间，防止出现系统宕机出现死锁问题，当锁的过期时间达到了2/3时，此时又会继续续命。
+
+##### 16.6 redisson的公平锁和非公平锁
+
+* redisson也支持公平锁和非公平锁，默认是非公平锁(client.getLock("lockName"))，如果要获取公平锁的话，可调用如下api：
+
+  ```java
+  client.getFairLock("lockName");
+  ```
+
+  获取到锁对象后，使用JUC Lock接口下的lock、tryLock和unlock方法即可，加锁、解锁过程大同小异。
+
+##### 16.7 redisson的读写锁
+
+* 应用场景：并发读，互不影响。存在写锁，则需要进行同步。针对某个key的值，为了保证线程安全，当这个key在写
+
+  的过程中，其他的读过程需要等待。
+
+
+
 
 
 
