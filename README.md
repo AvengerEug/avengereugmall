@@ -644,7 +644,7 @@
   > 
   >     server {
   >             listen       80;
-  >             server_name  avengereugmall.com;
+  >             server_name  avengereugmall.com *.avengereugmall.com;
   > 
   >             #charset koi8-r;
   > 

@@ -1,4 +1,4 @@
-package com.avengereug.mall.to;
+package com.avengereug.mall.es.to;
 
 import lombok.Data;
 

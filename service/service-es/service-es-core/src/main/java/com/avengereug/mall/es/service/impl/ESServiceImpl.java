@@ -4,15 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.avengereug.mall.es.config.ElasticsearchConfig;
 import com.avengereug.mall.es.constants.ESConstants;
 import com.avengereug.mall.es.service.ESService;
-import com.avengereug.mall.to.SpuESTO;
+import com.avengereug.mall.es.to.SpuESTO;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.ElasticsearchClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.rest.RestStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

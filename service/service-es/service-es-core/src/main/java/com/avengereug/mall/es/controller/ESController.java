@@ -1,10 +1,9 @@
 package com.avengereug.mall.es.controller;
 
 import com.avengereug.mall.common.controller.BaseController;
-import com.avengereug.mall.common.utils.R;
 import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.es.service.ESService;
-import com.avengereug.mall.to.SpuESTO;
+import com.avengereug.mall.es.to.SpuESTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

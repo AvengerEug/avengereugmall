@@ -1,7 +1,7 @@
 package com.avengereud.mall.es.client;
 
 import com.avengereug.mall.common.utils.RPCResult;
-import com.avengereug.mall.to.SpuESTO;
+import com.avengereug.mall.es.to.SpuESTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
