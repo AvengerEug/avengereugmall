@@ -51,7 +51,7 @@ spring:
           predicates:
           - Path=/api/**
           filters:
-          - RewritePath=/api(?<segment>/?.*), /renren-fast/$\{segment}
+          - RewritePath=/api/(?<segment>/?.*), /renren-fast/$\{segment}
 
         # 域名跳转商品服务
         - id: domain-service-product

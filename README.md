@@ -1014,6 +1014,47 @@
   test.run2();
   ```
 
+#### 十八、Spring Integration中Spring Cache组件的使用
+
+* 参考官方文档：[https://docs.spring.io/spring/docs/5.1.17.RELEASE/spring-framework-reference/integration.html#cache](https://docs.spring.io/spring/docs/5.1.17.RELEASE/spring-framework-reference/integration.html#cache)
+
+* Spring Cache中注解的使用细节：
+
+  ```java
+  // 将方法结果存入缓存中
+  @Cacheable
+  // 删除缓存  --> 缓存一致性的失效模式
+  @CacheEvict
+  // 更新缓存  --> 缓存一致性的双写模式
+  @CachePut: Updates the cache without interfering with the method execution.
+  // 组合多个缓存操作  --> 支持删除多个或者更新多个
+  @Caching: Regroups multiple cache operations to be applied on a method.
+  // 在类级别上，共享所有的缓存
+  @CacheConfig: Shares some common cache-related settings at class-level.
+      
+  // 它允许存储value为null，因此它可以避免简单清醒下的缓存穿透情况
+  ```
+
+* Spring Cache特点及不足
+
+  ```txt
+  优点：
+    1、所有缓存的抽象，我们可以使用各种缓存，redis、或者本地的concurrentHashMap等等
+    2、简化开发，是cache的使用变成声明式的
+    
+  缺点：
+    1、所有的key的过期时间都是相同的，容易造成缓存雪崩
+    2、虽然可以配置允许缓存null值，能解决简单情况下的缓存穿透问题，但是不能防止使用脚本每次请求不同参数的恶意
+       攻击
+    3、内部虽然提供了synchronized的get方法，但是仅仅是jvm层面的锁，最终在解决缓存击穿的情况下，在高并发最坏
+       情况下，部署了N个实例，则数据库会多查询N次
+       
+  总结：
+    1、普通数据(读多写少)完全可以使用spring cache组件来实现
+    2、实时性、一致性要求特别高的数据需要自己定制化开发，比如在解决分布式下的缓存击穿情况下，要加锁，此时可以
+       自己使用aop来增强spring cache写方法，来实现分布式情况下的缓存击穿特性。
+  ```
+
   
 
 

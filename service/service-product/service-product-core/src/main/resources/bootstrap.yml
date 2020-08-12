@@ -29,6 +29,13 @@ spring:
     host: 127.0.0.1
     port: 6379
     database: 0
+    jedis:
+      pool:
+        min-idle: 10
+        max-idle: 50
+  # 表示使用spring cache组件中使用的缓存类型为redis
+  cache:
+    type: redis
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml

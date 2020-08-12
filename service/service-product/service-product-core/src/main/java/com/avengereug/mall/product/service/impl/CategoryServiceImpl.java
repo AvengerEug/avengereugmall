@@ -15,6 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -135,6 +138,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return list;
     }
 
+    /**
+     * @CacheEvict("category")
+     * 表示此方式执行结束后，会将缓存中name为"category"中key为category::categoryLevel1对应的数据删除
+     *
+     * TODO 确定删除缓存是否会因为事务回滚而受到影响
+     *
+     * @param category
+     */
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "category", key = "'categoryLevel1'"),
+                    @CacheEvict(value = "category", key = "'categoryLevel2&3'"),
+            }
+    )
     @GlobalTransactional
     @Override
     public void updateCascade(CategoryEntity category) {
@@ -155,6 +172,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
 
+    /**
+     * 1、缓存中有，则不再调用方法了
+     * 2、key默认自动生成：缓存名字::SimpleKey   eg: category::SimpleKey []
+     *   value为：使用jdk序列化机制将结果序列化后存入redis中
+     * 3、过期时间为-1，表示永不过期
+     *
+     *
+     * 自定义生成key,   使用@Cacheable中的key属性，支持SpEL表达式, 要在内部添加单引号，否则会被当成SpEL表达式处理
+     * 自定义指定缓存过期时间
+     * 自定义以JSON标准格式进行序列化存储
+     *
+     * @return
+     */
+    @Cacheable(value = "category", key = "'categoryLevel1'")
     @Override
     public List<CategoryEntity> getLevel1Categorys() {
         System.out.println("getLevel1Categorys........");
@@ -234,6 +265,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             return JSON.parseObject(categoryJSON, new TypeReference<Map<String, List<Catelog2Vo>>>() {});
         }
 
+        CategoryService categoryService = SpringContextHolder.getBean(CategoryService.class);
+        return categoryService.getCategory2With3FromDB();
+
+    }
+
+    @Cacheable(value = "category", key = "'categoryLevel2&3'")
+    public Map<String, List<Catelog2Vo>> getCategory2With3FromDB() {
         Map<String, List<Catelog2Vo>> parentCid = null;
         System.out.println("查询了数据库");
         //将数据库的多次查询变为一次
@@ -272,16 +310,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
             return catelog2Vos;
         }));
-
-        // 不管处理后的数据存不存在，都放在redis中，防止缓存穿透，且为key设置了随机的过期时间，防止缓存雪崩
-        // TODO: 有个缺点，若有人写脚本每次高并发查询不相同的key，此时这种方案不好，应该使用布隆过滤器来解决
-        long min = 1;
-        long max = 10;
-        long rangeLong = min + (((long) (new Random().nextDouble() * (max - min))));
-        stringRedisTemplate.opsForValue().set(CATEGORY_CACHE_KEY, parentCid == null ? null : JSON.toJSONString(parentCid), rangeLong, TimeUnit.DAYS);
-
         return parentCid;
-
     }
 
     private String getCategoryJSONFromCache() {

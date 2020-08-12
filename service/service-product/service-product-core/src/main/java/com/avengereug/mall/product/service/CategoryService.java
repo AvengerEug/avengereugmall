@@ -39,5 +39,7 @@ public interface CategoryService extends IService<CategoryEntity> {
     Map<String,List<Catelog2Vo>> getCatalogJson();
 
     Map<String, List<Catelog2Vo>> getCategoryListWithDistributedLock();
+
+    Map<String, List<Catelog2Vo>> getCategory2With3FromDB();
 }
 

@@ -26,11 +26,6 @@ public class RedisDistributedLockAOP {
     @Autowired
     private RedissonClient redissonClient;
 
-    @PostConstruct
-    public void test() {
-        System.out.println(1111);
-    }
-
     /**
      * 定义了一个切点, 表示带了@RedisDistributedLock注解的才会被增强
      */
