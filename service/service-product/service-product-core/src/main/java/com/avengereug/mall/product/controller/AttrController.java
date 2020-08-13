@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.product.entity.ProductAttrValueEntity;
 import com.avengereug.mall.product.service.ProductAttrValueService;
 import com.avengereug.mall.product.vo.AttrRespVO;
@@ -126,6 +127,14 @@ public class AttrController {
         attrService.removeByIds(Arrays.asList(attrIds));
 
         return R.ok();
+    }
+
+
+    @GetMapping("/inner/info/{attrId}")
+    public RPCResult<AttrRespVO> attrInfo(@PathVariable("attrId") Long attrId) {
+        AttrRespVO attrRespVo = attrService.getAttrRespVoById(attrId);
+
+        return new RPCResult<AttrRespVO>().ok(attrRespVo);
     }
 
 }
