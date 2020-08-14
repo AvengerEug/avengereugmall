@@ -26,7 +26,9 @@ public class ESServiceImpl implements ESService {
 
     @Override
     public Boolean indexSpu(List<SpuESTO> spuESTOList) throws IOException {
-        // 1、创建product索引(提前使用kibana在es中创建索引)
+        // 1、创建product索引(提前使用kibana在es中创建索引)，
+        // 索引映射见: classpath下面的mapping.txt文件
+        // dsl语句见: classpath下面的dsl.txt文件
 
         // 2、创建文档映射关系(提前使用kibana在es中创建mapping)
 

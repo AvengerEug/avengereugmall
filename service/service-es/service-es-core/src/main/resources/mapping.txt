@@ -1,0 +1,69 @@
+# skuPrice 设置类型为keyword是为了保证商品精度问题
+#   skuImg默认图片，index:false => 此属性不支持检索
+#   doc_values: false => 设置为false，不支持聚合操作
+#   ==> 冗余的字段设置index和doc_values为false
+# hasStock => 对应页面中仅显示有货的筛选条件
+# hotScope => 热度评分，对应访问量最多的检索条件
+# skuTitle => 指定了分词器
+# attrs中设置了type为nested，防止es扁平化处理
+PUT /product
+{
+  "mappings": {
+    "properties": {
+      "skuId": {
+        "type": "long"
+      },
+      "spuId": {
+        "type": "keyword"
+      },
+      "skuTitle": {
+        "type": "text",
+        "analyzer": "ik_smart"
+      },
+      "skuPrice": {
+        "type": "keyword"
+      },
+      "skuImg": {
+        "type": "keyword"
+      },
+      "saleCount": {
+        "type": "long"
+      },
+      "hasStock": {
+        "type": "boolean"
+      },
+      "hotScope": {
+        "type": "long"
+      },
+      "brandId": {
+        "type": "long"
+      },
+      "brandName": {
+        "type": "keyword"
+      },
+      "brandImg": {
+        "type": "keyword"
+      },
+      "catelogId": {
+        "type": "long"
+      },
+      "catelogName": {
+        "type": "keyword"
+      },
+      "attrs": {
+        "type": "nested",
+        "properties": {
+          "attrId": {
+            "type": "long"
+          },
+          "attrName": {
+            "type": "keyword"
+          },
+          "attrValue": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}

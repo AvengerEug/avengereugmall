@@ -43,7 +43,7 @@ public class SearchResult {
     /**
      * 当前查询到的结果，所有涉及到的所有分类
      */
-    private List<CatalogVo> catalogs;
+    private List<CatelogVo> catelogs;
 
 
     //===========================以上是返回给页面的所有信息============================//
@@ -83,10 +83,10 @@ public class SearchResult {
 
 
     @Data
-    public static class CatalogVo {
+    public static class CatelogVo {
 
-        private Long catalogId;
+        private Long catelogId;
 
-        private String catalogName;
+        private String catelogName;
     }
 }

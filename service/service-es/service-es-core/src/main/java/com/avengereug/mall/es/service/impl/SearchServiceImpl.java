@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.es.config.ElasticsearchConfig;
 import com.avengereug.mall.es.constants.ESConstants;
-import com.avengereug.mall.es.service.ESService;
 import com.avengereug.mall.es.service.SearchService;
 import com.avengereug.mall.es.to.SpuESTO;
 import com.avengereug.mall.es.vo.SearchParam;
@@ -162,22 +161,22 @@ public class SearchServiceImpl implements SearchService {
 
         //4、当前商品涉及到的所有分类信息
         //获取到分类的聚合
-        List<SearchResult.CatalogVo> catalogVos = new ArrayList<>();
-        ParsedLongTerms catalogAgg = response.getAggregations().get("catalog_agg");
-        for (Terms.Bucket bucket : catalogAgg.getBuckets()) {
-            SearchResult.CatalogVo catalogVo = new SearchResult.CatalogVo();
+        List<SearchResult.CatelogVo> catelogVos = new ArrayList<>();
+        ParsedLongTerms catelogAgg = response.getAggregations().get("catelog_agg");
+        for (Terms.Bucket bucket : catelogAgg.getBuckets()) {
+            SearchResult.CatelogVo catelogVo = new SearchResult.CatelogVo();
             //得到分类id
             String keyAsString = bucket.getKeyAsString();
-            catalogVo.setCatalogId(Long.parseLong(keyAsString));
+            catelogVo.setCatelogId(Long.parseLong(keyAsString));
 
             //得到分类名
-            ParsedStringTerms catalogNameAgg = bucket.getAggregations().get("catalog_name_agg");
-            String catalogName = catalogNameAgg.getBuckets().get(0).getKeyAsString();
-            catalogVo.setCatalogName(catalogName);
-            catalogVos.add(catalogVo);
+            ParsedStringTerms catelogNameAgg = bucket.getAggregations().get("catelog_name_agg");
+            String catelogName = catelogNameAgg.getBuckets().get(0).getKeyAsString();
+            catelogVo.setCatelogName(catelogName);
+            catelogVos.add(catelogVo);
         }
 
-        result.setCatalogs(catalogVos);
+        result.setCatelogs(catelogVos);
         //===============以上可以从聚合信息中获取====================//
         //5、分页信息-页码
         result.setPageNum(param.getPageNum());
@@ -257,8 +256,8 @@ public class SearchServiceImpl implements SearchService {
 
         //1.2 bool-fiter
         //1.2.1 catelogId
-        if(null != param.getCatalog3Id()){
-            boolQueryBuilder.filter(QueryBuilders.termQuery("catalogId",param.getCatalog3Id()));
+        if(null != param.getCatelog3Id()){
+            boolQueryBuilder.filter(QueryBuilders.termQuery("catelogId",param.getCatelog3Id()));
         }
 
         //1.2.2 brandId
@@ -365,12 +364,12 @@ public class SearchServiceImpl implements SearchService {
         searchSourceBuilder.aggregation(brand_agg);
 
         //2. 按照分类信息进行聚合
-        TermsAggregationBuilder catalog_agg = AggregationBuilders.terms("catalog_agg");
-        catalog_agg.field("catalogId").size(20);
+        TermsAggregationBuilder catelog_agg = AggregationBuilders.terms("catelog_agg");
+        catelog_agg.field("catelogId").size(20);
 
-        catalog_agg.subAggregation(AggregationBuilders.terms("catalog_name_agg").field("catalogName").size(1));
+        catelog_agg.subAggregation(AggregationBuilders.terms("catelog_name_agg").field("catelogName").size(1));
 
-        searchSourceBuilder.aggregation(catalog_agg);
+        searchSourceBuilder.aggregation(catelog_agg);
 
         //2. 按照属性信息进行聚合
         NestedAggregationBuilder attr_agg = AggregationBuilders.nested("attr_agg", "attrs");

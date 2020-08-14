@@ -1,0 +1,138 @@
+GET product/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "skuTitle": "XR"
+          }
+        }
+      ],
+      "filter": [
+        {
+          "term": {
+            "hasStock": false
+          }
+        },
+        {
+          "term": {
+            "catelogId": 225
+          }
+        },
+        {
+          "terms": {
+            "brandId": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        },
+        {
+          "range": {
+            "skuPrice": {
+              "gte": 1,
+              "lte": 4299.0
+            }
+          }
+        },
+        {
+          "nested": {
+            "path": "attrs",
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "term": {
+                      "attrs.attrId": {
+                        "value": 3
+                      }
+                    }
+                  },
+                  {
+                    "match_phrase": {
+                      "attrs.attrValue": "Apple"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "brandAgg": {
+      "terms": {
+        "field": "brandId"
+      },
+      "aggs": {
+        "brandNameAgg": {
+          "terms": {
+            "field": "brandName"
+          }
+        },
+        "brandImgAgg": {
+          "terms": {
+            "field": "brandImg"
+          }
+        }
+      }
+    },
+    "catelogAgg": {
+      "terms": {
+        "field": "catelogId"
+      },
+      "aggs": {
+        "catelogNameAgg": {
+          "terms": {
+            "field": "catelogName"
+          }
+        }
+      }
+    },
+    "attrsAggNested": {
+      "nested": {
+        "path": "attrs"
+      },
+      "aggs": {
+        "attrsIdAggs": {
+          "terms": {
+            "field": "attrs.attrId"
+          },
+          "aggs": {
+            "attrsNameAggs": {
+              "terms": {
+                "field": "attrs.attrName"
+              }
+            },
+            "attrsValueAggs": {
+              "terms": {
+                "field": "attrs.attrValue"
+              }
+            }
+          }
+        }
+
+      }
+    }
+  },
+  "sort": [
+    {
+      "skuPrice": {
+        "order": "asc"
+      }
+    }
+  ],
+  "from": 0,
+  "size": 20,
+  "highlight": {
+    "fields": {"skuTitle": {}},
+    "pre_tags": "<strong style='color:red'>",
+    "post_tags": "</strong>"
+  }
+}
