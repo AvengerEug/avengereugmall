@@ -6,6 +6,8 @@ import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
 import com.avengereug.mall.product.service.AttrService;
 import com.avengereug.mall.product.vo.AttrGroupRelationVO;
+import com.avengereug.mall.product.vo.SkuItemVO;
+import com.avengereug.mall.product.vo.SpuItemAttrGroupVO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +35,6 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Autowired
     private AttrAttrgroupRelationService attrAttrgroupRelationService;
-
-    @Autowired
-    private AttrGroupDao attrGroupDao;
-
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -181,5 +179,10 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         }
 
         return Collections.EMPTY_LIST;
+    }
+
+    @Override
+    public List<SpuItemAttrGroupVO> getAttrGroupWithAttrsBySpuIdAndCategoryLog(Long spuId, Long catelogId) {
+        return baseMapper.getAttrGroupWithAttrsBySpuId(spuId, catelogId);
     }
 }

@@ -1,6 +1,9 @@
 package com.avengereug.mall.product.service.impl;
 
+import com.avengereug.mall.product.vo.SkuItemSaleAttrVO;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -24,6 +27,16 @@ public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public List<SkuItemSaleAttrVO> getSaleAttrsBySpuId(Long spuId) {
+        /**
+         * 传入了spuId
+         * 分析当前spu有多少个sku，所有sku涉及到的属性组合
+         *
+         */
+        return baseMapper.getSaleAttrsBySpuId(spuId);
     }
 
 }

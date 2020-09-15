@@ -1,5 +1,6 @@
 package com.avengereug.mall.product.service;
 
+import com.avengereug.mall.product.vo.SkuItemVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.SkuInfoEntity;
@@ -17,5 +18,6 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
+    SkuItemVO item(Long skuId);
 }
 

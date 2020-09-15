@@ -1,11 +1,15 @@
 package com.avengereug.mall.product;
 
+import com.avengereug.mall.product.dao.AttrGroupDao;
 import com.avengereug.mall.product.entity.BrandEntity;
 import com.avengereug.mall.product.service.BrandService;
+import com.avengereug.mall.product.vo.SkuItemVO;
+import com.avengereug.mall.product.vo.SpuItemAttrGroupVO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
 import java.io.FileNotFoundException;
 import java.util.List;
 
@@ -65,5 +69,13 @@ class ServiceProductApplicationTests {
         System.out.println(list);
     }
 
+    @Resource
+    private AttrGroupDao attrGroupDao;
+
+    @Test
+    void testGetAttrGroupWithAttrsBySpuId() {
+        List<SpuItemAttrGroupVO> attrGroupWithAttrsBySpuId = attrGroupDao.getAttrGroupWithAttrsBySpuId(1L, 225L);
+        System.out.println(attrGroupWithAttrsBySpuId);
+    }
 
 }

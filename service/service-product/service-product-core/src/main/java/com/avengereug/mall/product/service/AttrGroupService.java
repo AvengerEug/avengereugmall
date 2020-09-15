@@ -2,6 +2,8 @@ package com.avengereug.mall.product.service;
 
 import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.vo.AttrGroupRelationVO;
+import com.avengereug.mall.product.vo.SkuItemVO;
+import com.avengereug.mall.product.vo.SpuItemAttrGroupVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.AttrGroupEntity;
@@ -37,5 +39,7 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     void addRelation(List<AttrGroupRelationVO> attrGroupRelationVOS);
 
     List<AttrEntity> findAttrByAttrGroupId(Long attrGroupId);
+
+    List<SpuItemAttrGroupVO> getAttrGroupWithAttrsBySpuIdAndCategoryLog(Long spuId, Long catelogId);
 }
 
