@@ -31,17 +31,17 @@ public class IndexController {
 
     private static final String READ_WRITE_KEY = "rw-lock";
 
-    @GetMapping(value = {"/", "index.html"})
+    @GetMapping(value = {"/", "product.index.html"})
     private String indexPage(Model model) {
 
         //1、查出所有的一级分类
         List<CategoryEntity> categoryEntities = categoryService.getLevel1Categorys();
         model.addAttribute("categories", categoryEntities);
 
-        return "index";
+        return "product.index";
     }
 
-    //index/json/catalog.json
+    //product.index/json/catalog.json
     @GetMapping(value = "/index/catalog.json")
     @ResponseBody
     public Map<String, List<Catelog2Vo>> getCatalogJson() {

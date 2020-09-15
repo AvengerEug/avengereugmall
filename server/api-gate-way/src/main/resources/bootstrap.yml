@@ -57,7 +57,7 @@ spring:
         - id: domain-service-product
           uri: lb://service-product
           predicates:
-          - Host=avengereugmall.com
+          - Host=avengereugmall.com, item.avengereugmall.com
 
         # 域名跳转ES服务
         - id: domain-service-es

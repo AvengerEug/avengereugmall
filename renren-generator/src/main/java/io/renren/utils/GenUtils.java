@@ -45,7 +45,7 @@ public class GenUtils {
         templates.add("template/Controller.java.vm");
         templates.add("template/Dao.java.vm");
 
-        templates.add("template/index.vue.vm");
+        templates.add("template/product.index.vue.vm");
         templates.add("template/add-or-update.vue.vm");
         if (MongoManager.isMongo()) {
             // mongo不需要mapper、sql   实体类需要替换
@@ -331,7 +331,7 @@ public class GenUtils {
             return className.toLowerCase() + "_menu.sql";
         }
 
-        if (template.contains("index.vue.vm")) {
+        if (template.contains("product.index.vue.vm")) {
             return "main" + File.separator + "resources" + File.separator + "src" + File.separator + "views" + File.separator + "modules" +
                     File.separator + moduleName + File.separator + className.toLowerCase() + ".vue";
         }
