@@ -3,7 +3,6 @@ package com.avengereug.mall.product;
 import com.avengereug.mall.product.dao.AttrGroupDao;
 import com.avengereug.mall.product.entity.BrandEntity;
 import com.avengereug.mall.product.service.BrandService;
-import com.avengereug.mall.product.vo.SkuItemVO;
 import com.avengereug.mall.product.vo.SpuItemAttrGroupVO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

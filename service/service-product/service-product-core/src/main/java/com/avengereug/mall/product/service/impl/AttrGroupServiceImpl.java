@@ -6,7 +6,6 @@ import com.avengereug.mall.product.entity.AttrEntity;
 import com.avengereug.mall.product.service.AttrAttrgroupRelationService;
 import com.avengereug.mall.product.service.AttrService;
 import com.avengereug.mall.product.vo.AttrGroupRelationVO;
-import com.avengereug.mall.product.vo.SkuItemVO;
 import com.avengereug.mall.product.vo.SpuItemAttrGroupVO;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;

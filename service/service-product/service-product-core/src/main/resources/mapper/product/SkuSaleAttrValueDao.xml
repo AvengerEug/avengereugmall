@@ -21,6 +21,7 @@
         </collection>
     </resultMap>
 
+
     <!-- group_concat，组连接，可以将分组后的所有记录对应的字段的值都连接到一起 -->
     <select id="getSaleAttrsBySpuId" resultMap="skuItemSaleAttrVo">
         SELECT

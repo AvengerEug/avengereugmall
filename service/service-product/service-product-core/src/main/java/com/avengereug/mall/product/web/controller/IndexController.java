@@ -31,14 +31,14 @@ public class IndexController {
 
     private static final String READ_WRITE_KEY = "rw-lock";
 
-    @GetMapping(value = {"/", "product.index.html"})
+    @GetMapping(value = {"/", "index.html"})
     private String indexPage(Model model) {
 
         //1、查出所有的一级分类
         List<CategoryEntity> categoryEntities = categoryService.getLevel1Categorys();
         model.addAttribute("categories", categoryEntities);
 
-        return "product.index";
+        return "index";
     }
 
     //product.index/json/catalog.json

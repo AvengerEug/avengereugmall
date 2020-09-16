@@ -1,7 +1,6 @@
 package com.avengereug.mall.product.dao;
 
 import com.avengereug.mall.product.entity.AttrGroupEntity;
-import com.avengereug.mall.product.vo.SkuItemVO;
 import com.avengereug.mall.product.vo.SpuItemAttrGroupVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;

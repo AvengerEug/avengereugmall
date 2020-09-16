@@ -4,25 +4,32 @@ import com.avengereug.mall.product.entity.SkuImagesEntity;
 import com.avengereug.mall.product.entity.SkuInfoEntity;
 import com.avengereug.mall.product.entity.SpuInfoDescEntity;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.List;
 
+@ToString
 @Data
-public class SkuItemVO  {
+public class SkuItemVO {
 
-    // 1、sku基本信息  --> pms_sku_info
-    SkuInfoEntity info;
+    //1、sku基本信息的获取  pms_sku_info
+    private SkuInfoEntity info;
 
-    // 2、sku图片信息 --> pms_sku_images
-    List<SkuImagesEntity> images;
+    private boolean hasStock = true;
 
-    // 3、sku对应的spu销售属性
-    List<SkuItemSaleAttrVO> saleAttr;
+    //2、sku的图片信息    pms_sku_images
+    private List<SkuImagesEntity> images;
 
-    // 4、spu商品介绍
-    SpuInfoDescEntity desp;
+    //3、获取spu的销售属性组合
+    private List<SkuItemSaleAttrVO> saleAttr;
 
-    // 5、spu的规格参数信息
-    List<SpuItemAttrGroupVO> groupAttrs;
+    //4、获取spu的介绍
+    private SpuInfoDescEntity desc;
+
+    //5、获取spu的规格参数信息
+    private List<SpuItemAttrGroupVO> groupAttrs;
+
+    //6、秒杀商品的优惠信息
+    private SeckillSkuVO seckillSkuVo;
 
 }

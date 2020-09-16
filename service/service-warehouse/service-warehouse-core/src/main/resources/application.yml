@@ -10,9 +10,9 @@ spring:
         server-addr: 127.0.0.1:8848
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/mall_wms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://49.235.135.230:3306/mall_wms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password:
+    password: root
   # 格式化数据
   jackson:
     time-zone: GMT+8
