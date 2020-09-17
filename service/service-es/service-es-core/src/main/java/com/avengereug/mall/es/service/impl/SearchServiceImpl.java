@@ -185,8 +185,8 @@ public class SearchServiceImpl implements SearchService {
         result.setTotal(total);
 
         //5、2分页信息-总页码-计算
-        int totalPages = (int)total % ESConstants.PRODUCT_PAGESIZE == 0 ?
-                (int)total / ESConstants.PRODUCT_PAGESIZE : ((int)total / ESConstants.PRODUCT_PAGESIZE + 1);
+        int totalPages = (int)total % ESConstants.PRODUCT_PAGE_SIZE == 0 ?
+                (int)total / ESConstants.PRODUCT_PAGE_SIZE : ((int)total / ESConstants.PRODUCT_PAGE_SIZE + 1);
         result.setTotalPages(totalPages);
 
         List<Integer> pageNavs = new ArrayList<>();
@@ -330,8 +330,8 @@ public class SearchServiceImpl implements SearchService {
         }
 
         //分页
-        searchSourceBuilder.from((param.getPageNum()-1)*ESConstants.PRODUCT_PAGESIZE);
-        searchSourceBuilder.size(ESConstants.PRODUCT_PAGESIZE);
+        searchSourceBuilder.from((param.getPageNum()-1)*ESConstants.PRODUCT_PAGE_SIZE);
+        searchSourceBuilder.size(ESConstants.PRODUCT_PAGE_SIZE);
 
         //高亮
         if(!StringUtils.isEmpty(param.getKeyword())){

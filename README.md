@@ -20,7 +20,31 @@
 
 3.  本地需要起nacos服务，具体参考官网：[快速开始](https://nacos.io/zh-cn/docs/quick-start.html)。**ps: 以nacos默认的8848端口开启服务**
 
-4.  启动对应的服务即可
+4. 启动对应的服务即可
+
+5. 前端项目期待Node.js版本为**8.9.0**。踩坑遇到的，之前的Node.js版本为**12.18.3**，然后在install的时候报错了：
+
+   ```txt
+   gyp ERR! cwd D:\avengerEug\work\project\mall\renren-fast-vue\node_modules\node-sass
+   gyp ERR! node -v v12.18.3
+   gyp ERR! node-gyp -v v3.8.0
+   gyp ERR! not ok
+   Build failed with error code: 1
+   npm WARN notsup Unsupported engine for watchpack-chokidar2@2.0.0: wanted: {"node":"<8.10.0"} (current: {"node":"12.18.3","npm":"6.14.6"})
+   npm WARN notsup Not compatible with your version of node/npm: watchpack-chokidar2@2.0.0
+   npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@1.2.13 (node_modules\fsevents):
+   npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@1.2.13: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+   npm WARN optional SKIPPING OPTIONAL DEPENDENCY: fsevents@2.1.3 (node_modules\chokidar\node_modules\fsevents):
+   npm WARN notsup SKIPPING OPTIONAL DEPENDENCY: Unsupported platform for fsevents@2.1.3: wanted {"os":"darwin","arch":"any"} (current: {"os":"win32","arch":"x64"})
+   ```
+
+   同时可能还需要安装python环境，执行如下命令(**以管理员的方式运行cmd执行如下命令**)即可：
+
+   ```shell
+   npm install --global --production windows-build-tools
+   ```
+
+   执行结束后，记得配置python的环境变量，默认安装在**C:\Users\{{当前用户名}}\.windows-build-tools\python27**下
 
 #### 二、各服务端口映射关系
 
@@ -773,7 +797,7 @@
   >
   > eg: /usr/local/nginx/html/mall/product/static路径下存放的是product服务的classpath下的static文件夹下的所有文件
   >
-  > 2、修改nginx配置文件(对应avengereugmall.com域名监听的80端口配置文件)，并添加如下内容
+  > 2、修改nginx配置文件(**对应avengereugmall.com域名监听的80端口配置文件**)，并添加如下内容
   >
   > ```json
   > location /mall {

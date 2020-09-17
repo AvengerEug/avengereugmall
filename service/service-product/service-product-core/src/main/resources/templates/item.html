@@ -624,7 +624,7 @@
                     <div class="box-attr clear" th:each="attr : ${item.saleAttr}">
                         <dl>
                             <dt>[[${attr.attrName}]]</dt>
-                            <dd th:each="val : ${attr.attrValues}">
+                            <dd th:each="val : ${attr.attrValues}" style="cursor: pointer">
                                 <a th:attr=" class=${#lists.contains(#strings.listSplit(val.skuIds,','),item.info.skuId.toString())
                                    ? 'sku_attr_value checked': 'sku_attr_value'}, skus=${val.skuIds} "
                                 >
@@ -1358,11 +1358,10 @@
     $(".sku_attr_value").click(function () {
         // 1、点击的元素添加上自定义的属性
         let skus = new Array();
-        $(this).addClass("checked");
         let curr = $(this).attr("skus").split(",");
-        skus.push(curr)
-        $(this).parent().parent().find(".sku_attr_value").removeClass("checked");
 
+        $(this).parent().parent().find(".sku_attr_value").removeClass("checked");
+        $(this).addClass("checked");
         changeCheckedStyle();
 
         $("a[class='sku_attr_value checked']").each(function () {
@@ -1371,10 +1370,15 @@
 
         let filterEle = skus[0];
         for (let i = 1; i < skus.length; i++) {
-            filterEle = $(filterEle).filter(skus[i])[0];
+            if (i === skus.length - 1) {
+                filterEle = $(filterEle).filter(skus[i])[0];
+            } else {
+                filterEle = $(filterEle).filter(skus[i]);
+            }
+
         }
-        debugger
-        //location.href = "http://item.avengereugmall.com/" + filterEle + ".html";
+
+        location.href = "http://item.avengereugmall.com/" + filterEle + ".html";
 
         return false;
     });
