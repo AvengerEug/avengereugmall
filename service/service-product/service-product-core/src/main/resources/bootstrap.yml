@@ -47,3 +47,11 @@ mybatis-plus:
 apilog:
   logfolder:
     folderPath: ${server.tomcat.basedir}/api-log
+
+avengermall:
+  product:
+    thread:
+      conf:
+        coreSize: 20
+        threadSize: 50
+        queueSize: 200
