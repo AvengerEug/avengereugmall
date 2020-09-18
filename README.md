@@ -653,45 +653,55 @@
 
 * 思路：
 
-  > 1、配置本机的hosts文件，指定**avengereugmall.com**绑定虚拟机的ip(eg: 192.168.220.133)，其实质是指向虚拟机的nginx
+  > 1、配置本机的hosts文件，指定**avengereugmall.com**绑定虚拟机的ip(eg: 192.168.220.133)，其实质是指向虚拟机的nginx，除此之外，后续的所有相关服务都会对应一些域名，因此需要在hosts文件中配置如下信息：
+  >
+  > | 127.0.0.1 |     avengereugmall.com     |
+  > | :-------: | :------------------------: |
+  > | 127.0.0.1 | search.avengereugmall.com  |
+  > | 127.0.0.1 |  item.avengereugmall.com   |
+  > | 127.0.0.1 |  auth.avengereugmall.com   |
+  > | 127.0.0.1 |  cart.avengereugmall.com   |
+  > | 127.0.0.1 |  order.avengereugmall.com  |
+  > | 127.0.0.1 | member.avengereugmall.com  |
+  > | 127.0.0.1 | seckill.avengereugmall.com |
   >
   > 2、虚拟机的nginx配置server模块，标识 **avengereugmall.com**域名绑定80端口，并配置反向代理至后台微服务的网关服务
   >
   > ```txt
   > 1、在nginx的默认配置文件的http模块中添加如下配置(目的是为了在如下文件夹中寻找其他的配置文件)：
-  >    include /usr/local/nginx/conf/conf.d/**.conf;
+  > include /usr/local/nginx/conf/conf.d/**.conf;
   > 2、在/usr/local/nginx/conf/conf.d文件夹中创建配置文件mall.conf, 并填充如下内容
-  >     upstream malldomain {
-  >         #指向windows的ip地址，一般是虚拟机最后面一个数字改成1，并且反向代理后微服务的网关服务
-  >         server 192.168.111.1:88;
-  >     }
+  >  upstream malldomain {
+  >      #指向windows的ip地址，一般是虚拟机最后面一个数字改成1，并且反向代理后微服务的网关服务
+  >      server 192.168.111.1:88;
+  >  }
   > 
-  >     server {
-  >             listen       80;
-  >             server_name  avengereugmall.com *.avengereugmall.com;
+  >  server {
+  >          listen       80;
+  >          server_name  avengereugmall.com *.avengereugmall.com;
   > 
-  >             #charset koi8-r;
+  >          #charset koi8-r;
   > 
-  >             #access_log  logs/host.access.log  main;
+  >          #access_log  logs/host.access.log  main;
   > 
-  >             location / {
-  >                 proxy_set_header Host $host;
-  >                 proxy_set_header X-Real-IP $remote_addr;
-  >                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-  >                 proxy_pass http://malldomain;
-  >             }
+  >          location / {
+  >              proxy_set_header Host $host;
+  >              proxy_set_header X-Real-IP $remote_addr;
+  >              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  >              proxy_pass http://malldomain;
+  >          }
   > 
-  >             #error_page  404              /404.html;
+  >          #error_page  404              /404.html;
   > 
-  >             # redirect server error pages to the static page /50x.html
-  >             #
-  >             error_page   500 502 503 504  /50x.html;
-  >             location = /50x.html {
-  >                 root   html;
-  >             }
-  >     }
+  >          # redirect server error pages to the static page /50x.html
+  >          #
+  >          error_page   500 502 503 504  /50x.html;
+  >          location = /50x.html {
+  >              root   html;
+  >          }
+  >  }
   > 3、让nginx重新加载配置文件
-  >    /usr/local/nginx/sbin/nginx -s reload
+  > /usr/local/nginx/sbin/nginx -s reload
   > ```
   >
   > 
