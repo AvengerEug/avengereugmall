@@ -65,6 +65,17 @@
             <artifactId>spring-cloud-starter-alicloud-oss</artifactId>
         </dependency>-->
 
+        <!-- 引入springboot自动配置jar包 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

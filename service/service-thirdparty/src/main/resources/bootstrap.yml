@@ -2,6 +2,12 @@ spring:
   cloud:
     nacos:
       server-addr: 127.0.0.1:8848
+    alicloud:
+      sms:
+        host: https://smssend.shumaidata.com
+        path: /sms/send
+        templateId: M095F4
+        appCode: 0986c66c1545c0adf05ffc
   application:
     name: service-thirdparty
 server:

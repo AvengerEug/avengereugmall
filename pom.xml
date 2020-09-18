@@ -28,6 +28,7 @@
         <module>server/api-gate-way</module>
         <module>service/service-thirdparty</module>
         <module>service/service-es</module>
+        <module>service/service-auth</module>
         <!--<module>renren-generator</module>-->
     </modules>
 

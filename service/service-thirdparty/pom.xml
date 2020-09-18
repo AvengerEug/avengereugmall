@@ -72,6 +72,7 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>aliyun-oss-spring-boot-starter</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
