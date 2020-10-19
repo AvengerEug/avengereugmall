@@ -3,7 +3,13 @@ package com.avengereug.mall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.auth.common.vo.UserRegisterVo;
+import com.avengereug.mall.common.Enum.BusinessCodeEnum;
+import com.avengereug.mall.common.controller.BaseController;
+import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.member.entity.MemberEntity;
+import com.avengereug.mall.member.exception.PhoneException;
+import com.avengereug.mall.member.exception.UsernameException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,7 +32,7 @@ import com.avengereug.mall.common.utils.R;
  */
 @RestController
 @RequestMapping("member/member")
-public class MemberController {
+public class MemberController extends BaseController {
 
     @Autowired
     private MemberService memberService;
@@ -87,5 +93,19 @@ public class MemberController {
 
         return R.ok();
     }
+
+    @PostMapping(value = "/register")
+    public R register(@RequestBody UserRegisterVo vo) {
+        try {
+            memberService.register(vo);
+        } catch (PhoneException e) {
+            return R.error(BusinessCodeEnum.PHONE_EXIST_EXCEPTION.getCode(), BusinessCodeEnum.PHONE_EXIST_EXCEPTION.getMsg());
+        } catch (UsernameException e) {
+            return R.error(BusinessCodeEnum.USER_EXIST_EXCEPTION.getCode(), BusinessCodeEnum.USER_EXIST_EXCEPTION.getMsg());
+        }
+
+        return R.ok();
+    }
+
 
 }

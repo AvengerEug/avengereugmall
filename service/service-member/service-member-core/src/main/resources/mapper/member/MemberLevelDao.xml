@@ -16,5 +16,9 @@
         <result property="note" column="note"/>
     </resultMap>
 
+    <select id="getDefaultLevel" resultType="com.avengereug.mall.member.entity.MemberLevelEntity">
+        SELECT * FROM ums_member_level WHERE default_status = 1
+    </select>
+
 
 </mapper>

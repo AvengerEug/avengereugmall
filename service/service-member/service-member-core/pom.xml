@@ -54,6 +54,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.avengereug.mall</groupId>
+            <artifactId>service-auth-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
     </dependencies>
 
     <build>

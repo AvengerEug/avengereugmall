@@ -25,6 +25,16 @@ public enum BusinessCodeEnum {
     NOT_ASSIGNED_PURCHASE_CAUSED_BY_NO_SAME_ASSIGNED(14004, "采购单领取者与采购单分配者不相同，无法领取"),
     NOT_ALLOWED_FINISHED_PURCHASE_CAUSED_BY_NOT_EXISTS_PURCHASE_DETAILS_ID(14005, "采购详情单不存在，无法完成采购单"),
 
+    /**
+     * Auth服务
+     */
+    REPEAT_CALL_SEND_SMS(15001,"获取短信验证码频率较高，请稍后再试"),
+
+    /**
+     * Member服务
+     */
+    USER_EXIST_EXCEPTION(16001,"存在相同的用户"),
+    PHONE_EXIST_EXCEPTION(16002,"存在相同的手机号"),
     ;
 
     private int code;
