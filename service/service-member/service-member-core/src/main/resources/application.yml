@@ -1,5 +1,5 @@
 server:
-  port: 8000
+  port: 8800
 
 spring:
   cloud:
@@ -8,7 +8,7 @@ spring:
         server-addr: 127.0.0.1:8848
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://49.235.135.230:3306/mall_ums?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://49.235.135.230:33110/mall_ums?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
 

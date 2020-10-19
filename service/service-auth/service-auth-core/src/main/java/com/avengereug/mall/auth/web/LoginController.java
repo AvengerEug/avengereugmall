@@ -95,7 +95,7 @@ public class LoginController extends BaseController {
             attributes.addFlashAttribute("errors",errors);
 
             //效验出错回到注册页面
-            return "redirect:/reg.html";
+            return "redirect:auth.avengereugmall.com/reg.html";
         }
 
         //1、效验验证码
@@ -111,13 +111,13 @@ public class LoginController extends BaseController {
                 R register = memberClient.register(vos);
                 if (register.getCode() == 0) {
                     // 在com.avengereug.mall.auth.web.config.WebConfig中配置了，直接写配置的key即可
-                    return "redirect:/login.html";
+                    return "redirect:auth.avengereugmall.com/login.html";
                 } else {
                     //失败
                     Map<String, String> errors = new HashMap<>();
                     errors.put("msg", register.getMsg());
                     attributes.addFlashAttribute("errors",errors);
-                    return "redirect:/reg.html";
+                    return "redirect:auth.avengereugmall.com/reg.html";
                 }
 
             } else {
@@ -125,14 +125,14 @@ public class LoginController extends BaseController {
                 Map<String, String> errors = new HashMap<>();
                 errors.put("code", "验证码错误");
                 attributes.addFlashAttribute("errors", errors);
-                return "redirect:/reg.html";
+                return "redirect:auth.avengereugmall.com/reg.html";
             }
         } else {
             //效验出错回到注册页面
             Map<String, String> errors = new HashMap<>();
             errors.put("code", "验证码错误");
             attributes.addFlashAttribute("errors", errors);
-            return "redirect:/reg.html";
+            return "redirect:auth.avengereugmall.com/reg.html";
         }
     }
 
