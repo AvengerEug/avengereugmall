@@ -1,5 +1,6 @@
 package com.avengereug.mall.member.service.impl;
 
+import com.avengereug.mall.auth.common.vo.UserLoginVo;
 import com.avengereug.mall.auth.common.vo.UserRegisterVo;
 import com.avengereug.mall.member.dao.MemberLevelDao;
 import com.avengereug.mall.member.entity.MemberEntity;
@@ -85,6 +86,35 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         if (usernameCount > 0) {
             throw new UsernameException();
         }
+    }
+
+    @Override
+    public MemberEntity login(UserLoginVo vo) {
+
+        String loginacct = vo.getLoginacct();
+        String password = vo.getPassword();
+
+        //1、去数据库查询 SELECT * FROM ums_member WHERE username = ? OR mobile = ?
+        MemberEntity memberEntity = this.baseMapper.selectOne(new QueryWrapper<MemberEntity>()
+                .eq("username", loginacct).or().eq("mobile", loginacct));
+
+        if (memberEntity == null) {
+            //登录失败
+            return null;
+        } else {
+            //获取到数据库里的password
+            String password1 = memberEntity.getPassword();
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            //进行密码匹配
+            boolean matches = passwordEncoder.matches(password, password1);
+            if (matches) {
+                //登录成功
+                return memberEntity;
+            }
+        }
+
+        return null;
+
     }
 
 }

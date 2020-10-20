@@ -221,7 +221,7 @@ public class SearchServiceImpl implements SearchService {
                     e.printStackTrace();
                 }
                 String replace = param.get_queryString().replace("&attrs=" + attr, "");
-                navVo.setLink("http://search.gulimall.com/list.html?" + replace);
+                navVo.setLink("http://search.avengereugmall.com/list.html?" + replace);
 
                 return navVo;
             }).collect(Collectors.toList());

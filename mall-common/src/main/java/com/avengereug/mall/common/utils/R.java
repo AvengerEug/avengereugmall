@@ -85,6 +85,11 @@ public class R extends HashMap<String, Object> {
         return this;
     }*/
 
+    public R setData(Object data) {
+        put("data",data);
+        return this;
+    }
+
     //利用fastjson进行反序列化
     public <T> T getData(TypeReference<T> typeReference) {
         Object data = get("data");	//默认是map
@@ -94,7 +99,7 @@ public class R extends HashMap<String, Object> {
     }
 
     //利用fastjson进行反序列化
-    public <T> T getData(String key,TypeReference<T> typeReference) {
+    public <T> T getData(String key, TypeReference<T> typeReference) {
         Object data = get(key);	//默认是map
         String jsonString = JSON.toJSONString(data);
         T t = JSON.parseObject(jsonString, typeReference);

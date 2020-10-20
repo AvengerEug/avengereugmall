@@ -1,4 +1,4 @@
-package com.avengereug.mall.auth.feign;
+package com.avengereug.mall.auth.thirdpart.client;
 
 import com.avengereug.mall.common.utils.RPCResult;
 import org.springframework.cloud.openfeign.FeignClient;

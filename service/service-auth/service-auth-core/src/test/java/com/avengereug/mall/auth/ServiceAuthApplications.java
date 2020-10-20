@@ -1,6 +1,6 @@
 package com.avengereug.mall.auth;
 
-import com.avengereug.mall.auth.feign.SMSClient;
+import com.avengereug.mall.auth.thirdpart.client.SMSClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

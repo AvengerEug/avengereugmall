@@ -29,6 +29,7 @@ public enum BusinessCodeEnum {
      * Auth服务
      */
     REPEAT_CALL_SEND_SMS(15001,"获取短信验证码频率较高，请稍后再试"),
+    LOGINACCT_PASSWORD_EXCEPTION(15003,"账号或密码错误"),
 
     /**
      * Member服务

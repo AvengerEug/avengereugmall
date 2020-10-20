@@ -1,13 +1,15 @@
 package com.avengereug.mall.auth.web;
 
-import com.avengereug.mall.auth.feign.MemberClient;
-import com.avengereug.mall.auth.feign.SMSClient;
+import com.alibaba.fastjson.TypeReference;
+import com.avengereug.mall.auth.common.vo.UserLoginVo;
 import com.avengereug.mall.auth.common.vo.UserRegisterVo;
+import com.avengereug.mall.auth.thirdpart.client.SMSClient;
 import com.avengereug.mall.common.Enum.BusinessCodeEnum;
 import com.avengereug.mall.common.constants.AuthServerConstant;
 import com.avengereug.mall.common.controller.BaseController;
 import com.avengereug.mall.common.utils.R;
-import com.avengereug.mall.common.utils.RPCResult;
+import com.avengereug.mall.member.feign.MemberClient;
+import com.avengereug.mall.member.vo.MemberResponseVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -20,12 +22,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static com.avengereug.mall.common.constants.AuthServerConstant.LOGIN_USER;
 
 @Controller
 public class LoginController extends BaseController {
@@ -134,6 +140,32 @@ public class LoginController extends BaseController {
             attributes.addFlashAttribute("errors", errors);
             return "redirect:auth.avengereugmall.com/reg.html";
         }
+    }
+
+    @PostMapping(value = "/login")
+    public String login(UserLoginVo vo, RedirectAttributes attributes, HttpSession session) {
+
+        //远程登录
+        R login = memberClient.login(vo);
+
+        if (login.getCode() == 0) {
+            MemberResponseVo data = login.getData("data", new TypeReference<MemberResponseVo>() {});
+            session.setAttribute(LOGIN_USER, data);
+            return "redirect:http://avengereugmall.com";
+        } else {
+            Map<String,String> errors = new HashMap<>();
+            errors.put("msg", login.getData("msg", new TypeReference<String>(){}));
+            attributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.avengereugmall.com/login.html";
+        }
+    }
+
+
+    @GetMapping(value = "/loguot.html")
+    public String logout(HttpServletRequest request) {
+        request.getSession().removeAttribute(LOGIN_USER);
+        request.getSession().invalidate();
+        return "redirect:http://avengereugmall.com";
     }
 
 }

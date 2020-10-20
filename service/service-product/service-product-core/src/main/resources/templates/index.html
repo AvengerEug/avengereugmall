@@ -95,7 +95,9 @@
   					</b>
         <ul>
           <li>
-            <a href="http://auth.avengereugmall.com/login.html">你好，请登录</a>
+            ${session.loginUser}: <span th:value="${session.loginUser}"></span>
+            <a th:if="${session.loginUser != null}">欢迎, [[${session.loginUser.nickname}]]</a>
+            <a th:if="${session.loginUser == null}" href="http://auth.avengereugmall.com/login.html">你好，请登录</a>
           </li>
           <li>
             <a href="http://auth.avengereugmall.com/reg.html" class="li_2">免费注册</a>

@@ -3,6 +3,7 @@ package com.avengereug.mall.member.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.avengereug.mall.auth.common.vo.UserLoginVo;
 import com.avengereug.mall.auth.common.vo.UserRegisterVo;
 import com.avengereug.mall.common.Enum.BusinessCodeEnum;
 import com.avengereug.mall.common.controller.BaseController;
@@ -105,6 +106,18 @@ public class MemberController extends BaseController {
         }
 
         return R.ok();
+    }
+
+    @PostMapping(value = "/login")
+    public R login(@RequestBody UserLoginVo vo) {
+
+        MemberEntity memberEntity = memberService.login(vo);
+
+        if (memberEntity != null) {
+            return R.ok().setData(memberEntity);
+        } else {
+            return R.error(BusinessCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getCode(), BusinessCodeEnum.LOGINACCT_PASSWORD_EXCEPTION.getMsg());
+        }
     }
 
 

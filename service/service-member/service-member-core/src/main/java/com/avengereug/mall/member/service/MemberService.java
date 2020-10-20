@@ -1,5 +1,6 @@
 package com.avengereug.mall.member.service;
 
+import com.avengereug.mall.auth.common.vo.UserLoginVo;
 import com.avengereug.mall.auth.common.vo.UserRegisterVo;
 import com.avengereug.mall.member.entity.MemberEntity;
 import com.avengereug.mall.member.exception.PhoneException;
@@ -35,5 +36,7 @@ public interface MemberService extends IService<MemberEntity> {
      * @return
      */
     void checkUserNameUnique(String userName) throws UsernameException;
+
+    MemberEntity login(UserLoginVo vo);
 }
 

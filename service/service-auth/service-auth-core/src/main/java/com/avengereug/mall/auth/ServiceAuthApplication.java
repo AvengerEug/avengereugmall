@@ -6,7 +6,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 
 @StartApplication
-@EnableFeignClients(basePackages = {"com.avengereug.mall.auth.feign"})
+@EnableFeignClients(basePackages = {
+        "com.avengereug.mall.auth.thirdpart.client",
+        "com.avengereug.mall.member.feign"
+})
 public class ServiceAuthApplication {
 
     public static void main(String[] args) {

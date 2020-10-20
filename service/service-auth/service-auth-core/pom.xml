@@ -52,6 +52,11 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.avengereug.mall</groupId>
+            <artifactId>service-member-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
 
     </dependencies>
 
