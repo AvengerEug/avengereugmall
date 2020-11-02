@@ -150,6 +150,11 @@ public class LoginController extends BaseController {
 
         if (login.getCode() == 0) {
             MemberResponseVo data = login.getData("data", new TypeReference<MemberResponseVo>() {});
+            /**
+             * TODO 1、保存用户信息到redis中（spring session完成）。
+             * TODO 2、修改spring session的序列化模式，将格式改成传统的json格式（修改spring session反序列化配置）
+             * TODO 3、修改session作用域，将session的domain提升到父域名(其实就是cookie的作用域)
+             */
             session.setAttribute(LOGIN_USER, data);
             return "redirect:http://avengereugmall.com";
         } else {
