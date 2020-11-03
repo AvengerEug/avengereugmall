@@ -1,0 +1,52 @@
+server:
+  port: 40000
+  tomcat:
+    basedir: ./tomcat
+    access-log-enabled: true
+    accesslog:
+      directory: ./access-log
+  servlet:
+    session:
+      timeout: 30m
+
+spring:
+  profiles:
+    active: local
+  application:
+    name: service-cart
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+  # 格式化数据
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    jedis:
+      pool:
+        min-idle: 10
+        max-idle: 50
+  # 表示使用spring cache组件中使用的缓存类型为redis
+  cache:
+    type: redis
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save # 保存时才刷新
+      namespace: spring:session # session存在redis中的key
+
+apilog:
+  logfolder:
+    folderPath: ${server.tomcat.basedir}/api-log
+
+#配置线程池
+avengereugmall:
+  thread:
+    coreSize: 20
+    maxSize: 200
+    keepAliveTime: 10

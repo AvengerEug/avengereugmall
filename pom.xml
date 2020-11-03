@@ -29,6 +29,10 @@
         <module>service/service-thirdparty</module>
         <module>service/service-es</module>
         <module>service/service-auth</module>
+        <module>service/service-cart</module>
+        <module>service/service-cart/service-cart-client</module>
+        <module>service/service-cart/service-cart-common</module>
+        <module>service/service-cart/service-cart-core</module>
         <!--<module>renren-generator</module>-->
     </modules>
 
