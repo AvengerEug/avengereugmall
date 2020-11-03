@@ -1244,20 +1244,31 @@
   1、根据官网springboot使用redis来集成spring session文档做集成：
   https://docs.spring.io/spring-session/docs/2.4.0/reference/html5/guides/boot-redis.html
   2、为了跨语言，应该修改spring session的序列化方式，修改成统一的json格式
-  3、修改session的作用域，应该作用到父域名
+     2.1、修改spring session存入redis的序列化方式：
+          https://docs.spring.io/spring-session/docs/2.4.0/reference/html5/#custom-redisserializer
+3、修改session的作用域，应该作用到父域名
+     3.1、修改session存到客户端cookie中的配置
+          https://docs.spring.io/spring-session/docs/2.4.0/reference/html5/#api-cookieserializer
+  ```
+  
+* 具备的功能：
+
+  ```txt
+  Spring Session对httpsession进行了增强改造，在set值到session时，会将数据同时保存到redis中。每次请求时，都会将redis中的值放到session中，并返回给
+  客户端（但需要同时将spring session的配置添加到每个微服务中，保证它能从redis中取值、将redis中的值放到session中）。
   ```
 
-  #### 二十三、购物车业务需求
+#### 二十三、购物车业务需求
+
+* 购物车的存储位置：**统一存在redis中，使用redis hash的数据结构进行存储**
+
+* 在购物需求而言，不管用户是处于登录状态，还是用户退出了登录，购物车的信息都还能找到。因此，有一个追踪点就是：前端的cookie需要保存用户的信息，如果用户没有登录，则需要生成一个临时的**user-key**。就算用户登录了，也要生成一个临时的**user-key**。后续的所有购物车相关的东西，都从这个**user-key**来获取。因此，可以判断，这个**user-key**是用户的一个标识身份，就算你是登录的用户还是为登录的用户都会为你生成一个**user-key**，然后根据这个**user-key**来保存购物车的信息。所以我们需要在请求购物车信息之前就把这个**user-key**的事情给做了(使用spring mvc的拦截器功能)，同时要为这个**user-key**设置过期时间，设置当前使用浏览器的用户的购物车数据最多存储时间为一个月，以及需要将它cookie的作用域放大，后续可能会使用到这个**user-key**。所以，这里会涉及到几个技术点：
+
+  ```txt
+  1、会使用到spring mvc的拦截器。执行之前：构造user-key。 执行之后：为user-key设置过期时间
+  2、使用ThreadLocal，保证同一个线程中能获取到当前的用户信息，这样在实际处理中就能知道用户是处于登录状态还是未登录状态了。
+  ```
+
   
-  * 购物车的存储位置：**统一存在redis中，使用redis hash的数据结构进行存储**
+
   
-  * 在购物需求而言，不管用户是处于登录状态，还是用户退出了登录，购物车的信息都还能找到。因此，有一个追踪点就是：前端的cookie需要保存用户的信息，如果用户没有登录，则需要生成一个临时的**user-key**。就算用户登录了，也要生成一个临时的**user-key**。后续的所有购物车相关的东西，都从这个**user-key**来获取。因此，可以判断，这个**user-key**是用户的一个标识身份，就算你是登录的用户还是为登录的用户都会为你生成一个**user-key**，然后根据这个**user-key**来保存购物车的信息。所以我们需要在请求购物车信息之前就把这个**user-key**的事情给做了(使用spring mvc的拦截器功能)，同时要为这个**user-key**设置过期时间，设置当前使用浏览器的用户的购物车数据最多存储时间为一个月，以及需要将它cookie的作用域放大，后续可能会使用到这个**user-key**。所以，这里会涉及到几个技术点：
-  
-    ```txt
-    1、会使用到spring mvc的拦截器。执行之前：构造user-key。 执行之后：为user-key设置过期时间
-    2、使用ThreadLocal，保证同一个线程中能获取到当前的用户信息，这样在实际处理中就能知道用户是处于登录状态还是未登录状态了。
-    ```
-  
-    
-  
-    

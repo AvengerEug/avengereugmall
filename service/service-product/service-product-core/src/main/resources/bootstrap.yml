@@ -5,6 +5,9 @@ server:
     access-log-enabled: true
     accesslog:
       directory: ./access-log
+  servlet:
+    session:
+      timeout: 30m
 
 spring:
   profiles:
@@ -36,6 +39,11 @@ spring:
   # 表示使用spring cache组件中使用的缓存类型为redis
   cache:
     type: redis
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save # 保存时才刷新
+      namespace: spring:session # session存在redis中的key
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
