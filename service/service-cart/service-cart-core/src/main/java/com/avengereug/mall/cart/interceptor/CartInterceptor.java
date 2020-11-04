@@ -18,6 +18,7 @@ import static com.avengereug.mall.common.constants.AuthServerConstant.LOGIN_USER
 
 public class CartInterceptor implements HandlerInterceptor {
 
+    // 将用户信息保存到ThreadLocal中，保证同一个请求中的数据能在整个线程调用链中获取到参数信息
     public static ThreadLocal<UserInfoTo> toThreadLocal = new ThreadLocal<>();
 
     /***
@@ -85,7 +86,7 @@ public class CartInterceptor implements HandlerInterceptor {
         if (!userInfoTo.getTempUser()) {
             //创建一个cookie
             Cookie cookie = new Cookie(TEMP_USER_COOKIE_NAME, userInfoTo.getUserKey());
-            //扩大作用域
+            //扩大作用域  ---> 当前作用域及其子域都能访问得到此cookie
             cookie.setDomain("avengereugmall.com");
             //设置过期时间
             cookie.setMaxAge(TEMP_USER_COOKIE_TIMEOUT);

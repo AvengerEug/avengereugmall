@@ -6,6 +6,6 @@ public interface CartConstant {
 
     int TEMP_USER_COOKIE_TIMEOUT = 60*60*24*30;
 
-    String CART_PREFIX = "gulimall:cart:";
+    String CART_PREFIX = "avengereugmall:cart:";
 
 }

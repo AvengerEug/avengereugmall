@@ -1,5 +1,6 @@
 package com.avengereug.mall.product.controller;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -100,6 +101,11 @@ public class SkuInfoController {
         skuInfoService.removeByIds(Arrays.asList(skuIds));
 
         return R.ok();
+    }
+
+    @GetMapping("/inner/getPrice")
+    public BigDecimal getPrice(@RequestParam("skuId") Long skuId) {
+        return skuInfoService.getPrice(skuId);
     }
 
 }

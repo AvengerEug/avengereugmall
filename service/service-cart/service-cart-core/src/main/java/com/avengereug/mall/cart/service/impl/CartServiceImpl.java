@@ -9,7 +9,9 @@ import com.avengereug.mall.cart.vo.CartItemVo;
 import com.avengereug.mall.cart.vo.CartVo;
 import com.avengereug.mall.cart.vo.SkuInfoVo;
 import com.avengereug.mall.common.utils.RPCResult;
+import com.avengereug.mall.product.feign.AttrClient;
 import com.avengereug.mall.product.feign.SkuInfoClient;
+import com.avengereug.mall.product.vo.SkuInfoEntityVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +20,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -35,7 +36,7 @@ public class CartServiceImpl implements CartService {
     private StringRedisTemplate redisTemplate;
 
     @Autowired
-    private SkuInfoClient skuInfoClients;
+    private SkuInfoClient skuInfoClient;
 
     @Autowired
     private ThreadPoolExecutor executor;
@@ -53,11 +54,11 @@ public class CartServiceImpl implements CartService {
 
             //2、添加新的商品到购物车(redis)
             CartItemVo cartItemVo = new CartItemVo();
-            //开启第一个异步任务
+            // 开启第一个异步任务
             CompletableFuture<Void> getSkuInfoFuture = CompletableFuture.runAsync(() -> {
                 //1、远程查询当前要添加商品的信息
-                RPCResult productSkuInfo = skuInfoClients.innerInfo(skuId);
-                SkuInfoVo skuInfo = (SkuInfoVo) productSkuInfo.getResult();
+                RPCResult<SkuInfoEntityVO> productSkuInfo = skuInfoClient.innerInfo(skuId);
+                SkuInfoEntityVO skuInfo = productSkuInfo.getResult();
                 //数据赋值操作
                 cartItemVo.setSkuId(skuInfo.getSkuId());
                 cartItemVo.setTitle(skuInfo.getSkuTitle());
@@ -66,14 +67,14 @@ public class CartServiceImpl implements CartService {
                 cartItemVo.setCount(num);
             }, executor);
 
-            //开启第二个异步任务
+            // 开启第二个异步任务
             CompletableFuture<Void> getSkuAttrValuesFuture = CompletableFuture.runAsync(() -> {
                 //TODO 2、远程查询skuAttrValues组合信息
 //                 List<String> skuSaleAttrValues = productFeignService.getSkuSaleAttrValues(skuId);
 //                cartItemVo.setSkuAttrValues(skuSaleAttrValues);
             }, executor);
 
-            //等待所有的异步任务全部完成
+            // 等待所有的异步任务全部完成
             CompletableFuture.allOf(getSkuInfoFuture, getSkuAttrValuesFuture).get();
 
             String cartItemJson = JSON.toJSONString(cartItemVo);
@@ -246,7 +247,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public List<CartItemVo> getUserCartItems() {
 
-        List<CartItemVo> cartItemVoList = new ArrayList<>();
+        List<CartItemVo> cartItemVoList;
         //获取当前用户登录的信息
         UserInfoTo userInfoTo = CartInterceptor.toThreadLocal.get();
         //如果用户未登录直接返回null
@@ -260,13 +261,12 @@ public class CartServiceImpl implements CartService {
             if (cartItems == null) {
                 throw new CartExceptionHandler();
             }
-            //筛选出选中的
+            //筛选出选中的，并更新最新价格，因为有可能用户将商品添加到购物车后，商家又修改价格了
             cartItemVoList = cartItems.stream()
                     .filter(items -> items.getCheck())
                     .map(item -> {
-                        //TODO 更新为最新的价格（查询数据库）
-//                        BigDecimal price = productFeignService.getPrice(item.getSkuId());
-//                        item.setPrice(price);
+                        BigDecimal price = skuInfoClient.getPrice(item.getSkuId());
+                        item.setPrice(price);
                         return item;
                     })
                     .collect(Collectors.toList());

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.product.entity.SkuInfoEntity;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -20,5 +21,7 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
     PageUtils queryPage(Map<String, Object> params);
 
     SkuItemVO item(Long skuId) throws ExecutionException, InterruptedException;
+
+    BigDecimal getPrice(Long skuId);
 }
 

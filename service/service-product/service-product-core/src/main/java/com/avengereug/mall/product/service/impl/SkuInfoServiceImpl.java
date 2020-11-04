@@ -131,4 +131,10 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
         return skuItemVO;
     }
+
+    @Override
+    public BigDecimal getPrice(Long skuId) {
+        SkuInfoEntity skuInfoEntity = baseMapper.selectById(skuId);
+        return skuInfoEntity.getPrice();
+    }
 }
