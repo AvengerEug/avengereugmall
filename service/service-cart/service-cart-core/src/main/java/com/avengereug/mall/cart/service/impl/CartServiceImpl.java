@@ -107,6 +107,9 @@ public class CartServiceImpl implements CartService {
 
     /**
      * 获取用户登录或者未登录购物车里所有的数据
+     *
+     * 若在未登录的情况下添加了购物车，此时用户登录了，需要把临时购物车的数据与当前登录的用户购物车数据进行合并
+     *
      * @return
      * @throws ExecutionException
      * @throws InterruptedException
@@ -204,7 +207,7 @@ public class CartServiceImpl implements CartService {
         //查询购物车里面的商品
         CartItemVo cartItem = getCartItem(skuId);
         //修改商品状态
-        cartItem.setCheck(check == 1?true:false);
+        cartItem.setCheck(check == 1);
 
         //序列化存入redis中
         String redisValue = JSON.toJSONString(cartItem);

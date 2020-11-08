@@ -99,6 +99,8 @@ public class CartController {
 
     /**
      * 商品是否选中
+     * ---> 底层实现：修改redis中的对象，并把check属性改成true或者false
+     *
      * @param skuId
      * @param checked
      * @return
@@ -116,6 +118,9 @@ public class CartController {
 
     /**
      * 改变商品数量
+     *
+     * --> 底层实现：修改redis中对应元素的count属性，并重新设置回redis中
+     *
      * @param skuId
      * @param num
      * @return
@@ -132,6 +137,9 @@ public class CartController {
 
     /**
      * 删除商品信息
+     *
+     * ---> 底层实现：删除redis中hash结构的购物车对应的元素
+     *
      * @param skuId
      * @return
      */
