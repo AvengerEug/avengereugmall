@@ -13,6 +13,12 @@ spring:
     url: jdbc:mysql://49.235.135.230:33110/mall_oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
+  rabbitmq:
+    host: 49.235.135.230
+    port: 5672
+    virtual-host: /avengereug
+    username: guest
+    password: guestguest
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
