@@ -19,6 +19,10 @@ spring:
     virtual-host: /avengereug
     username: guest
     password: guestguest
+    listener:
+      direct:
+        retry:
+          enabled: false
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
