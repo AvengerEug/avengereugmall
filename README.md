@@ -1307,7 +1307,49 @@
 
 * 详细的消息中间件相关知识点可参考自己写的博客：[消息队列之RabbitMQ:一篇文章了解RabbitMQ特性](https://blog.csdn.net/avengerEug/article/details/105481451)，内部包含了RabbitMQ消息队列的**安装方式**、常用的**四种交换机**以及**死信队列**、**备用交换机**等知识点。
 
-##### 24.6 RabbitMQ可靠消息投递和可靠抵达策略
+##### 24.3 @RabbitListener和@RabbitHandler的区别
+
+* ```txt
+  使用@RabbitListener和@RabbitHandler来组合使用，来处理多个监听者监听同一条队列并且队列中消息的参数类型不同的情况
+  如下：若我们将发送消息时，分别发送了不同类型的消息对象QueryParam和QueryParam2。因为我们每一个消息消费者的方法签名上定义了参数名的类型，如果我们只用@RabbitListener注解来处理这种情形的话，我们需要指定重复的队列，这种写法代码有点冗余，因此可以使用@RabbitListener和@RabbitHandler来处理。比如当前类的写法。但实际上，我们的每个消息队列应该是职责单一的，最好是一条消息队列处理一种业务。这样的话，能简化、方便开发
+  ```
+
+*  @RabbitListener和@RabbitHandler组合使用的demo
+
+  ```java
+  @RabbitListener(queues = "test.fanout.queue")
+  @Component
+  public class MakeOrderHandler2 {
+  
+      private static final Logger LOGGER = LoggerFactory.getLogger(MakeOrderHandler2.class);
+  
+      @RabbitHandler
+      public void handler(QueryParams message) {
+          LOGGER.info("接收到消息，消息内容：{}, 消息类型：{}", message, message.getClass());
+      }
+  
+      @RabbitHandler
+      public void handler(QueryParams2 message2) {
+          LOGGER.info("接收到消息，消息内容：{}, 消息类型：{}", message2, message2.getClass());
+      }
+  }
+  ```
+
+##### 24.4 使用@RabbitListener注解处理的一些常用且易错的场景
+
+* 场景一：我们的服务在生产环境部署时，都是集群式部署的，这就意味着，同一条消息队列可能会出现多个消费者，且这些消费者做的事情是一模一样的。假设此时生产者生产了一个消息，服务的每个实例都会消费到这条消息，那是否要做消息幂等性的处理呢？
+
+  ```txt
+  在使用@RabbitLIstener注解标识消费者时，就算我们的服务是集群部署的，但是每一条消息有且只有一个消费者能够消费到。不可能出现多个消费者同时消费同一条消息的情况。但消息幂等性还是要考虑的，为什么呢？因为有可能会有重试机制，或者消费者连续发送了相同的消息，我们得保证消息消费者的业务逻辑的幂等性
+  ```
+
+* 场景二：如果消费者正在处理一条消息时，生产者正在生产第二条消息，并且将第二条消息发送给消息中间件服务器了，此时消费者会紧接着处理第二条消息么？
+
+  ```txt
+  答案是：不会。只有消费者将当前业务逻辑都执行完毕后，才会继续消费后面的消息。也就是说，如果我消息处理业务逻辑有10s，那这10s内当前的消费者是不能处理其他消息的。进而得出结论：消费者处理消息的逻辑是同步的。
+  ```
+
+##### 24.5 RabbitMQ可靠消息投递和可靠抵达策略
 
 ###### 1、confirmCallback
 
@@ -1329,3 +1371,4 @@
 
 * 默认情况下，消费者是自动ack的。这种模式下会存在一个大坑(**消息丢失的大坑**)。之前说了，所有的消息都是从Channel进行传递的。也就是说，当我们的消费者开始处理消息时，这个channel就会被打开，若消息队列服务器已经指定将具体的a、b、c消息投递给消费者1。此时消费者1在消费a成功后去消费b，如果突然宕机了，那么b、c消息都会被丢失。这就是自动ack的坑（可以做一个实验，debug启动一个项目，然后一次性往一个队列生产10条消息，然后在消费者逻辑中启动一个断点，我们在消费者处理第二个消息时把服务给关了。然后你去后台看就会发现消息都被消费了）。即，自动ack机制的自动性取决于同一个channel下，消费者对第一个消息的处理，如果第一个消息处理成功了，那么就会认为后面的都会成功，恰巧，如果在处理后面消息的过程中，服务宕机了，此时就会丢失消息。
 * 将自动ack模式改成手动确认，可以解决自动ack模式下丢消息的情况（待测试：同时往队列生产6个消息，第一个消息手动ack确认后，模拟服务宕机，然后观察 消息是否还会被ack确认）
+

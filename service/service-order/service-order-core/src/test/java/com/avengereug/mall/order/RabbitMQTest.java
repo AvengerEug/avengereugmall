@@ -1,6 +1,9 @@
 package com.avengereug.mall.order;
 
 import com.avengereug.mall.order.config.RabbitMQConfig;
+import com.avengereug.mall.order.params.QueryParams;
+import lombok.Data;
+import lombok.ToString;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -72,33 +75,13 @@ public class RabbitMQTest {
      */
     @Test
     public void sendCustomizedParamsToMessage() {
-        QueryParams queryParams = new QueryParams();
-        queryParams.setCurrentPage(1);
-        queryParams.setPageSize(2);
-
-        rabbitTemplate.convertAndSend("test.fanout.exchange", "test.fanout.exchange.routingKey", queryParams);
-    }
-
-
-    public static class QueryParams implements Serializable {
-        private Integer pageSize;
-        private Integer currentPage;
-
-        public Integer getPageSize() {
-            return pageSize;
-        }
-
-        public void setPageSize(Integer pageSize) {
-            this.pageSize = pageSize;
-        }
-
-        public Integer getCurrentPage() {
-            return currentPage;
-        }
-
-        public void setCurrentPage(Integer currentPage) {
-            this.currentPage = currentPage;
+        for (int i = 0; i < 10; i++) {
+            QueryParams queryParams = new QueryParams();
+            queryParams.setCurrentPage(1);
+            queryParams.setPageSize(i);
+            rabbitTemplate.convertAndSend("test.fanout.exchange", "test.fanout.exchange.routingKey", queryParams);
         }
     }
+
 
 }
