@@ -24,3 +24,13 @@ spring:
     redis:
       flush-mode: on_save # 保存时才刷新
       namespace: spring:session # session存在redis中的key
+  rabbitmq:
+    host: 49.235.135.230
+    port: 5672
+    virtual-host: /avengereug
+    username: guest
+    password: guestguest
+    listener:
+      direct:
+        retry:
+          enabled: false

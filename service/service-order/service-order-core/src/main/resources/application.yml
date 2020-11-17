@@ -23,6 +23,13 @@ spring:
       direct:
         retry:
           enabled: false
+      # 设置ack模式为手动确认
+      simple:
+        acknowledge-mode: manual
+    publisher-returns: true
+    # 代替publisher-confirms配置，阅读源码后能发现此配置的底层就是来配置publisher-confirm-type的
+    # 因此publisher-confirm-type配置也是开启可靠消息投递的模式的
+    publisher-confirm-type: correlated
 
 mybatis-plus:
   mapper-locations: classpath*:mapper/**/*.xml
