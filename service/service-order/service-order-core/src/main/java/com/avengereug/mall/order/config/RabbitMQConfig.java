@@ -48,7 +48,10 @@ public class RabbitMQConfig {
 
     @PostConstruct
     public void init() {
-        // 1、此确认机制是消息发送到消息服务器的broker组件时的回调，能保证消息发送到消息服务器中去了
+        /**
+         * 1、此确认机制是消息发送到消息服务器的broker组件时的回调，能保证消息发送到消息服务器中去了
+         * 2、不管broker是否成功收到消息，都会回调到这里来
+         */
         rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
 
             /**
@@ -58,7 +61,7 @@ public class RabbitMQConfig {
              */
             @Override
             public void confirm(CorrelationData correlationData, boolean ack, String cause) {
-                LOGGER.info("消息发送到rabbit服务器了。correlationData：{}, ack: {}, cause: {}", correlationData, ack, cause);
+                LOGGER.info("confirm ==> 消息发送到rabbit服务器了。correlationData：{}, ack: {}, cause: {}", correlationData, ack, cause);
             }
         });
 
@@ -68,7 +71,9 @@ public class RabbitMQConfig {
              * 此returnCallback的回调比较特殊，当交换机将消息路由到队列这一个步骤失败了才会回调此方法
              *
              * 可以自己测试，发送一个消息，指定一个不存在的路由键导致消息路由失败，此时就会进入到此方法中，
-             * 我们可以在
+             *
+             * ps：使用路由键不同的方式进行测试的时候需要注意交换机的类型为direct或者topic类型。如果为fanout类型的话，
+             * 路由键不会生效，就算路由键不存在，交换机也会将消息广播至与它绑定的队列中去
              *
              * @param message 原生消息类型
              * @param replyCode 失败的原因码
@@ -78,7 +83,7 @@ public class RabbitMQConfig {
              */
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey) {
-                LOGGER.info("消息从交换机路由到队列失败，失败码：{}, 失败原因：{}，交换机名称：{}，路由键：{}，消息：{}", replyCode, replyText, exchange, replyCode, message);
+                LOGGER.info("returnedMessage ==> 消息从交换机路由到队列失败，失败码：{}, 失败原因：{}，交换机名称：{}，路由键：{}，消息：{}", replyCode, replyText, exchange, replyCode, message);
             }
         });
 

@@ -2,6 +2,8 @@ package com.avengereug.mall.order.controller;
 
 import com.avengereug.mall.common.constants.MQConstants;
 import com.avengereug.mall.order.params.QueryParams;
+import com.rabbitmq.client.Channel;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/sendMQ")
@@ -28,13 +29,13 @@ public class SendMQController {
 
     @GetMapping("/index")
     public String send(@RequestParam(value = "count") Integer count) {
-        String exchange = MQConstants.EX_TEST;
+        String exchange = MQConstants.EX_TEST_DIRECT;
 
         for (int i = 0; i < count; i++) {
             QueryParams queryParams = new QueryParams();
             queryParams.setCurrentPage(i);
             queryParams.setPageSize(i);
-            rabbitTemplate.convertAndSend(exchange, "", queryParams, new CorrelationData(UUID.randomUUID().toString()));
+            rabbitTemplate.convertAndSend(exchange, MQConstants.MQ_TEST_DIRECT, queryParams, new CorrelationData(UUID.randomUUID().toString()));
         }
 
         return "ok";
@@ -51,12 +52,16 @@ public class SendMQController {
      *
      * @param queryParams
      */
-    @RabbitListener(queues = MQConstants.MQ_TEST)
+    @RabbitListener(queues = MQConstants.MQ_TEST_DIRECT)
     public void listener(QueryParams queryParams) throws InterruptedException {
+        System.out.println("线程名称：" + Thread.currentThread().getName());
+
         System.out.println("接收到消息：" + queryParams + " 当前服务端占用端口：" + port);
         System.out.println("处理消息中");
-        TimeUnit.SECONDS.sleep(10);
         System.out.println("消息处理完成");
+
+        System.out.println("就算此时jvm进程宕机了，但是由于jvm钩子函数的原因，channel中的消息都会被执行完的。");
+        System.out.println("因此，我们可以在消费消息时，对消费失败的消息都要进行本地持久化，后续再针对消费失败的消息再做人工处理");
     }
 
 }

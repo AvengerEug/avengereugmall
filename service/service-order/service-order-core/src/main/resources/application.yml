@@ -23,9 +23,10 @@ spring:
       direct:
         retry:
           enabled: false
-      # 设置ack模式为手动确认
-      simple:
-        acknowledge-mode: manual
+#      simple:
+#        # 设置手动ack确认模式
+#        acknowledge-mode: manual
+    # 开启交换机路由至队列失败的回调
     publisher-returns: true
     # 代替publisher-confirms配置，阅读源码后能发现此配置的底层就是来配置publisher-confirm-type的
     # 因此publisher-confirm-type配置也是开启可靠消息投递的模式的
