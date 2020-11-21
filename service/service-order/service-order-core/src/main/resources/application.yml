@@ -13,6 +13,19 @@ spring:
     url: jdbc:mysql://49.235.135.230:33110/mall_oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: root
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    jedis:
+      pool:
+        min-idle: 10
+        max-idle: 50
+  session:
+    store-type: redis
+    redis:
+      flush-mode: on_save # 保存时才刷新
+      namespace: spring:session # session存在redis中的key
   rabbitmq:
     host: 49.235.135.230
     port: 5672

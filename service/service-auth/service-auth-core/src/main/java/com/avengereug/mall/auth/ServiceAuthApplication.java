@@ -16,7 +16,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
         "com.avengereug.mall.auth.thirdpart.client",
         "com.avengereug.mall.member.feign"
 })
-@EnableRabbit
 public class ServiceAuthApplication {
 
     public static void main(String[] args) {

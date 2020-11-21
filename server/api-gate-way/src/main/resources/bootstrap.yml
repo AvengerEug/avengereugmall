@@ -77,6 +77,12 @@ spring:
           predicates:
             - Host=cart.avengereugmall.com
 
+        # 域名跳转订单服务
+        - id: domain-service-order
+          uri: lb://service-order
+          predicates:
+            - Host=order.avengereugmall.com
+
       globalcors:
         # 跨域配置
         cors-configurations:
