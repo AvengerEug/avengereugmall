@@ -1,6 +1,7 @@
 package com.avengereug.mall.member.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import com.avengereug.mall.member.entity.MemberReceiveAddressEntity;
@@ -85,6 +86,11 @@ public class MemberReceiveAddressController {
         memberReceiveAddressService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+    @GetMapping("/{memberId}/address")
+    public List<MemberReceiveAddressEntity> getAddress(@PathVariable("memberId") Long memberId) {
+        return memberReceiveAddressService.findAddressByMemberId(memberId);
     }
 
 }

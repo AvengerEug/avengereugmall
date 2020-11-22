@@ -9,8 +9,14 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+    <packaging>pom</packaging>
     <artifactId>service-cart</artifactId>
+
+    <modules>
+        <module>service-cart-client</module>
+        <module>service-cart-common</module>
+        <module>service-cart-core</module>
+    </modules>
 
 
 </project>

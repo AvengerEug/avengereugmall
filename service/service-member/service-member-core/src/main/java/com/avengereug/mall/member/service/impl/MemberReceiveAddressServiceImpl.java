@@ -2,6 +2,8 @@ package com.avengereug.mall.member.service.impl;
 
 import com.avengereug.mall.member.entity.MemberReceiveAddressEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -26,4 +28,12 @@ public class MemberReceiveAddressServiceImpl extends ServiceImpl<MemberReceiveAd
         return new PageUtils(page);
     }
 
+    @Override
+    public List<MemberReceiveAddressEntity> findAddressByMemberId(Long memberId) {
+        QueryWrapper<MemberReceiveAddressEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("member_id", memberId);
+
+        List<MemberReceiveAddressEntity> list = this.list(queryWrapper);
+        return list;
+    }
 }

@@ -52,7 +52,13 @@
 
         <dependency>
             <groupId>com.avengereug.mall</groupId>
-            <artifactId>service-member-common</artifactId>
+            <artifactId>service-member-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.avengereug.mall</groupId>
+            <artifactId>service-cart-client</artifactId>
             <version>0.0.1</version>
         </dependency>
 

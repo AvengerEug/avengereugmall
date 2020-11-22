@@ -17,4 +17,7 @@ public interface MemberClient {
 
     @PostMapping(value = "/login")
     R login(@RequestBody UserLoginVo vo);
+
+
+
 }

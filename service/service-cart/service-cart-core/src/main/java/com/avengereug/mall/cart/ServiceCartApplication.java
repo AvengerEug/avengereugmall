@@ -1,10 +1,12 @@
 package com.avengereug.mall.cart;
 
+import com.avengereug.mall.common.anno.EnableFeignConfig;
 import com.avengereug.mall.common.anno.StartApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
+@EnableFeignConfig
 @EnableRedisHttpSession
 @StartApplication
 @EnableFeignClients(
