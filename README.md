@@ -1388,3 +1388,48 @@
 * 将自动ack模式改成手动确认时，其实，只要我们将jvm停掉，它还是会将channel中的所有消息给消费的，也就是说，消费者的逻辑比较特殊，就算我们把jvm给停掉了，但在jvm真正停掉之前，还是会将channel中的消息消费完的，即消费者的逻辑还是会走完......
 
 * 因此，建议还是采用自动确认机制，然后在消费消息的时候对发生异常的消息做持久化处理，方便后续重新触发相同的逻辑，以最终一致性为目的，达到消费消息不丢失的目的。最好的解决方案是：在confirmCallback中对消息做持久化，并且状态标识为待消费，然后在消费者逻辑中进行try catch finally包围，若消费失败，则将消费失败的原因持久化，并将消息设置成消费失败。若消费成功，则直接将状态改成消费完成即可。
+
+#### 二十五、可配置的feign client，添加feign之间调用的请求头丢失问题
+
+##### 25.1 同步请求的feign client配置
+
+* 做成可配置的原因是因为每一个服务都可能会存在feign调用，那就说明每个服务都可能会需要添加请求头丢失的配置。因此，我就打算在common工程中添加一个全局的feign client配置**ConfigurableFeignConfig**。它生效的方式就是在对应的服务启动入口中添加一个`@EnableFeignConfig`注解即可。可配置机制非常简单，主要是利用了spring的`@Import`最简单的导入普通bean的扩展点。
+
+* 需要配置请求头参数原理：其主要原理就在于feign client的调用逻辑。feign client是spring cloud创建出来的一个代理对象（类型为：**feign.ReflectiveFeign**），它具备rpc调用的功能，在它构建http request请求时，它是一个默认的请求，无**query、header、body**参数。由于feign的设计扩展性比较高，因此在调用时，我们可以动态的为feign构建出来的request对象填充一些属性，它底层利用的是feign自己设计的**feign.RequestInterceptor**拦截器功能来填充request对象，构建request对象源码如下：
+
+  ```java
+  Request targetRequest(RequestTemplate template) {
+      for (RequestInterceptor interceptor : requestInterceptors) {
+          interceptor.apply(template);
+      }
+      return target.apply(template);
+  }
+  ```
+
+  而所有关于feign的配置都是从**org.springframework.cloud.openfeign.FeignClientFactoryBean#configureFeign**方法中进行配置的。同时，feign还创建一个叫**FeignContext**的上下文，它实现了spring的ApplicationContextAware接口，能拿到spring的容器，最终从spring容器中去拿类型为**RequestInterceptor**的bean。因此，我们在配置FeignClient请求头丢失问题时，只需要往spring中添加类型为**RequestInterceptor**的bean即可。后续feignClient直接调用这些拦截器，根据拦截器**apply方法**的具体内容来填充request对象。
+
+* 现在还存在一个问题：拦截器apply方法中如何获取到当前请求的request信息，拿到request中的请求头信息来填充到feignClient构建出来的新的request中呢？
+
+  其主要原理，就是我们可以将当前浏览器请求进来的HttpServletRequest放到ThreadLocal中，然后在feign拦截器的apply方法中从ThreadLocal中获取对应的request来填充就可以了。当然，我们可以手动实现这个功能，但是，Spring MVC已经将这个功能实现了，我们可以通过**org.springframework.web.context.request.RequestContextHolder#getRequestAttributes**方法获取到当前请求中的request对象（**其内部底层也是使用ThreadLocal实现的**），然后转成HttpServletRequest对象，再从HttpServletRequest中获取对应的请求头信息并填充到feignClient构建出来的request即可。
+
+  详细代码如下：
+
+  ```java
+  public class ConfigurableFeignConfig implements RequestInterceptor {
+  
+      @Override
+      public void apply(RequestTemplate requestTemplate) {
+          ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+          if (null != attributes) {
+              HttpServletRequest request = attributes.getRequest();
+              if (null != request) {
+                  requestTemplate.header("Cookie", request.getHeader("Cookie"));
+              }
+          }
+      }
+  }
+  ```
+
+##### 25.2 异步请求的feign client配置请求头丢失
+
+* 有了上述feign client配置的原理后，如果异步使用feign client的话，这无疑同样会出现丢失请求头的信息。因为ThreadLocal中的数据只有当前线程才能功能。要解决这个问题也很简单，就是在异步编排之前，从spring容器中获取当前请求的request，然后在异步编排时，在异步线程中将request填充进去。
