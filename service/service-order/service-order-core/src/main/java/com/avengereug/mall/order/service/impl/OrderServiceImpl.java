@@ -60,7 +60,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     @Override
-    public OrderConfirmVo confirmOrder() {
+    public OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException {
         MemberResponseVo currentUser = LoginInterceptor.getCurrentUser();
 
         OrderConfirmVo orderConfirmVo = new OrderConfirmVo();
@@ -100,13 +100,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         // TODO 5、防重令牌
 
-        try {
-            log.info("等待异步编排中。。。。");
-            CompletableFuture.allOf(receiveAddressFuture, cartFuture).get();
-        } catch (Exception e) {
-            log.info("异步编排发生异常，错误信息: {}", e.getMessage());
-            e.printStackTrace();
-        }
+        log.info("等待异步编排中。。。。");
+        CompletableFuture.allOf(receiveAddressFuture, cartFuture).get();
 
         return orderConfirmVo;
     }

@@ -7,6 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.concurrent.ExecutionException;
+
 @Controller("orderWebController")
 public class OrderController {
 
@@ -14,7 +16,7 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping("/toTrade")
-    public String toTrade(Model model) {
+    public String toTrade(Model model) throws ExecutionException, InterruptedException {
         OrderConfirmVo orderConfirmVo = orderService.confirmOrder();
         model.addAttribute("confirmOrderData", orderConfirmVo);
 
