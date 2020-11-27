@@ -2,6 +2,7 @@ package com.avengereug.mall.order.service.impl;
 
 import com.avengereug.mall.cart.client.CartClient;
 import com.avengereug.mall.cart.vo.CartItemVo;
+import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.member.entity.MemberReceiveAddressEntity;
 import com.avengereug.mall.member.feign.MemberReceiveAddressClient;
 import com.avengereug.mall.member.vo.MemberResponseVo;
@@ -9,11 +10,13 @@ import com.avengereug.mall.order.interceptor.LoginInterceptor;
 import com.avengereug.mall.order.vo.MemberAddressVo;
 import com.avengereug.mall.order.vo.OrderConfirmVo;
 import com.avengereug.mall.order.vo.OrderItemVo;
+import com.avengereug.mall.warehouse.feign.WareSkuClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -49,6 +52,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 
+    @Autowired
+    private WareSkuClient wareSkuClient;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<OrderEntity> page = this.page(
@@ -80,7 +86,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }, threadPoolExecutor);
 
 
-        CompletableFuture cartFuture = CompletableFuture.runAsync(() -> {
+        CompletableFuture cartFuture = CompletableFuture.supplyAsync(() -> {
             RequestContextHolder.setRequestAttributes(servletRequestAttributes);
             // 2、获取当前用户的购物车信息
             List<CartItemVo> currentCartItems = cartClient.getCurrentCartItems();
@@ -90,7 +96,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 return orderItemVo;
             }).collect(Collectors.toList());
             orderConfirmVo.setItems(orderItemVos);
-        }, threadPoolExecutor);
+            return orderItemVos;
+        }, threadPoolExecutor).thenAcceptAsync(items -> {
+            // 设置每个商品的库存
+            List<Long> collect = items.stream().map(item -> item.getSkuId()).collect(Collectors.toList());
+            RPCResult<Map<Long, Boolean>> mapRPCResult = wareSkuClient.innerHasStock(collect);
+            orderConfirmVo.setStocks(mapRPCResult.getResult());
+        });
 
 
         // 3、获取用户积分
