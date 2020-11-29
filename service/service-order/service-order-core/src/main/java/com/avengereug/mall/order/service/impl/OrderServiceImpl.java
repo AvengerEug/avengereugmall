@@ -2,23 +2,23 @@ package com.avengereug.mall.order.service.impl;
 
 import com.avengereug.mall.cart.client.CartClient;
 import com.avengereug.mall.cart.vo.CartItemVo;
+import com.avengereug.mall.common.constants.OrderConstants;
 import com.avengereug.mall.common.utils.RPCResult;
 import com.avengereug.mall.member.entity.MemberReceiveAddressEntity;
 import com.avengereug.mall.member.feign.MemberReceiveAddressClient;
 import com.avengereug.mall.member.vo.MemberResponseVo;
 import com.avengereug.mall.order.interceptor.LoginInterceptor;
-import com.avengereug.mall.order.vo.MemberAddressVo;
-import com.avengereug.mall.order.vo.OrderConfirmVo;
-import com.avengereug.mall.order.vo.OrderItemVo;
+import com.avengereug.mall.order.vo.*;
 import com.avengereug.mall.warehouse.feign.WareSkuClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -54,6 +54,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     private WareSkuClient wareSkuClient;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -110,11 +113,31 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         // 4、其他数据在vo中自动计算(订单总额 & 应付金额)
 
-        // TODO 5、防重令牌
+        // 5、防重令牌
+        String uuid = UUID.randomUUID().toString();
+        // 在redis中添加一个下订单的token
+        stringRedisTemplate.opsForValue().set(OrderConstants.ORDER_TOKEN_PREFIX + currentUser.getId(), uuid);
+        orderConfirmVo.setOrderToken(uuid);
+
 
         log.info("等待异步编排中。。。。");
         CompletableFuture.allOf(receiveAddressFuture, cartFuture).get();
 
         return orderConfirmVo;
+    }
+
+    @Override
+    public SubmitOrderResponseVo submitOrder(OrderSubmitVo vo) {
+        /**
+         * TODO
+         * 1、验证幂等性
+         * 2、锁定库存
+         * 3、验证价格 --> 防止价格被商家修改时有提示
+         * ...
+         */
+
+
+
+        return null;
     }
 }

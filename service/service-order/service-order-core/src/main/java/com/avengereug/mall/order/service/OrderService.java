@@ -1,6 +1,8 @@
 package com.avengereug.mall.order.service;
 
 import com.avengereug.mall.order.vo.OrderConfirmVo;
+import com.avengereug.mall.order.vo.OrderSubmitVo;
+import com.avengereug.mall.order.vo.SubmitOrderResponseVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.order.entity.OrderEntity;
@@ -25,5 +27,6 @@ public interface OrderService extends IService<OrderEntity> {
      */
     OrderConfirmVo confirmOrder() throws ExecutionException, InterruptedException;
 
+    SubmitOrderResponseVo submitOrder(OrderSubmitVo vo);
 }
 
