@@ -22,6 +22,12 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.avengereug.mall</groupId>
+            <artifactId>service-order-common</artifactId>
+            <version>0.0.1</version>
+        </dependency>
     </dependencies>
 
 </project>

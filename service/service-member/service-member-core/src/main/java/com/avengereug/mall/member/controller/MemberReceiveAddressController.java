@@ -93,4 +93,9 @@ public class MemberReceiveAddressController {
         return memberReceiveAddressService.findAddressByMemberId(memberId);
     }
 
+    @GetMapping("/{addrId}")
+    public MemberReceiveAddressEntity getById(@PathVariable("addrId")Long addrId) {
+        return memberReceiveAddressService.getById(addrId);
+    }
+
 }

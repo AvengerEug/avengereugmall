@@ -14,6 +14,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
         "com.avengereug.mall.member.feign",
         "com.avengereug.mall.cart.client",
         "com.avengereug.mall.warehouse.feign",
+        "com.avengereug.mall.product.feign"
 })
 @EnableFeignConfig
 public class ServiceOrderApplication {

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.avengereug.mall.product.entity.BrandEntity;
 import com.avengereug.mall.product.entity.CategoryEntity;
+import com.avengereug.mall.product.entity.SkuInfoEntity;
 import com.avengereug.mall.product.service.BrandService;
 import com.avengereug.mall.product.service.CategoryService;
 import com.avengereug.mall.product.vo.SpuInfoSearchVO;
@@ -129,6 +130,12 @@ public class SpuInfoController {
         spuInfoService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
+    }
+
+    @GetMapping("/skuId")
+    public SpuInfoEntity queryBySkuId(@RequestParam("skuId") Long skuId) {
+
+        return spuInfoService.queryBySkuId(skuId);
     }
 
 }

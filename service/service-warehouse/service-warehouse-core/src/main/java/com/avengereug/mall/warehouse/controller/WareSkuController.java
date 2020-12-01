@@ -4,7 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.avengereug.mall.common.Enum.BusinessCodeEnum;
+import com.avengereug.mall.common.exception.NoStockException;
 import com.avengereug.mall.common.utils.RPCResult;
+import com.avengereug.mall.order.vo.WareSkuLockVo;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,6 +32,7 @@ import com.avengereug.mall.common.utils.R;
  */
 @RestController
 @RequestMapping("warehouse/waresku")
+@Slf4j
 public class WareSkuController {
 
     @Autowired
@@ -92,6 +98,17 @@ public class WareSkuController {
         Map<Long, Boolean> stockInfo = wareSkuService.stockInfo(skuIds);
 
         return new RPCResult<Map<Long, Boolean>>().ok(stockInfo);
+    }
+
+    @PostMapping(value = "/lock/order")
+    public Boolean orderLockStock(@RequestBody WareSkuLockVo vo) {
+        try {
+            boolean lockStock = wareSkuService.orderLockStock(vo);
+            return lockStock;
+        } catch (NoStockException e) {
+            log.error(BusinessCodeEnum.NO_STOCK_EXCEPTION.getMsg(), ExceptionUtils.getStackTrace(e));
+            return false;
+        }
     }
 
 }

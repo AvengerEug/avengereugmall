@@ -1,17 +1,11 @@
 package com.avengereug.mall.order.vo;
 
+import com.avengereug.mall.warehouse.vo.MemberAddressVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-
-/**
- * @Description: 订单确认页需要用的数据
- * @Created: with IntelliJ IDEA.
- * @author: 夏沫止水
- * @createTime: 2020-07-02 18:59
- **/
 
 @Data
 public class OrderConfirmVo {

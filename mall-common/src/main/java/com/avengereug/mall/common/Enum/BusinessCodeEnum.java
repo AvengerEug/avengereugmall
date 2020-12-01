@@ -36,7 +36,14 @@ public enum BusinessCodeEnum {
      */
     USER_EXIST_EXCEPTION(16001,"存在相同的用户"),
     PHONE_EXIST_EXCEPTION(16002,"存在相同的手机号"),
+
+    /**
+     * 购物车服务
+     */
+    NO_STOCK_EXCEPTION(17001,"商品库存不足"),
+
     ;
+
 
     private int code;
     private String msg;

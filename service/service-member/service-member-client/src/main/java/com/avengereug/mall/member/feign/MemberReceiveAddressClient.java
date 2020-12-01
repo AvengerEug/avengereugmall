@@ -15,4 +15,6 @@ public interface MemberReceiveAddressClient {
     @GetMapping("/{memberId}/address")
     List<MemberReceiveAddressEntity> getAddress(@PathVariable("memberId") Long memberId);
 
+    @GetMapping("/{addrId}")
+    MemberReceiveAddressEntity getById(@PathVariable("addrId")Long addrId);
 }

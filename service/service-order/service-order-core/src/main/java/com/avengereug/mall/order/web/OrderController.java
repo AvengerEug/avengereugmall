@@ -40,16 +40,16 @@ public class OrderController {
                 //成功
                 model.addAttribute("submitOrderResp",responseVo);
                 return "pay";
-            } else {
-                String msg = "下单失败";
-                switch (responseVo.getCode()) {
-                    case 1: msg += "令牌订单信息过期，请刷新再次提交"; break;
-                    case 2: msg += "订单商品价格发生变化，请确认后再次提交"; break;
-                    case 3: msg += "库存锁定失败，商品库存不足"; break;
-                }
-                attributes.addFlashAttribute("msg",msg);
-                return "redirect:http://order.avengereugmall.com/toTrade";
             }
+
+            String msg = "下单失败";
+            switch (responseVo.getCode()) {
+                case 1: msg += "令牌订单信息过期，请刷新再次提交"; break;
+                case 2: msg += "订单商品价格发生变化，请确认后再次提交"; break;
+                case 3: msg += "库存锁定失败，商品库存不足"; break;
+            }
+            attributes.addFlashAttribute("msg", msg);
+            return "redirect:http://order.avengereugmall.com/toTrade";
         } catch (Exception e) {
             if (e instanceof NoStockException) {
                 String message = e.getMessage();

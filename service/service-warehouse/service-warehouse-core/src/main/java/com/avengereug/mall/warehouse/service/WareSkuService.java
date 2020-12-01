@@ -1,5 +1,6 @@
 package com.avengereug.mall.warehouse.service;
 
+import com.avengereug.mall.order.vo.WareSkuLockVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.avengereug.mall.common.utils.PageUtils;
 import com.avengereug.mall.warehouse.entity.WareSkuEntity;
@@ -22,5 +23,6 @@ public interface WareSkuService extends IService<WareSkuEntity> {
 
     Map<Long, Boolean> stockInfo(List<Long> skuIds);
 
+    boolean orderLockStock(WareSkuLockVo vo);
 }
 

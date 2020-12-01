@@ -1,4 +1,4 @@
-package com.avengereug.mall.order.vo;
+package com.avengereug.mall.warehouse.vo;
 
 import lombok.Data;
 
